@@ -324,6 +324,52 @@ label.checkbox input {
   font-size: 0.9rem;
 }
 
+/* ---------- Filters ---------- */
+
+.filters {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 0 12px;
+  padding-bottom: 2px;
+}
+.chip {
+  flex: none;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.85rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.chip:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.folder-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.folder-picker select,
+.folder-picker input {
+  width: auto;
+  min-height: 32px;
+  padding: 0.2em 0.6em;
+}
+
 /* ---------- Article list ---------- */
 
 .article-list {

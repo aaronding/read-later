@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { revokeTokenAction, updateSettingsAction } from "@/app/actions";
+import { deleteFolderAction, revokeTokenAction, updateSettingsAction } from "@/app/actions";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AndroidGuide, ChromeGuide, ShortcutGuide } from "@/components/connect-guides";
 import { LocalDate } from "@/components/local-date";
@@ -10,6 +10,7 @@ import { appUrl } from "@/config/env";
 import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
+import { listFolders } from "@/lib/folders";
 import { getSettings } from "@/lib/settings";
 import { listApiTokens } from "@/lib/tokens";
 
@@ -18,7 +19,11 @@ export const metadata: Metadata = { title: "Settings" };
 export default async function SettingsPage() {
   const user = await requireUser("/settings");
   const db = getDb();
-  const [settings, tokens] = await Promise.all([getSettings(db, user.id), listApiTokens(db, user.id)]);
+  const [settings, tokens, folders] = await Promise.all([
+    getSettings(db, user.id),
+    listApiTokens(db, user.id),
+    listFolders(db, user.id),
+  ]);
   const serverUrl = appUrl();
 
   return (
@@ -104,6 +109,40 @@ export default async function SettingsPage() {
       <section className="card" aria-labelledby="android-heading">
         <h2 id="android-heading">Save from Android</h2>
         <AndroidGuide />
+      </section>
+
+      <section className="card" aria-labelledby="folders-heading">
+        <h2 id="folders-heading">Folders</h2>
+        {folders.length === 0 ? (
+          <p className="muted">No folders yet. Choose or create one at the bottom of an article.</p>
+        ) : (
+          folders.map((folder) => (
+            <div key={folder.id} className="token-row">
+              <span>
+                <strong>{folder.name}</strong> <span className="muted small">· {folder.count} article{folder.count === 1 ? "" : "s"}</span>
+              </span>
+              <form action={deleteFolderAction}>
+                <input type="hidden" name="folderId" value={folder.id} />
+                <ConfirmButton className="button small" message={`Delete the folder “${folder.name}”? Its articles stay in your library.`}>
+                  Delete
+                </ConfirmButton>
+              </form>
+            </div>
+          ))
+        )}
+      </section>
+
+      <section className="card" aria-labelledby="export-heading">
+        <h2 id="export-heading">Export</h2>
+        <p className="muted">Everything you saved, with the article text and every summary.</p>
+        <div className="card-actions">
+          <a className="button" href="/api/export?format=json" download>
+            Download JSON
+          </a>
+          <a className="button" href="/api/export?format=markdown" download>
+            Download Markdown
+          </a>
+        </div>
       </section>
 
       <section className="card" aria-labelledby="account-heading">

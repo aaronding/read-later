@@ -7,11 +7,13 @@ import { AutoRefresh } from "@/components/auto-refresh";
 import { LocalDate } from "@/components/local-date";
 import { MarkOpened } from "@/components/mark-opened";
 import { ConfirmButton } from "@/components/confirm-button";
+import { FolderPicker } from "@/components/folder-picker";
 import { SubmitButton } from "@/components/submit-button";
 import { SummaryCard } from "@/components/summary-card";
 import { SuggestedTags } from "@/components/suggested-tags";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
+import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
 
 type Props = { params: Promise<{ id: string }> };
@@ -25,7 +27,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ReaderPage({ params }: Props) {
   const { id } = await params;
   const user = await requireUser(`/articles/${id}`);
-  const found = await getArticle(getDb(), user.id, id);
+  const db = getDb();
+  const [found, folders] = await Promise.all([getArticle(db, user.id, id), listFolders(db, user.id)]);
   if (!found) notFound();
   const { article } = found;
   const summary = shownSummary(article, found.summaries);
@@ -122,7 +125,9 @@ export default async function ReaderPage({ params }: Props) {
         )
       )}
 
-      <footer className="reader-toolbar" style={{ marginTop: 32 }}>
+      <FolderPicker articleId={article.id} current={article.folderId} folders={folders} />
+
+      <footer className="reader-toolbar" style={{ marginTop: 16 }}>
         <span className="muted small">
           Saved <LocalDate value={article.savedAt} /> · <a href={article.url}>{new URL(article.url).hostname}</a>
         </span>

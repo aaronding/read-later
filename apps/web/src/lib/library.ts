@@ -22,6 +22,7 @@ export interface ArticleListItem {
   status: Article["status"];
   error: string | null;
   previewOnly: boolean;
+  folderName: string | null;
   tldr: string | null;
   summaryStatus: Summary["status"] | null;
 }
@@ -71,15 +72,31 @@ const shownSummaryStatus = sql<Summary["status"] | null>`(
 
 export const PAGE_SIZE = 50;
 
+const folderName = sql<string | null>`(SELECT f.name FROM folders f WHERE f.id = "articles"."folder_id")`;
+
+export interface ListOptions {
+  view: LibraryView;
+  query?: string;
+  page?: number;
+  folderId?: string;
+  tag?: string;
+}
+
 export async function listArticles(
   db: Db,
   userId: string,
-  { view, query, page = 0 }: { view: LibraryView; query?: string; page?: number },
+  { view, query, page = 0, folderId, tag }: ListOptions,
 ): Promise<{ items: ArticleListItem[]; hasMore: boolean }> {
   const filters: (SQL | undefined)[] = [eq(articles.userId, userId)];
   if (view === "inbox") filters.push(isNull(articles.archivedAt));
   if (view === "favorites") filters.push(eq(articles.favorite, true));
   if (view === "archive") filters.push(isNotNull(articles.archivedAt));
+  if (folderId && /^[0-9a-f-]{36}$/i.test(folderId)) filters.push(eq(articles.folderId, folderId));
+  if (tag) {
+    filters.push(sql`EXISTS (
+      SELECT 1 FROM article_tags t JOIN tags g ON g.id = t.tag_id
+      WHERE t.article_id = "articles"."id" AND lower(g.name) = lower(${tag}))`);
+  }
   const search = query?.trim() ? searchCondition(query) : undefined;
   if (search) filters.push(search.where);
 
@@ -103,6 +120,7 @@ export async function listArticles(
       status: articles.status,
       error: articles.error,
       previewOnly: articles.previewOnly,
+      folderName,
       tldr: shownTldr,
       summaryStatus: shownSummaryStatus,
     })

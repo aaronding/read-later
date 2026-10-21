@@ -21,6 +21,7 @@ import {
 import { SaveError, saveArticle } from "@/lib/save";
 import { updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
+import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
 import { parsePastedUrl } from "@/lib/urls";
 
@@ -171,5 +172,23 @@ export async function removeTagAction(formData: FormData) {
   const tagId = String(formData.get("tagId") ?? "");
   if (!UUID.test(tagId)) throw new Error("Invalid tag id.");
   await removeTag(getDb(), user.id, articleId(formData), tagId);
+  refresh();
+}
+
+export async function moveToFolderAction(formData: FormData) {
+  const user = await requireUser();
+  const db = getDb();
+  const newName = String(formData.get("newFolder") ?? "").trim();
+  const chosen = String(formData.get("folderId") ?? "");
+  const folderId = newName ? await findOrCreateFolder(db, user.id, newName) : UUID.test(chosen) ? chosen : null;
+  await setArticleFolder(db, user.id, articleId(formData), folderId);
+  refresh();
+}
+
+export async function deleteFolderAction(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("folderId") ?? "");
+  if (!UUID.test(id)) throw new Error("Invalid folder id.");
+  await deleteFolder(getDb(), user.id, id);
   refresh();
 }

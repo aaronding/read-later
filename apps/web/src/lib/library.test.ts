@@ -178,3 +178,31 @@ describe("search inside summaries", () => {
     expect(items.map((item) => item.id)).toEqual([ids.trams]);
   });
 });
+
+describe("folders and tag filters", () => {
+  it("files an article in one folder and filters by folder and tag", async () => {
+    const { findOrCreateFolder, listFolders, setArticleFolder, deleteFolder } = await import("./folders");
+    const { addTag } = await import("./tags");
+    const reading = await findOrCreateFolder(db, "user-1", "  Long   reads ");
+    expect(await findOrCreateFolder(db, "user-1", "long reads")).toBe(reading); // same name, any case
+    await setArticleFolder(db, "user-1", ids.orchards!, reading);
+    await addTag(db, "user-1", ids.trams!, "Transport");
+    await addTag(db, "user-1", ids.trams!, "transport"); // reused, not duplicated
+
+    const inFolder = await listArticles(db, "user-1", { view: "inbox", folderId: reading! });
+    expect(inFolder.items.map((item) => [item.id, item.folderName])).toEqual([[ids.orchards, "Long reads"]]);
+    const tagged = await listArticles(db, "user-1", { view: "inbox", tag: "TRANSPORT" });
+    expect(tagged.items.map((item) => item.id)).toEqual([ids.trams]);
+    expect(await listFolders(db, "user-1")).toEqual([{ id: reading, name: "Long reads", count: 1 }]);
+
+    // Another user's folder can't be used, and isn't listed.
+    const theirs = await findOrCreateFolder(db, "user-2", "Theirs");
+    await setArticleFolder(db, "user-1", ids.trams!, theirs);
+    expect((await getArticle(db, "user-1", ids.trams!))?.article.folderId).toBeNull();
+    expect((await listFolders(db, "user-1")).map((folder) => folder.name)).toEqual(["Long reads"]);
+
+    // Deleting a folder keeps its articles.
+    await deleteFolder(db, "user-1", reading!);
+    expect((await getArticle(db, "user-1", ids.orchards!))?.article.folderId).toBeNull();
+  });
+});

@@ -28,6 +28,7 @@ export function ArticleCard({ item }: { item: ArticleListItem }) {
         </span>
         {item.previewOnly && <span className="badge warn">Preview only</span>}
         {item.favorite && <span className="badge accent">★ Favorite</span>}
+        {item.folderName && <span className="badge">{item.folderName}</span>}
       </div>
       {item.tldr && <p className="tldr">{item.tldr}</p>}
       <ArticleStatus

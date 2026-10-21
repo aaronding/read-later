@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
+import { listFolders } from "@/lib/folders";
 import { listArticles, type LibraryView } from "@/lib/library";
+import { allTags } from "@/lib/tags";
 import { AddUrlForm } from "./add-url-form";
 import { ArticleCard } from "./article-card";
 import { isBusy } from "./article-status";
@@ -26,7 +28,17 @@ export async function LibraryPage({
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.slice(0, 200) : "";
   const page = Math.max(0, Number.parseInt(typeof params.page === "string" ? params.page : "0", 10) || 0);
-  const { items, hasMore } = await listArticles(getDb(), user.id, { view, query, page });
+  const folderId = typeof params.folder === "string" ? params.folder : undefined;
+  const tag = typeof params.tag === "string" ? params.tag.slice(0, 60) : undefined;
+  const db = getDb();
+  const [{ items, hasMore }, folders, tags] = await Promise.all([
+    listArticles(db, user.id, { view, query, page, folderId, tag }),
+    listFolders(db, user.id),
+    allTags(db, user.id),
+  ]);
+  const folder = folders.find((entry) => entry.id === folderId);
+  const keep = { ...(query ? { q: query } : {}), ...(folder ? { folder: folder.id } : {}), ...(tag ? { tag } : {}) };
+  const filtered = Boolean(query || folder || tag);
   const busy = items.some((item) => isBusy(item.status, item.summaryStatus)) || Boolean(params.saved);
 
   return (
@@ -40,17 +52,34 @@ export async function LibraryPage({
         </p>
       )}
       {params.shared === "nolink" && <p className="notice error">No link was found in what you shared.</p>}
-      {view === "inbox" && !query && <AddUrlForm />}
+      {view === "inbox" && !filtered && <AddUrlForm />}
       <div className="page-title">
         <h1>{query ? `Search ${TITLES[view]}` : TITLES[view]}</h1>
-        {query && (
+        {filtered && (
           <span className="muted small">
-            Results for “{query}” · <Link href={`/${view}`}>Clear</Link>
+            {[query && `“${query}”`, folder && `in ${folder.name}`, tag && `tagged #${tag}`].filter(Boolean).join(", ")} ·{" "}
+            <Link href={`/${view}`}>Clear</Link>
           </span>
         )}
       </div>
+      {(folders.length > 0 || tags.length > 0) && (
+        <nav className="filters" aria-label="Folders and tags">
+          {folders.map((entry) => (
+            <Link key={entry.id} className={`chip${entry.id === folder?.id ? " active" : ""}`} href={{ pathname: `/${view}`, query: { folder: entry.id } }}>
+              {entry.name} <span className="muted">{entry.count}</span>
+            </Link>
+          ))}
+          {tags
+            .filter((entry) => entry.count > 0)
+            .map((entry) => (
+              <Link key={entry.id} className={`chip${entry.name.toLowerCase() === tag?.toLowerCase() ? " active" : ""}`} href={{ pathname: `/${view}`, query: { tag: entry.name } }}>
+                #{entry.name}
+              </Link>
+            ))}
+        </nav>
+      )}
       {items.length === 0 ? (
-        <p className="empty">{query ? "No articles match that search." : EMPTY[view]}</p>
+        <p className="empty">{filtered ? "No articles match." : EMPTY[view]}</p>
       ) : (
         <ul className="article-list">
           {items.map((item) => (
@@ -61,12 +90,12 @@ export async function LibraryPage({
       {(hasMore || page > 0) && (
         <nav className="pager" aria-label="Pages">
           {page > 0 && (
-            <Link className="button" href={{ pathname: `/${view}`, query: { ...(query ? { q: query } : {}), page: page - 1 } }}>
+            <Link className="button" href={{ pathname: `/${view}`, query: { ...keep, page: page - 1 } }}>
               Newer
             </Link>
           )}
           {hasMore && (
-            <Link className="button" href={{ pathname: `/${view}`, query: { ...(query ? { q: query } : {}), page: page + 1 } }}>
+            <Link className="button" href={{ pathname: `/${view}`, query: { ...keep, page: page + 1 } }}>
               Older
             </Link>
           )}
