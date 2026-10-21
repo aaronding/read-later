@@ -14,6 +14,8 @@ import { safeFetch } from "@/lib/net/safe-fetch";
 import { updateSettings } from "@/lib/settings";
 import { setAnthropicClient } from "@/lib/summarize/summarize";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
+import { SHORTCUT_SCRIPT } from "@/lib/shortcut";
+import { JSDOM } from "jsdom";
 import { createTestDb, createTestUser } from "./db";
 
 // Server-side downloads are replaced so no test touches the network.
@@ -258,6 +260,34 @@ describe("save -> job -> summary", () => {
   });
 });
 
+describe("the Apple Shortcut", () => {
+  it("sends a payload the save API accepts", async () => {
+    // Run the Shortcut's script the way "Run JavaScript on Web Page" does.
+    const page = new JSDOM(fixture("news-article.html"), { url: `${ARTICLE_URL}?utm_source=share` });
+    let result = "";
+    new Function("document", "completion", SHORTCUT_SCRIPT)(page.window.document, (value: string) => {
+      result = value;
+    });
+    const payload = JSON.parse(result);
+    expect(payload).toMatchObject({ url: `${ARTICLE_URL}?utm_source=share`, source: "shortcut" });
+    expect(payload.html).not.toContain("<script");
+
+    // "Get Contents of URL" sends the script's text as a file body.
+    const response = await POST(
+      new Request("http://localhost/api/save", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}`, "content-type": "application/octet-stream" },
+        body: result,
+      }),
+    );
+    const body = await response.json();
+    expect(response.status).toBe(201);
+    expect(body.message).toBe("Saved to Read Later");
+    await processJobs({ db });
+    expect(await articleById(body.id)).toMatchObject({ saveSource: "shortcut", contentSource: "client", previewOnly: false });
+  });
+});
+
 describe("duplicates and previews", () => {
   it("moves a re-saved article back to the top of the Inbox instead of saving it twice", async () => {
     const first = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
@@ -398,6 +428,29 @@ describe("authentication and input", () => {
       GET(new Request("http://localhost/api/save", { headers: { authorization } }));
     expect((await check(`Bearer ${token}`)).status).toBe(200);
     expect((await check("Bearer rl_nope")).status).toBe(401);
+  });
+
+  it("refuses bodies over the limit, even without a Content-Length", async () => {
+    process.env.SAVE_MAX_HTML_BYTES = "1000";
+    try {
+      const huge = JSON.stringify({ url: ARTICLE_URL, html: "x".repeat(200_000) });
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode(huge));
+          controller.close();
+        },
+      });
+      const request = new Request("http://localhost/api/save", {
+        method: "POST",
+        headers: { authorization: `Bearer ${token}` },
+        body: stream,
+        duplex: "half",
+      } as RequestInit);
+      expect(request.headers.get("content-length")).toBeNull();
+      expect((await POST(request)).status).toBe(413);
+    } finally {
+      delete process.env.SAVE_MAX_HTML_BYTES;
+    }
   });
 
   it("answers the CORS preflight", () => {

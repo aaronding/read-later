@@ -1,5 +1,5 @@
 # A tiny Cloudflare Worker that runs on a schedule and asks the web app to
-# process any jobs that after() didn't finish. Deploy with `pnpm deploy` from
+# process any jobs that after() didn't finish. Deploy with `pnpm run deploy` from
 # this folder after `wrangler login` (see docs/setup/cloudflare-worker-cron.md).
 name = "read-later-cron"
 main = "src/index.ts"
@@ -8,6 +8,10 @@ compatibility_date = "2026-10-01"
 # No public *.workers.dev address: the Worker only runs on its schedule.
 workers_dev = false
 preview_urls = false
+
+# Workers Logs, so each run's result shows in the dashboard.
+[observability]
+enabled = true
 
 [triggers]
 # Every 5 minutes.

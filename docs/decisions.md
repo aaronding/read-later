@@ -51,3 +51,36 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 ## Dependencies
 
 32. **Every dependency must have been published for at least 7 days** (`minimumReleaseAge` in `pnpm-workspace.yaml`, which also covers indirect dependencies). Compromised npm releases are usually caught within days. When the project was set up, this meant using the newest versions at least a week old, for example Anthropic SDK 0.133 instead of 1.0.0 (released that day) and Better Auth 1.7.7 instead of 1.7.12. The cost is getting fixes a week later; a security fix that can't wait can be pinned on purpose and noted here.
+
+## Web app
+
+33. **Plain CSS** in one stylesheet (`apps/web/src/app/globals.css`) with CSS variables for the light and dark themes, rather than a CSS framework. Dark mode follows the device setting.
+34. **Articles are marked read when the reader page has loaded in the browser**, not during server rendering, so Next.js link prefetching can't mark an article read that was never opened.
+35. **Triage shows unread Inbox articles, newest first.** "Later" keeps the article in the Inbox and moves it to the back of the triage queue (`articles.triaged_at`). "Read now" opens the reader.
+36. **Polling:** pages with work in progress refresh themselves every 3 seconds while visible, and stop after 5 minutes so a job that is waiting out its retry delay doesn't poll forever.
+37. **Search** uses Postgres full-text search with the language-neutral `simple` configuration, because saved articles come in many languages. Each word matches as a prefix ("orchard" finds "orchards"); there is no stemming. Postgres doesn't split Chinese or Japanese text into words, so queries in those scripts also match as substrings of the title, text and summary.
+38. **The header search searches the list you are looking at** (Inbox, Favorites or Archive); from other pages it searches the Inbox.
+39. **The paste box accepts bare addresses** such as `example.com/story` and reads them as `https://`.
+40. **Tags are case-insensitive per user and reused as written.** Removing a tag from its last article deletes the tag, so it stops steering Claude's suggestions. Folders are flat, and deleting one keeps its articles.
+41. **Export** produces one JSON file (all fields, text, sanitized HTML, every summary with its tokens and cost) or one Markdown file (metadata, the shown summary and the plain text of each article).
+42. **The reader drops a heading at the top of the article that repeats the title**, since the title is already shown above. Readability only does this when the heading matches its own guess at the title, which may still include the site name.
+43. **Security headers:** a Content Security Policy that blocks scripts from saved articles, frames and plugins (images from any host are allowed, because articles use them), plus `nosniff`, `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`.
+
+## Saving from devices
+
+44. **Android's share target uses GET** (`/share?url&text&title`), handled by a route handler that saves and then redirects to the Inbox. Sign-in cookies are reliably sent on a top-level GET; with POST they may not be, depending on the browser's SameSite handling of share-target navigations. The cost is that a link to `/share?url=…` could make a signed-in owner save a page. That is harmless, and the download is protected by the address rules.
+45. **Two Apple Shortcuts instead of one.** One for Safari, which runs JavaScript to send the whole page; one for other apps, which sends the link. Shortcuts has no reliable way for one shortcut to tell a Safari page from a plain URL.
+46. **The extension relies on CORS rather than host permissions** to call the server, so it asks for no access to any website. `GET /api/save` with a token answers "Connected" so the options page can check the setup.
+47. **If a page's HTML is too large to send** (over the 4 MB limit), the extension saves the link alone and says so.
+
+## Infrastructure
+
+48. **One Docker image for the web app, the worker and the migrations**, chosen by the command (`web`, `worker`, `migrate`). It includes development dependencies (the worker runs TypeScript through `tsx`). The image is larger, about 1.3 GB, but it is simpler than a separate build for each role. The app runs as the unprivileged `node` user.
+49. **Compose starts `cloudflared` only with the `tunnel` profile** (`COMPOSE_PROFILES=tunnel` in the server's `.env`), so the same file also works on a PC without a tunnel token. The web container listens on the server's `127.0.0.1:3000` only.
+50. **Postgres 17** in Compose and for backups, matching the Neon project. Neon's default for new projects became 18 in June 2026, so the Neon guide says to pick 17. 17 is the version PGlite (used by the tests) is built on, and moving data between Neon and the server stays a plain dump and restore.
+51. **Backups:** compressed `pg_dump` custom-format files in R2 under `daily/`. Deleting old copies is left to an R2 lifecycle rule (30 days is suggested). The GitHub Action skips with a notice until its secrets exist. On the one-server setup, `scripts/server-backup.sh` runs from the server's crontab instead, because GitHub can't reach a database with no open ports.
+52. **The cron Worker has no public URL** (`workers_dev = false`); it only runs on its schedule, every 5 minutes.
+53. **One `.env` at the repository root** configures the web app, the worker, the migrations and Compose. Variables already set in the environment take precedence.
+54. **`scripts/mock-claude.ts`** is a local stand-in for the Claude API, so the whole flow can be tried without an API key and without cost. It isn't used in production.
+55. **Line endings:** `.gitattributes` keeps LF endings for shell scripts and Docker files, so a Windows checkout still builds a working image.
+56. **`apps/web/AGENTS.md` is committed.** `next dev` writes it to point coding agents at the Next.js docs bundled in `node_modules`, and it re-creates the file whenever it's missing.

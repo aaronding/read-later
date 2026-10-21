@@ -6,6 +6,7 @@ import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 import { APP_NAME } from "@/config/app";
 import { appUrl, isEmailAllowed, requireEnv } from "@/config/env";
 import { getDb } from "@/db";
@@ -77,15 +78,15 @@ export function getAuth(): Auth {
 
 export type SessionUser = { id: string; email: string; name: string; image?: string | null };
 
-/** The signed-in, allowed user, or null. */
-export async function getCurrentUser(): Promise<SessionUser | null> {
+/** The signed-in, allowed user, or null. Looked up once per request. */
+export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   // headers() first: it marks the page as per-request before anything
   // touches the database (so `next build` doesn't try to prerender it).
   const requestHeaders = await headers();
   const session = await getAuth().api.getSession({ headers: requestHeaders });
   if (!session || !isEmailAllowed(session.user.email)) return null;
   return session.user;
-}
+});
 
 /** Use in pages and server actions: sends signed-out visitors to sign-in. */
 export async function requireUser(next?: string): Promise<SessionUser> {

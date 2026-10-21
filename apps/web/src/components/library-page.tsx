@@ -39,7 +39,7 @@ export async function LibraryPage({
   const folder = folders.find((entry) => entry.id === folderId);
   const keep = { ...(query ? { q: query } : {}), ...(folder ? { folder: folder.id } : {}), ...(tag ? { tag } : {}) };
   const filtered = Boolean(query || folder || tag);
-  const busy = items.some((item) => isBusy(item.status, item.summaryStatus)) || Boolean(params.saved);
+  const busy = items.some((item) => isBusy(item.status, item.summaryStatus));
 
   return (
     <>

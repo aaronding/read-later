@@ -28,6 +28,25 @@ const SaveBody = z.object({
   source: z.enum(["extension", "shortcut", "android", "web", "api"]).optional(),
 });
 
+/** Reads the body, refusing to buffer more than `maxBytes` whatever the headers say. */
+async function readLimitedText(request: Request, maxBytes: number): Promise<string | null> {
+  if (!request.body) return "";
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  return Buffer.concat(chunks).toString("utf8");
+}
+
 export function OPTIONS(): Response {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
@@ -48,16 +67,18 @@ export async function POST(request: Request): Promise<Response> {
     return reply(401, { ok: false, error: "Missing or invalid access token. Create one in Settings." });
   }
 
-  const declared = Number(request.headers.get("content-length"));
   // JSON escaping can make the body somewhat larger than the HTML itself.
-  if (Number.isFinite(declared) && declared > maxHtmlBytes() * 1.5 + 64 * 1024) {
+  const maxBodyBytes = Math.ceil(maxHtmlBytes() * 1.5) + 64 * 1024;
+  const declared = Number(request.headers.get("content-length"));
+  const text = Number.isFinite(declared) && declared > maxBodyBytes ? null : await readLimitedText(request, maxBodyBytes);
+  if (text === null) {
     return reply(413, { ok: false, error: "The page is too large to save." });
   }
 
   let body: z.infer<typeof SaveBody>;
   try {
     // Parsed whatever the Content-Type says; Shortcuts sometimes send text/plain.
-    body = SaveBody.parse(JSON.parse(await request.text()));
+    body = SaveBody.parse(JSON.parse(text));
   } catch {
     return reply(400, { ok: false, error: 'Send JSON like {"url": "https://..."}, optionally with "html" and "title".' });
   }

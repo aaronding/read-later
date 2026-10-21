@@ -39,13 +39,14 @@ export function ShortcutGuide({ saveUrl }: { saveUrl: string }) {
       <ul>
         <li>
           <strong>iPhone and iPad:</strong> Settings → Apps → Shortcuts → Advanced → turn on{" "}
-          <strong>Allow Running Scripts</strong>.
+          <strong>Allow Running Scripts</strong> (on iOS 17 and earlier: Settings → Shortcuts → Advanced).
         </li>
         <li>
           <strong>Mac:</strong> in the Shortcuts app, Shortcuts → Settings → Advanced → turn on{" "}
           <strong>Allow Running Scripts</strong>. If Safari still refuses to run the script, open Safari → Settings →
-          Advanced → turn on <strong>Show features for web developers</strong>, then in the Develop menu choose{" "}
-          <strong>Allow JavaScript from Apple Events</strong>.
+          Advanced → turn on <strong>Show features for web developers</strong>, then in Safari’s new{" "}
+          <strong>Developer</strong> settings tab turn on <strong>Allow JavaScript from Apple Events</strong>, and
+          restart Safari.
         </li>
         <li>Create an access token above for this device and keep it at hand.</li>
       </ul>
@@ -61,8 +62,8 @@ export function ShortcutGuide({ saveUrl }: { saveUrl: string }) {
           and leave only <strong>Safari web pages</strong> selected.
         </li>
         <li>
-          Add the action <strong>Run JavaScript on Web Page</strong>. It uses the Shortcut Input as the page. Replace its
-          script with this:
+          Add the action <strong>Run JavaScript on Web Page</strong> (on a Mac: <strong>Run JavaScript on Active Safari
+          Tab</strong>). On iPhone and iPad it uses the Shortcut Input as the page. Replace its script with this:
           <pre className="snippet">{SHORTCUT_SCRIPT}</pre>
           <CopyButton text={SHORTCUT_SCRIPT} label="Copy script" />
         </li>
