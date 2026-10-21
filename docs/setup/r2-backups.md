@@ -20,7 +20,7 @@ In the GitHub repository, open **Settings → Secrets and variables → Actions*
 
 | Secret | Value |
 | --- | --- |
-| `BACKUP_DATABASE_URL` | Neon's **direct** connection string (without `-pooler`) |
+| `BACKUP_DATABASE_URL` | Neon's **direct** connection string (without `-pooler`) for the `production` branch: `neon connection-string production`, or **Connect** with **Connection pooling** off |
 | `R2_ACCOUNT_ID` | your Cloudflare account ID |
 | `R2_BUCKET` | `read-later-backups` |
 | `R2_ACCESS_KEY_ID` | from step 2 |
@@ -43,6 +43,6 @@ GitHub only runs scheduled workflows from the default branch, so this works once
    ```
 
    Without Docker, the same `pg_restore` command comes with the PostgreSQL 17 command-line tools (on Windows, from the PostgreSQL installer).
-3. Point `DATABASE_URL` at the restored database.
+3. Point the app at the restored database: on Vercel, `DATABASE_URL` takes its **pooled** string. In your `.env`, set `DATABASE_URL` (pooled) and `DATABASE_URL_UNPOOLED` (direct), or for a Neon branch run `neon checkout <branch>`, which writes both. Set the `BACKUP_DATABASE_URL` secret to its direct string too, so the nightly backup follows it.
 
 Neon also keeps a short history of changes on its own (6 hours on the free plan), so for "I deleted something an hour ago" its restore feature is quicker.

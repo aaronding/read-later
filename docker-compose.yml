@@ -11,7 +11,9 @@ x-app: &app
   image: read-later:latest
   env_file: .env
   environment:
-    DATABASE_URL: postgres://readlater:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/readlater
+    DATABASE_URL: &database-url postgres://readlater:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/readlater
+    # The migrations prefer this one, so a Neon value left in .env can't send them to Neon.
+    DATABASE_URL_UNPOOLED: *database-url
   restart: unless-stopped
 
 services:

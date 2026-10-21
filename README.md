@@ -39,12 +39,12 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
    On Windows, `corepack enable` may need a terminal opened as administrator. If it fails, `npm install -g pnpm` works too.
 
 2. Get a database. Either:
-   - **a Neon branch** (easiest on Windows): create a `dev` branch of your Neon project and copy its connection string (see [docs/setup/neon.md](docs/setup/neon.md)), or
+   - **a Neon branch** (easiest on Windows): copy `.env.example` to `.env` first (step 3), then create a `dev` branch of your Neon project and run `neon checkout dev`, which writes its connection strings into `.env` (see [docs/setup/neon.md](docs/setup/neon.md)). Without a `.env`, the Neon CLI writes `.env.local` instead, which the app reads ahead of `.env`. Or:
    - **a local Postgres 17**, with a database named `readlater`.
 
 3. Copy `.env.example` to `.env` in the repository root and fill it in. For local work:
    - `APP_URL=http://localhost:3000`
-   - `DATABASE_URL`: the connection string from step 2.
+   - `DATABASE_URL`: the connection string from step 2. With Neon, `neon checkout` has already written it, together with the direct string the migrations use, `DATABASE_URL_UNPOOLED`.
    - `BETTER_AUTH_SECRET` and `JOBS_SECRET`: random strings. In PowerShell or any terminal:
      `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
    - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: a Google OAuth client that allows `http://localhost:3000` (see [docs/setup/google-oauth.md](docs/setup/google-oauth.md)).
@@ -74,7 +74,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 | `pnpm test` | Runs every package's tests |
 | `pnpm typecheck` | Type-checks every package |
 | `pnpm build` | Builds the web app for production |
-| `pnpm db:migrate` | Applies database migrations to `DATABASE_URL` |
+| `pnpm db:migrate` | Applies database migrations to `DATABASE_URL_UNPOOLED`, or to `DATABASE_URL` when that isn't set |
 | `pnpm db:generate` | Creates a new migration after changing `apps/web/src/db/schema.ts` |
 | `pnpm worker` | Runs the background worker loop (only needed on a server) |
 | `pnpm extension:build` | Builds the Chrome extension into `apps/extension/dist` |

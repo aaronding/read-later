@@ -8,32 +8,38 @@ Neon hosts the Postgres database on its free plan. Creating the account is free 
 2. Create a project:
    - **Name:** `read-later`
    - **Postgres version:** **17**. New projects default to 18, so expand **Postgres database** in the create dialog and pick 17. The one-server setup and the backups use 17 too, so moving later is a plain dump and restore.
-   - **Region:** the same region as your Vercel functions, so every page view isn't a trip across the country. Vercel's default is Washington, D.C. (`iad1`), which matches Neon's **AWS US East (N. Virginia)**. If you pick another region, set Vercel's function region to match (see [the Vercel guide](vercel.md)).
+   - **Region:** where your Vercel functions run, so every page view isn't a trip across the country. This app's project is in **AWS US East 2 (Ohio)**, and `apps/web/vercel.json` runs the functions next to it, in Cleveland (`cle1`). If you pick another region, change `regions` in that file to match (see [the Vercel guide](vercel.md)).
 
-## 2. Copy the connection strings
+## 2. Link the repository and get the connection strings
 
-Open the project dashboard and click **Connect**. Choose the `production` (or `main`) branch, the `neondb` database and its owner role. You need two versions of the string:
+The Neon CLI links the repository to the project and writes the connection strings into `.env`. Copy `.env.example` to `.env` first: without a `.env`, the CLI writes `.env.local` instead, which the app reads ahead of `.env`. Then, in the repository folder:
 
-- **Pooled** (the "Connection pooling" switch on; the host contains `-pooler`). Use this as `DATABASE_URL` on Vercel. Serverless functions open many short connections, and the pooler handles that.
-- **Direct** (the switch off). Use it for migrations from your PC and for the backups, because tools like `pg_dump` need a direct connection.
+```sh
+npm i -g neon
+neon login
+neon init -y --org-id <org id> --project-id <project id> --branch production --services postgres
+neon deploy
+```
 
-Both end with `?sslmode=require`; keep that.
+`neon login` opens the browser to sign in. `neon init` writes `.neon` (the project and branch it is linked to; git ignores it), keeps the repository's `neon.ts` and installs the Neon plugin for Claude Code. `neon deploy` applies `neon.ts` to the branch and writes three variables into `.env`:
+
+- `DATABASE_URL`: the **pooled** string (the host contains `-pooler`). The app uses it, locally and on Vercel. Serverless functions open many short connections, and the pooler handles that.
+- `DATABASE_URL_UNPOOLED`: the **direct** string. The migrations use it, and so do the backups, because tools like `pg_dump` need a direct connection.
+- `NEON_BRANCH`: the branch's name, for reference.
+
+Both strings carry `sslmode=require` and `channel_binding=require`; keep them. The app checks the server's certificate in full and uses channel binding.
+
+Without the CLI, open the project dashboard and click **Connect** instead. Choose the branch, the `neondb` database and its owner role, and copy the string with **Connection pooling** on as `DATABASE_URL` and with it off as `DATABASE_URL_UNPOOLED`.
 
 ## 3. Create the tables
 
-From your PC, in the repository folder, run the migrations with the **direct** string:
-
-```powershell
-# Windows PowerShell
-$env:DATABASE_URL="postgresql://…direct string…"; pnpm db:migrate
-```
+From your PC, in the repository folder:
 
 ```sh
-# macOS or Linux
-DATABASE_URL="postgresql://…direct string…" pnpm db:migrate
+pnpm db:migrate
 ```
 
-"Migrations applied." means the database is ready. Run this again whenever a new version of the app adds a migration (it's safe to run when there's nothing new).
+It connects with `DATABASE_URL_UNPOOLED`, or with `DATABASE_URL` when that isn't set. "Migrations applied." means the database is ready. Run this again whenever a new version of the app adds a migration (it's safe to run when there's nothing new).
 
 ## 4. A branch for development
 
@@ -42,9 +48,11 @@ Neon branches are instant copies of the database. Make one for working on your P
 1. In the project, open **Branches** and click **New branch**.
 2. Name it `dev`, with the main branch as its parent and **Current data**.
 3. **Uncheck "Automatically delete branch after"**, which the Console turns on with a 1-day limit by default, or your dev branch disappears tomorrow.
-4. Click **Create**, then copy the branch's connection string (direct is fine on a PC) into your local `.env` as `DATABASE_URL`, and run `pnpm db:migrate`.
+4. Click **Create**, then run `neon checkout dev`. It points `.neon` at the branch and writes its connection strings into `.env`. `neon checkout production` switches back.
 
-You can reset the branch to the current state of the main branch at any time.
+From then on, `.env` holds the dev branch's strings. Where a guide needs the production ones (Vercel, the backups), it gets them with `neon connection-string production`, never from `.env`.
+
+`neon checkout <name> --create` makes a branch from the terminal instead, but `neon.ts` gives every branch made that way a 7-day lifetime, which suits a short experiment. You can reset a branch to the current state of the main branch at any time.
 
 ## Good to know
 

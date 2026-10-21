@@ -16,7 +16,7 @@ Before this, set up [Neon](neon.md) (and run the migrations), the [Google OAuth 
 
    | Name | Value |
    | --- | --- |
-   | `DATABASE_URL` | Neon's **pooled** connection string |
+   | `DATABASE_URL` | Neon's **pooled** connection string for the `production` branch: `neon connection-string production --pooled`, or **Connect** with **Connection pooling** on. Not the one in your `.env`, which may be the dev branch's |
    | `APP_URL` | `https://read.example.com`, or for now the Vercel address shown after the first deploy |
    | `BETTER_AUTH_SECRET` | a random secret (see `.env.example`) |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from Google |
@@ -29,7 +29,7 @@ Before this, set up [Neon](neon.md) (and run the migrations), the [Google OAuth 
 ## 2. After the first deploy
 
 1. **Node.js version:** the app's `package.json` asks for Node 24, which Vercel uses (it's also Vercel's default). You can check it in **Settings → Build and Deployment → Node.js Version**.
-2. **Function region:** in **Settings → Functions**, set the region next to your Neon database (Washington, D.C. `iad1` for Neon's AWS US East).
+2. **Function region:** `apps/web/vercel.json` runs the functions in Cleveland (`cle1`), next to the Neon project in AWS US East 2 (Ohio). **Settings → Functions** shows it. If your Neon project is in another region, change `regions` in that file to the Vercel region beside it (Washington, D.C. `iad1` for AWS US East 1).
 3. **Address:** if you used the Vercel address for `APP_URL`, add it to the Google client's origins and redirect URIs. Then set up [your own domain](dns.md) and change `APP_URL` to it.
 4. Changing an environment variable takes effect on the next deployment: in **Deployments**, open the menu on the latest one and choose **Redeploy**.
 

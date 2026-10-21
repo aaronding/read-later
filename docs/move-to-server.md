@@ -33,7 +33,7 @@ The repository is private, so `git clone` asks you to sign in. Use a [fine-grain
 
 Edit `.env` (`nano .env`). Copy your current values from Vercel (Project Settings → Environment Variables), then:
 
-- Delete the `DATABASE_URL` line. Compose sets it to the server's Postgres.
+- Delete the `DATABASE_URL`, `DATABASE_URL_UNPOOLED` and `NEON_BRANCH` lines. Compose sets the first two to the server's Postgres.
 - Add `POSTGRES_PASSWORD=` with a long random value.
 - Add `COMPOSE_PROFILES=tunnel` and `CLOUDFLARE_TUNNEL_TOKEN=` (step 3).
 - Add the four `R2_…` values from [the R2 guide](setup/r2-backups.md) for the nightly backup (step 6).

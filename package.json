@@ -15,5 +15,9 @@
     "db:generate": "pnpm --filter web db:generate",
     "db:migrate": "pnpm --filter web db:migrate",
     "extension:build": "pnpm --filter extension build"
+  },
+  "devDependencies": {
+    "@neon/config": "1.9.1",
+    "@neon/env": "1.6.2"
   }
 }

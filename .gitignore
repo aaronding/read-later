@@ -25,3 +25,4 @@ coverage/
 # Local data
 pgdata/
 backups/
+.neon
