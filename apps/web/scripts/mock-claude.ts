@@ -7,6 +7,7 @@
 import http from "node:http";
 
 const port = Number(process.env.MOCK_CLAUDE_PORT ?? 4010);
+const host = process.env.MOCK_CLAUDE_HOST ?? "127.0.0.1";
 
 function send(res: http.ServerResponse, event: string, data: unknown) {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -77,6 +78,6 @@ const server = http.createServer(async (req, res) => {
   res.end();
 });
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Mock Claude API on http://127.0.0.1:${port} (set ANTHROPIC_BASE_URL to this)`);
+server.listen(port, host, () => {
+  console.log(`Mock Claude API on http://${host}:${port} (set ANTHROPIC_BASE_URL to this)`);
 });

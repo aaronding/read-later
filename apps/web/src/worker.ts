@@ -9,16 +9,25 @@ import { processJobs } from "@/lib/jobs/process";
 
 const pollMs = envInt("WORKER_POLL_MS", 5_000);
 let stopping = false;
+let wake: (() => void) | undefined;
 
 for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {
     console.log(`Received ${signal}; finishing the current batch, then stopping.`);
     stopping = true;
+    wake?.();
   });
 }
 
+/** Waits, unless a stop signal arrives first. */
 function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, ms);
+    wake = () => {
+      clearTimeout(timer);
+      resolve();
+    };
+  });
 }
 
 async function main() {

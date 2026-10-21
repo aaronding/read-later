@@ -1,8 +1,12 @@
 import { existsSync, readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseEnv } from "node:util";
-import { updateInitialEnv } from "@next/env";
+
+// @next/env is CommonJS without detectable named exports, so it is loaded
+// with require() to work both in next.config.ts and in plain ES modules.
+const { updateInitialEnv } = createRequire(import.meta.url)("@next/env") as typeof import("@next/env");
 
 // One .env file at the repository root configures the web app, the worker,
 // the migrations and Docker Compose. Variables already set in the real
