@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import { and, eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
-import { OPTIONS, POST } from "@/app/api/save/route";
+import { GET, OPTIONS, POST } from "@/app/api/save/route";
 import type { Db } from "@/db";
 import { articles, jobs, summaries } from "@/db/schema";
 import { processJobs } from "@/lib/jobs/process";
@@ -391,6 +391,13 @@ describe("authentication and input", () => {
     const ftp = await POST(saveRequest({ url: "ftp://example.com/file" }));
     expect(ftp.status).toBe(400);
     expect((await ftp.json()).error).toMatch(/http or https/);
+  });
+
+  it("lets the extension check its token", async () => {
+    const check = (authorization: string) =>
+      GET(new Request("http://localhost/api/save", { headers: { authorization } }));
+    expect((await check(`Bearer ${token}`)).status).toBe(200);
+    expect((await check("Bearer rl_nope")).status).toBe(401);
   });
 
   it("answers the CORS preflight", () => {

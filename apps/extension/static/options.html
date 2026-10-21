@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Options</title>
+    <style>
+      :root { color-scheme: light dark; --accent: #1f6f5c; }
+      body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 16px; }
+      h1 { font-size: 1.4rem; display: flex; gap: 10px; align-items: center; }
+      label { display: block; font-weight: 600; margin: 1rem 0 0.3rem; }
+      input { box-sizing: border-box; width: 100%; font: inherit; padding: 0.5em 0.7em; border-radius: 8px; border: 1px solid #bbb; }
+      .hint { color: #6b7280; font-size: 0.9rem; margin: 0.3rem 0 0; }
+      button { margin-top: 1.2rem; font: inherit; padding: 0.5em 1.2em; border-radius: 999px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
+      #status { min-height: 1.5em; }
+      #status.ok { color: var(--accent); }
+      #status.error { color: #b42318; }
+      @media (prefers-color-scheme: dark) { :root { --accent: #5cc2a4; } button { color: #0d1f1a; } input { border-color: #555; } }
+      kbd { font: 0.85em ui-monospace, monospace; border: 1px solid #999; border-radius: 4px; padding: 0 4px; }
+    </style>
+  </head>
+  <body>
+    <h1><img src="icons/icon-48.png" width="32" height="32" alt="" /> <span class="app-name">Read Later</span></h1>
+    <form id="settings">
+      <label for="serverUrl">Server URL</label>
+      <input id="serverUrl" type="text" inputmode="url" placeholder="https://read.example.com" autocomplete="off" required />
+      <p class="hint">The address of your <span class="app-name">Read Later</span> web app.</p>
+      <label for="token">Access token</label>
+      <input id="token" type="password" placeholder="rl_…" autocomplete="off" required />
+      <p class="hint">Create one in the web app under Settings → Access tokens. It is stored only in this browser.</p>
+      <button type="submit">Save and check</button>
+      <p id="status" role="status"></p>
+    </form>
+    <p class="hint">
+      Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (Mac: <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>).
+      Right-click a link to save just the link. You can change the shortcut at <code>chrome://extensions/shortcuts</code>.
+    </p>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

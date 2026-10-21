@@ -12,7 +12,7 @@ export const maxDuration = 300;
 // cookies, so any origin may call this endpoint.
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Authorization, Content-Type",
   "Access-Control-Max-Age": "86400",
 };
@@ -30,6 +30,15 @@ const SaveBody = z.object({
 
 export function OPTIONS(): Response {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
+}
+
+/** Lets the extension's options page check the server URL and token. */
+export async function GET(request: Request): Promise<Response> {
+  const userId = await authenticateBearer(getDb(), request.headers.get("authorization"));
+  if (!userId) {
+    return reply(401, { ok: false, error: "Missing or invalid access token. Create one in Settings." });
+  }
+  return reply(200, { ok: true, message: `Connected to ${APP_NAME}`, app: APP_NAME });
 }
 
 export async function POST(request: Request): Promise<Response> {

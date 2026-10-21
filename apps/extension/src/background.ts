@@ -1,0 +1,73 @@
+// The extension's service worker: the toolbar button and its keyboard
+// shortcut save the current page; the right-click menu saves a link.
+import { sendSave, type Outcome, type SavePayload } from "./api.js";
+import { capturePage } from "./capture.js";
+import { loadSettings } from "./settings.js";
+
+const APP_NAME = chrome.runtime.getManifest().name;
+const MENU_ID = "save-link";
+const COLORS = { busy: "#6b7280", ok: "#1f6f5c", error: "#b42318" };
+
+chrome.runtime.onInstalled.addListener(async (details) => {
+  chrome.contextMenus.create({ id: MENU_ID, title: `Save link to ${APP_NAME}`, contexts: ["link"] });
+  if (details.reason === "install") {
+    const settings = await loadSettings();
+    if (!settings.serverUrl || !settings.token) await chrome.runtime.openOptionsPage();
+  }
+});
+
+async function showBusy(tabId: number | undefined) {
+  if (tabId === undefined) return;
+  await chrome.action.setBadgeBackgroundColor({ tabId, color: COLORS.busy });
+  await chrome.action.setBadgeText({ tabId, text: "…" });
+}
+
+async function showOutcome(tabId: number | undefined, outcome: Outcome) {
+  if (tabId === undefined) return;
+  await chrome.action.setBadgeBackgroundColor({ tabId, color: outcome.ok ? COLORS.ok : COLORS.error });
+  await chrome.action.setBadgeText({ tabId, text: outcome.ok ? "✓" : "!" });
+  // The tooltip explains the badge, especially when something went wrong.
+  await chrome.action.setTitle({ tabId, title: `${APP_NAME}: ${outcome.message}` });
+  setTimeout(() => {
+    void chrome.action.setBadgeText({ tabId, text: "" }).catch(() => {});
+    void chrome.action.setTitle({ tabId, title: `Save to ${APP_NAME}` }).catch(() => {});
+  }, outcome.ok ? 4_000 : 15_000);
+}
+
+async function save(tabId: number | undefined, payload: SavePayload) {
+  const settings = await loadSettings();
+  const outcome = await sendSave(settings, payload);
+  await showOutcome(tabId, outcome);
+  if (!settings.serverUrl || !settings.token) await chrome.runtime.openOptionsPage();
+}
+
+/** Saves the current page with its HTML, or just its URL if the page can't be read. */
+async function savePage(tab: chrome.tabs.Tab) {
+  if (!tab.url || !/^https?:/i.test(tab.url)) {
+    return showOutcome(tab.id, { ok: false, message: "Only web pages (http or https) can be saved." });
+  }
+  await showBusy(tab.id);
+  let payload: SavePayload = { url: tab.url, title: tab.title };
+  if (tab.id !== undefined) {
+    try {
+      const [frame] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: capturePage });
+      if (frame?.result) payload = frame.result;
+    } catch {
+      // Some pages (the Chrome Web Store, built-in viewers) can't be read; send the URL.
+    }
+  }
+  await save(tab.id, payload);
+}
+
+chrome.action.onClicked.addListener((tab) => {
+  void savePage(tab);
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId !== MENU_ID || !info.linkUrl) return;
+  if (!/^https?:/i.test(info.linkUrl)) {
+    void showOutcome(tab?.id, { ok: false, message: "Only http and https links can be saved." });
+    return;
+  }
+  void showBusy(tab?.id).then(() => save(tab?.id, { url: info.linkUrl! }));
+});

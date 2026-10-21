@@ -1,0 +1,21 @@
+# A tiny Cloudflare Worker that runs on a schedule and asks the web app to
+# process any jobs that after() didn't finish. Deploy with `pnpm deploy` from
+# this folder after `wrangler login` (see docs/setup/cloudflare-worker-cron.md).
+name = "read-later-cron"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# No public *.workers.dev address: the Worker only runs on its schedule.
+workers_dev = false
+preview_urls = false
+
+[triggers]
+# Every 5 minutes.
+crons = ["*/5 * * * *"]
+
+[vars]
+# Your web app's public URL, without a trailing slash.
+APP_URL = "https://read.example.com"
+
+# JOBS_SECRET is a secret, not a var. Set it once with:
+#   pnpm exec wrangler secret put JOBS_SECRET
