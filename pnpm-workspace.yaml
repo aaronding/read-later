@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+
+# Only install package versions that have been public for at least 7 days
+# (in minutes), so a compromised release is likely caught before we get it.
+minimumReleaseAge: 10080
+
+# pnpm 10 blocks dependency build scripts unless listed here.
+onlyBuiltDependencies:
+  - esbuild
+  - workerd
