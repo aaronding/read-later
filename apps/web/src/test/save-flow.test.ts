@@ -10,6 +10,9 @@ import { GET, OPTIONS, POST } from "@/app/api/save/route";
 import type { Db } from "@/db";
 import { articles, jobs, summaries } from "@/db/schema";
 import { processJobs } from "@/lib/jobs/process";
+import { processArticle, requestSummary } from "@/lib/jobs/handlers";
+import { claimJobs } from "@/lib/jobs/queue";
+import { retryArticle } from "@/lib/library";
 import { safeFetch } from "@/lib/net/safe-fetch";
 import { updateSettings } from "@/lib/settings";
 import { setAnthropicClient } from "@/lib/summarize/summarize";
@@ -33,7 +36,7 @@ const ARTICLE_URL = "https://www.riversideledger.example/features/community-orch
 // ---------------------------------------------------------------------------
 
 type StreamParams = Parameters<Anthropic["beta"]["messages"]["stream"]>[0];
-type Reply = (params: StreamParams) => Partial<Anthropic.Beta.BetaMessage> | Error;
+type Reply = (params: StreamParams) => Partial<Anthropic.Beta.BetaMessage> | Error | "hang";
 
 const requests: StreamParams[] = [];
 let reply: Reply;
@@ -65,11 +68,17 @@ const defaultReply: Reply = (params) => ({
 const fakeClient = {
   beta: {
     messages: {
-      stream(params: StreamParams) {
+      stream(params: StreamParams, options?: { signal?: AbortSignal }) {
         requests.push(params);
         const result = reply(params);
         return {
           async finalMessage() {
+            if (result === "hang") {
+              // Never answers, like a stalled stream; only the abort signal ends it.
+              return new Promise<never>((_, reject) =>
+                options?.signal?.addEventListener("abort", () => reject(new Anthropic.APIUserAbortError())),
+              );
+            }
             if (result instanceof Error) throw result;
             return {
               id: "msg_test",
@@ -345,7 +354,102 @@ describe("duplicates and previews", () => {
   });
 });
 
+describe("races and recovery", () => {
+  it("gives a re-save with HTML its own run while the download is still running", async () => {
+    vi.mocked(safeFetch).mockResolvedValue({
+      url: ARTICLE_URL,
+      status: 200,
+      headers: {},
+      contentType: "text/html",
+      body: Buffer.from(fixture("login-wall.html")),
+      redirects: [],
+    });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
+    const [running] = await claimJobs(db, 1, "slow-worker"); // the download is in progress
+    expect(running?.type).toBe("process_article");
+
+    const resaved = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    expect(resaved).toMatchObject({ id, outcome: "replaced" });
+    const queued = await db.select().from(jobs).where(and(eq(jobs.articleId, id), eq(jobs.status, "queued")));
+    expect(queued.map((job) => job.type)).toEqual(["process_article"]);
+
+    // The slow download finishes first, then the queued run uses the full HTML.
+    await processArticle(db, running!);
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ previewOnly: false, contentSource: "client" });
+    expect((await summariesFor(id))[0]?.status).toBe("ready");
+  });
+
+  it("keeps HTML that arrives while an earlier copy is being processed", async () => {
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("teaser-paywall.html") }))).json();
+    const [job] = await claimJobs(db, 1, "worker");
+    const running = processArticle(db, job!); // has read the teaser HTML
+    await db.update(articles).set({ submittedHtml: "<p>newer copy</p>" }).where(eq(articles.id, id));
+    await running;
+    expect((await articleById(id)).submittedHtml).toBe("<p>newer copy</p>");
+  });
+
+  it("queues a new summary run when one is requested while another is running", async () => {
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    await processJobs({ db, maxJobs: 1 }); // extraction only; the summary job is queued
+    const [summarizing] = await claimJobs(db, 1, "worker");
+    expect(summarizing?.type).toBe("summarize");
+    await requestSummary(db, { userId: "user-1", articleId: id, model: "claude-opus-5-5" });
+    const queued = await db.select().from(jobs).where(and(eq(jobs.articleId, id), eq(jobs.status, "queued")));
+    expect(queued).toHaveLength(1);
+  });
+
+  it("lets Retry pick up a summary stuck as pending with no job", async () => {
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    await processJobs({ db });
+    await db.update(summaries).set({ status: "pending" }).where(eq(summaries.articleId, id));
+    await retryArticle(db, "user-1", id);
+    await processJobs({ db });
+    expect((await summariesFor(id))[0]?.status).toBe("ready");
+  });
+});
+
 describe("failures", () => {
+  it("reads the fallback model's answer, not the declined partial", async () => {
+    reply = (params) => ({
+      content: [
+        { type: "text", text: '{"tldr": "partial answer that was decl', citations: null },
+        { type: "fallback", from: { model: params.model }, to: { model: "claude-opus-4-8" } },
+        { type: "text", text: summaryJson("claude-opus-4-8"), citations: null },
+      ] as unknown as Anthropic.Beta.BetaContentBlock[],
+      stop_reason: "end_turn",
+      model: "claude-opus-4-8",
+    });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    await processJobs({ db });
+    expect((await summariesFor(id))[0]).toMatchObject({
+      status: "ready",
+      servedModel: "claude-opus-4-8",
+      tldr: "Community orchards are returning to public land (claude-opus-4-8).",
+    });
+  });
+
+  it("gives up on a stalled answer and retries later", async () => {
+    process.env.SUMMARY_TIMEOUT_MS = "200";
+    try {
+      reply = () => "hang";
+      const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+      const stats = await processJobs({ db });
+      expect(stats.retrying).toBe(1);
+      expect((await summariesFor(id))[0]).toMatchObject({ status: "pending", error: "Claude took too long to answer." });
+    } finally {
+      delete process.env.SUMMARY_TIMEOUT_MS;
+    }
+  });
+
+  it("doesn't automatically repeat a summary that ran out of tokens", async () => {
+    reply = () => ({ content: [], stop_reason: "max_tokens" });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    const stats = await processJobs({ db });
+    expect(stats).toMatchObject({ failed: 1, retrying: 0 });
+    expect((await summariesFor(id))[0]).toMatchObject({ status: "failed", stopReason: "max_tokens" });
+  });
+
   it("records a refusal without retrying", async () => {
     reply = () => ({ content: [], stop_reason: "refusal", stop_details: { type: "refusal", category: "cyber", explanation: null } as never });
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();

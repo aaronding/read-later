@@ -35,6 +35,8 @@ describe("isBlockedAddress", () => {
     "64:ff9b::a9fe:a9fe", // NAT64 of 169.254.169.254
     "2002:7f00:1::", // 6to4 of 127.0.0.1
     "::127.0.0.1", // IPv4-compatible
+    "::ffff:0:7f00:1", // IPv4-translated loopback
+    "::ffff:0:a9fe:a9fe", // IPv4-translated metadata
   ])("blocks IPv6 %s", (address) => {
     expect(isBlockedAddress(address)).toBe(true);
   });

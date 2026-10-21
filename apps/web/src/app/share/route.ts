@@ -2,10 +2,10 @@ import { getDb } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
 import { saveArticle } from "@/lib/save";
-import { extractFirstUrl, parseHttpUrl } from "@/lib/urls";
+import { shareNeedsConfirmation, sharedUrl } from "@/lib/share";
 
 // The Android share target (see manifest.ts). Saves the shared link, then
-// shows the Inbox.
+// shows the Inbox. Visits sent by other websites get a confirmation page.
 export const maxDuration = 300;
 
 function seeOther(location: string): Response {
@@ -18,9 +18,12 @@ export async function GET(request: Request): Promise<Response> {
   if (!user) {
     return seeOther(`/sign-in?next=${encodeURIComponent(`/share?${params.toString()}`)}`);
   }
-  const url =
-    parseHttpUrl(params.get("url") ?? "")?.href ?? extractFirstUrl(params.get("text")) ?? extractFirstUrl(params.get("title"));
+  const url = sharedUrl(params);
   if (!url) return seeOther("/inbox?shared=nolink");
+  if (shareNeedsConfirmation(request.headers)) {
+    const query = new URLSearchParams({ url, ...(params.get("title") ? { title: params.get("title")! } : {}) });
+    return seeOther(`/share/confirm?${query.toString()}`);
+  }
 
   const result = await saveArticle(getDb(), {
     userId: user.id,

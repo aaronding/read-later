@@ -2,7 +2,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { envInt } from "@/config/env";
 import type { Db } from "@/db";
 import { articles, type Article, type SaveSource } from "@/db/schema";
-import { enqueueJob, hasPendingJob } from "@/lib/jobs/queue";
+import { enqueueJob, hasQueuedJob } from "@/lib/jobs/queue";
 import { getSettings } from "@/lib/settings";
 import { findCanonicalHref, normalizeUrl, parseHttpUrl, trustedCanonicalUrl } from "@/lib/urls";
 
@@ -36,7 +36,7 @@ export function maxHtmlBytes(): number {
 }
 
 async function queueProcessing(db: Db, article: Pick<Article, "id" | "userId">): Promise<boolean> {
-  if (await hasPendingJob(db, article.id, "process_article")) return false;
+  if (await hasQueuedJob(db, article.id, "process_article")) return false;
   await enqueueJob(db, { userId: article.userId, articleId: article.id, type: "process_article" });
   return true;
 }

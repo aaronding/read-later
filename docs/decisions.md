@@ -64,11 +64,11 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 40. **Tags are case-insensitive per user and reused as written.** Removing a tag from its last article deletes the tag, so it stops steering Claude's suggestions. Folders are flat, and deleting one keeps its articles.
 41. **Export** produces one JSON file (all fields, text, sanitized HTML, every summary with its tokens and cost) or one Markdown file (metadata, the shown summary and the plain text of each article).
 42. **The reader drops a heading at the top of the article that repeats the title**, since the title is already shown above. Readability only does this when the heading matches its own guess at the title, which may still include the site name.
-43. **Security headers:** a Content Security Policy that blocks scripts from saved articles, frames and plugins (images from any host are allowed, because articles use them), plus `nosniff`, `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`.
+43. **Security headers:** a nonce-based Content Security Policy, set per request in `apps/web/src/proxy.ts`. Only scripts carrying that request's nonce run (Next.js adds it to its own scripts), so even a script that got past the sanitizer into a saved article would be blocked. Frames and plugins are blocked; images from any host are allowed, because articles use them. Styles stay `'unsafe-inline'`, because style attributes can't carry a nonce, and saved articles have their styles removed anyway. Also `nosniff`, `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`.
 
 ## Saving from devices
 
-44. **Android's share target uses GET** (`/share?url&text&title`), handled by a route handler that saves and then redirects to the Inbox. Sign-in cookies are reliably sent on a top-level GET; with POST they may not be, depending on the browser's SameSite handling of share-target navigations. The cost is that a link to `/share?url=…` could make a signed-in owner save a page. That is harmless, and the download is protected by the address rules.
+44. **Android's share target uses GET** (`/share?url&text&title`), handled by a route handler that saves and then redirects to the Inbox. Sign-in cookies are reliably sent on a top-level GET; with POST they may not be, depending on the browser's SameSite handling of share-target navigations. A link to `/share` on another website could otherwise make the owner save pages (and spend Claude credits) without knowing. So when the browser reports that another site sent it (`Sec-Fetch-Site: cross-site` or `same-site`), the app asks for confirmation first. Shares from the Share menu are browser-initiated and save directly.
 45. **Two Apple Shortcuts instead of one.** One for Safari, which runs JavaScript to send the whole page; one for other apps, which sends the link. Shortcuts has no reliable way for one shortcut to tell a Safari page from a plain URL.
 46. **The extension relies on CORS rather than host permissions** to call the server, so it asks for no access to any website. `GET /api/save` with a token answers "Connected" so the options page can check the setup.
 47. **If a page's HTML is too large to send** (over the 4 MB limit), the extension saves the link alone and says so.
@@ -84,3 +84,15 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 54. **`scripts/mock-claude.ts`** is a local stand-in for the Claude API, so the whole flow can be tried without an API key and without cost. It isn't used in production.
 55. **Line endings:** `.gitattributes` keeps LF endings for shell scripts and Docker files, so a Windows checkout still builds a working image.
 56. **`apps/web/AGENTS.md` is committed.** `next dev` writes it to point coding agents at the Next.js docs bundled in `node_modules`, and it re-creates the file whenever it's missing.
+
+
+## After the security review
+
+57. **A re-save while a job is running gets its own run.** Only *queued* jobs count as "already pending"; a running job has already read the old state. Submitted HTML is cleared after processing only if it is still the HTML that was processed (compared by MD5 in SQL), so a newer copy that arrives meanwhile is kept for its own run.
+58. **An article and its summary requests are stored in one transaction**, and a summary is never marked pending without a job. Retry also picks up summaries stuck as pending or running with no job, and the reader offers Retry when a summary has said "Summarizing…" for over 10 minutes.
+59. **A job's result is recorded only while its worker still holds the job.** If a worker took so long that another worker took the job back, the slow worker's late result is dropped.
+60. **Each Claude call has an overall limit of 150 seconds** (`SUMMARY_TIMEOUT_MS`). The SDK's own timeout stops counting once a streamed answer starts, so a stalled stream could otherwise outlive a 300-second serverless function. A call that hits the limit is retried later.
+61. **A summary that ran out of tokens (`max_tokens`) is not retried automatically**, because the same request would most likely stop the same way; Retry in the app tries again on purpose.
+62. **After a refusal fallback, only the text after the last `fallback` marker is read.** The declined model's partial answer comes before it.
+63. **Redirect targets** (`?next=` on sign-in, and the reader's delete) are resolved against a placeholder origin and must stay on it. Values with backslashes or control characters are refused, because browsers read `/\evil.com` as another site.
+64. **Saved articles' `id` and `name` attributes get a `user-content-` prefix** (DOMPurify's `SANITIZE_NAMED_PROPS`), and links to anchors inside the article are rewritten to match. Without the prefix, an element such as `<a id="__next_f">` could shadow a page global and break the reader.

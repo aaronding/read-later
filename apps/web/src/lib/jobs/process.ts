@@ -50,6 +50,7 @@ async function runJob(db: Db, job: Job, stats: ProcessStats): Promise<void> {
     if (!(error instanceof JobError)) console.error(`Job ${job.id} (${job.type}) failed:`, error);
     try {
       const willRetry = await failJob(db, job, message, retryable);
+      if (willRetry === null) return; // another worker owns this job now
       await handler.failed(db, job, message, willRetry, stopReason);
       if (willRetry) stats.retrying++;
       else stats.failed++;

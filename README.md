@@ -117,7 +117,8 @@ When the free plans stop being enough: [Move to one server](docs/move-to-server.
 - Only the Google accounts in `ALLOWED_EMAILS` can sign in, and every database query is scoped to the signed-in user.
 - Access tokens are stored only as SHA-256 hashes and shown once. Revoke them in Settings.
 - Server-side downloads refuse private, loopback and link-local addresses, also after redirects, so the server can't be pointed at internal services.
-- Saved HTML is sanitized before it is stored, and pages are served with a strict Content Security Policy.
+- Saved HTML is sanitized before it is stored, and every page gets a nonce-based Content Security Policy, so even a script that got past the sanitizer would not run.
+- A link to the Android share address on another website asks for confirmation instead of saving straight away.
 - The app never gets around paywalls or logins. Pages that look truncated or ask for a login are marked "Preview only"; save them from your own signed-in browser to keep the full article.
 
 ## Decisions

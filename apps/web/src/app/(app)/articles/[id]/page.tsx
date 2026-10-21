@@ -35,6 +35,8 @@ export default async function ReaderPage({ params }: Props) {
   const ready = summary?.status === "ready" ? summary : undefined;
   const chosen = found.summaries.find((row) => row.model === article.summaryModel);
   const busy = isBusy(article.status, chosen?.status ?? null) || found.summaries.some((row) => isBusy("ready", row.status));
+  // Longer than any summary takes: something went wrong, so offer Retry.
+  const stale = Boolean(chosen && isBusy("ready", chosen.status) && Date.now() - chosen.updatedAt.getTime() > 10 * 60_000);
 
   return (
     <article className="reader">
@@ -91,6 +93,7 @@ export default async function ReaderPage({ params }: Props) {
         error={article.error}
         summaryStatus={chosen?.status ?? null}
         hasSummary={Boolean(ready)}
+        stale={stale}
       />
 
       {ready ? (

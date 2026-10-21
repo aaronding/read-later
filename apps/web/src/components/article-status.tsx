@@ -23,12 +23,15 @@ export function ArticleStatus({
   error,
   summaryStatus,
   hasSummary,
+  stale = false,
 }: {
   id: string;
   status: Article["status"];
   error: string | null;
   summaryStatus: Summary["status"] | null;
   hasSummary: boolean;
+  /** The summary has said "Summarizing…" for a long time: offer Retry. */
+  stale?: boolean;
 }) {
   if (status === "failed") {
     return (
@@ -51,6 +54,7 @@ export function ArticleStatus({
     return (
       <div className="status">
         <span className="spinner" aria-hidden="true" /> Summarizing…
+        {stale && <RetryButton id={id} />}
       </div>
     );
   }

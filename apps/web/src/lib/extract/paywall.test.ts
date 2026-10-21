@@ -125,3 +125,17 @@ describe("textStats", () => {
     expect(textStats("word ".repeat(2300)).readingMinutes).toBe(10);
   });
 });
+
+describe("sanitizeArticleHtml", () => {
+  it("prefixes ids so article content can't shadow page globals, and keeps anchor links working", async () => {
+    const { sanitizeArticleHtml } = await import("./sanitize");
+    const html = sanitizeArticleHtml(
+      `<p>Text<a href="#fn1">1</a></p><a id="__next_f">x</a><p id="fn1">Footnote</p><a href="https://example.com">out</a>`,
+    );
+    expect(html).toContain('id="user-content-fn1"');
+    expect(html).toContain('href="#user-content-fn1"');
+    expect(html).toContain('id="user-content-__next_f"');
+    expect(html).not.toMatch(/id="__next_f"/);
+    expect(html).toContain('href="https://example.com" target="_blank" rel="noopener noreferrer nofollow"');
+  });
+});

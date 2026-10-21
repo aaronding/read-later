@@ -27,12 +27,18 @@ export function maxInputChars(): number {
 // Room for adaptive thinking as well as the JSON reply.
 const MAX_TOKENS = 16_000;
 
+// The SDK's own timeout stops counting once a streamed response starts, so
+// each call also gets an overall limit. It keeps one attempt inside a
+// 300-second serverless function, after the page download.
+function callTimeoutMs(): number {
+  return envInt("SUMMARY_TIMEOUT_MS", 150_000);
+}
+
 let client: Anthropic | undefined;
 
 function getClient(): Anthropic {
   // Reads ANTHROPIC_API_KEY from the environment.
-  // One SDK retry; the job queue retries again later with backoff. Keeps one
-  // attempt well inside a 300-second serverless function.
+  // One SDK retry; the job queue retries again later with backoff.
   client ??= new Anthropic({ maxRetries: 1, timeout: 90_000 });
   return client;
 }
@@ -156,6 +162,7 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   const started = Date.now();
 
   let message: Anthropic.Beta.BetaMessage;
+  const signal = AbortSignal.timeout(callTimeoutMs());
   try {
     const stream = getClient().beta.messages.stream({
       model,
@@ -170,9 +177,12 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
       ...(MODEL_INFO[model].serverFallback
         ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
         : {}),
-    });
+    }, { signal });
     message = await stream.finalMessage();
   } catch (error) {
+    if (signal.aborted) {
+      throw new SummaryError("Claude took too long to answer.", true);
+    }
     if (error instanceof Anthropic.APIError) {
       throw new SummaryError(`Claude API error${error.status ? ` ${error.status}` : ""}: ${error.message}`, isRetryableApiError(error));
     }
@@ -192,13 +202,19 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
     );
   }
   if (message.stop_reason === "max_tokens") {
-    throw new SummaryError("The summary was cut off before it was finished.", true, "max_tokens");
+    // The same request would most likely stop the same way, so this isn't
+    // retried automatically; Retry in the app tries again on purpose.
+    throw new SummaryError("The summary was cut off before it was finished.", false, "max_tokens");
   }
   if (message.stop_reason === "model_context_window_exceeded") {
     throw new SummaryError("The article is too long for this model.", false, message.stop_reason);
   }
 
-  const text = message.content.find((block) => block.type === "text");
+  // After a refusal fallback, content holds the declined model's partial
+  // answer, a "fallback" marker, then the fallback model's answer: read only
+  // what follows the last marker.
+  const lastFallback = message.content.findLastIndex((block) => block.type === "fallback");
+  const text = message.content.slice(lastFallback + 1).find((block) => block.type === "text");
   if (!text || text.type !== "text") {
     throw new SummaryError("Claude returned no summary.", true, message.stop_reason);
   }

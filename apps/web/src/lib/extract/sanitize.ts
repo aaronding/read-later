@@ -6,8 +6,18 @@ import { JSDOM } from "jsdom";
 
 const purify = createDOMPurify(new JSDOM("").window as unknown as Window & typeof globalThis);
 
+// Article ids and names get a "user-content-" prefix (SANITIZE_NAMED_PROPS),
+// so an element like <a id="__next_f"> can't shadow a page global. Links to
+// anchors inside the article are rewritten to match.
+const ANCHOR_PREFIX = "user-content-";
+
 purify.addHook("afterSanitizeAttributes", (node) => {
-  if (node.tagName === "A" && node.getAttribute("href")) {
+  const href = node.getAttribute("href");
+  if (node.tagName === "A" && href && href.length > 1 && href.startsWith("#") && !href.startsWith(`#${ANCHOR_PREFIX}`)) {
+    node.setAttribute("href", `#${ANCHOR_PREFIX}${href.slice(1)}`);
+    return; // an in-page link: no new tab
+  }
+  if (node.tagName === "A" && href) {
     node.setAttribute("target", "_blank");
     node.setAttribute("rel", "noopener noreferrer nofollow");
   }
@@ -41,6 +51,7 @@ export function sanitizeArticleHtml(html: string): string {
     ],
     FORBID_ATTR: ["style", "srcdoc", "formaction", "ping", "autoplay", "contenteditable"],
     ALLOW_DATA_ATTR: false,
+    SANITIZE_NAMED_PROPS: true,
     ADD_ATTR: ["target", "loading", "decoding", "referrerpolicy"],
   });
 }

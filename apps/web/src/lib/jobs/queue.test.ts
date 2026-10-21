@@ -6,7 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "@/db";
 import { migrationsFolder } from "@/db/migrations-folder";
 import * as schema from "@/db/schema";
-import { backoffDelayMs, claimJobs, enqueueJob, failJob, STALE_LOCK_MS } from "./queue";
+import { backoffDelayMs, claimJobs, completeJob, enqueueJob, failJob, STALE_LOCK_MS } from "./queue";
 import { createTestDb, createTestUser } from "@/test/db";
 
 describe("backoffDelayMs", () => {
@@ -55,6 +55,20 @@ describe("job queue on PGlite", () => {
     expect(await failJob(db, second!, "still failing", true)).toBe(false); // out of attempts
     const [final] = await db.select().from(schema.jobs);
     expect(final).toMatchObject({ status: "failed", lastError: "still failing" });
+  });
+
+  it("ignores a late result from a worker whose job was taken over", async () => {
+    await db.delete(schema.jobs);
+    await enqueueJob(db, { userId: "user-1", articleId, type: "summarize", payload: { model: "claude-opus-5-5" } });
+    const [first] = await claimJobs(db, 1, "slow-worker");
+    await db.update(schema.jobs).set({ lockedAt: new Date(Date.now() - STALE_LOCK_MS - 1000) });
+    const [second] = await claimJobs(db, 1, "fresh-worker");
+    expect(second?.id).toBe(first?.id);
+
+    await completeJob(db, first!); // the slow worker finally finishes
+    expect(await failJob(db, first!, "late failure", true)).toBeNull();
+    const [row] = await db.select().from(schema.jobs);
+    expect(row).toMatchObject({ status: "running", lockedBy: "fresh-worker", lastError: null });
   });
 
   it("takes back a job whose worker stopped responding", async () => {

@@ -24,6 +24,7 @@ const IPV4_BLOCKED: Array<[string, number]> = [
 
 const IPV6_BLOCKED: Array<[string, number]> = [
   ["::", 96], // unspecified, loopback and IPv4-compatible
+  ["::ffff:0:0:0", 96], // IPv4-translated (SIIT): ::ffff:0:a.b.c.d
   ["64:ff9b:1::", 48], // local-use NAT64
   ["100::", 64], // discard
   ["2001::", 23], // IETF protocol assignments, including Teredo

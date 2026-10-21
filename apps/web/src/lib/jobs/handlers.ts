@@ -1,4 +1,5 @@
-import { and, asc, eq, ne } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, asc, eq, ne, sql } from "drizzle-orm";
 import { downloadUserAgent } from "@/config/app";
 import { envInt } from "@/config/env";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
@@ -13,7 +14,7 @@ import { getSettings, modelsForNewSave } from "@/lib/settings";
 import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
 import { JobError } from "./errors";
-import { enqueueJob, hasPendingJob } from "./queue";
+import { enqueueJob, hasQueuedJob } from "./queue";
 
 /** Below this, there is not enough text for a useful summary. */
 export const MIN_SUMMARY_WORDS = 40;
@@ -28,21 +29,26 @@ async function loadArticle(db: Db, job: Job): Promise<Article | undefined> {
   return article;
 }
 
-/** Marks a summary as wanted and queues it, unless it is already queued. */
+/**
+ * Marks a summary as wanted and queues it, unless a run is already waiting.
+ * Both happen together, so a summary is never left "pending" with no job.
+ */
 export async function requestSummary(
   db: Db,
   { userId, articleId, model }: { userId: string; articleId: string; model: SummaryModel },
 ): Promise<void> {
-  await db
-    .insert(summaries)
-    .values({ userId, articleId, model, status: "pending" })
-    .onConflictDoUpdate({
-      target: [summaries.articleId, summaries.model],
-      set: { status: "pending", error: null, stopReason: null },
-    });
-  if (!(await hasPendingJob(db, articleId, "summarize", model))) {
-    await enqueueJob(db, { userId, articleId, type: "summarize", payload: { model } });
-  }
+  await db.transaction(async (tx) => {
+    await tx
+      .insert(summaries)
+      .values({ userId, articleId, model, status: "pending" })
+      .onConflictDoUpdate({
+        target: [summaries.articleId, summaries.model],
+        set: { status: "pending", error: null, stopReason: null },
+      });
+    if (!(await hasQueuedJob(tx, articleId, "summarize", model))) {
+      await enqueueJob(tx, { userId, articleId, type: "summarize", payload: { model } });
+    }
+  });
 }
 
 async function download(url: string): Promise<SafeFetchResponse> {
@@ -129,54 +135,66 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   // Never replace a complete copy with a preview.
   const keepExisting = Boolean(article.contentHtml && !article.previewOnly && extracted.previewOnly);
   const normalizedUrl = await bestNormalizedUrl(db, article, pageUrl, extracted.canonicalHref);
+  const wantSummaries =
+    !keepExisting && extracted.wordCount >= MIN_SUMMARY_WORDS && previewIsSummarizable(extracted.previewKind);
 
-  await db
-    .update(articles)
-    .set({
-      status: "ready",
-      error: null,
-      normalizedUrl,
-      ...(submitted ? { submittedHtml: null } : {}),
-      ...(keepExisting
-        ? {}
-        : {
-            contentSource,
-            title: extracted.title,
-            author: extracted.author,
-            siteName: extracted.siteName,
-            publishedAt: extracted.publishedAt,
-            lang: extracted.lang,
-            excerpt: extracted.excerpt,
-            contentHtml: extracted.contentHtml,
-            textContent: extracted.textContent,
-            wordCount: extracted.wordCount,
-            readingMinutes: extracted.readingMinutes,
-            previewOnly: extracted.previewOnly,
-            previewReason: extracted.previewReason,
-          }),
-    })
-    .where(eq(articles.id, article.id));
-  await refreshSearchVector(db, article.id);
+  // The article and its summary requests are stored together: if the process
+  // dies in between, the job runs again instead of leaving no summaries.
+  await db.transaction(async (tx) => {
+    await tx
+      .update(articles)
+      .set({
+        status: "ready",
+        error: null,
+        normalizedUrl,
+        // Cleared only if it is still the HTML processed here; a newer save
+        // that arrived meanwhile keeps its HTML for its own job.
+        ...(submitted
+          ? {
+              submittedHtml: sql`CASE WHEN md5(${articles.submittedHtml}) = ${createHash("md5").update(submitted, "utf8").digest("hex")} THEN NULL ELSE ${articles.submittedHtml} END`,
+            }
+          : {}),
+        ...(keepExisting
+          ? {}
+          : {
+              contentSource,
+              title: extracted.title,
+              author: extracted.author,
+              siteName: extracted.siteName,
+              publishedAt: extracted.publishedAt,
+              lang: extracted.lang,
+              excerpt: extracted.excerpt,
+              contentHtml: extracted.contentHtml,
+              textContent: extracted.textContent,
+              wordCount: extracted.wordCount,
+              readingMinutes: extracted.readingMinutes,
+              previewOnly: extracted.previewOnly,
+              previewReason: extracted.previewReason,
+            }),
+      })
+      .where(eq(articles.id, article.id));
+    await refreshSearchVector(tx, article.id);
 
-  // A login page or an empty page has nothing worth summarizing.
-  if (keepExisting || extracted.wordCount < MIN_SUMMARY_WORDS || !previewIsSummarizable(extracted.previewKind)) return;
+    // A login page or an empty page has nothing worth summarizing.
+    if (!wantSummaries) return;
 
-  // New content: summarize with the models for a new save, plus any model
-  // that already summarized an earlier (preview) copy.
-  const settings = await getSettings(db, job.userId);
-  const earlier = await db
-    .select({ model: summaries.model })
-    .from(summaries)
-    .where(eq(summaries.articleId, article.id));
-  const models = new Set<SummaryModel>(modelsForNewSave(settings));
-  for (const { model } of earlier) if (isSummaryModel(model)) models.add(model);
-  const primary = isSummaryModel(article.summaryModel) ? article.summaryModel : settings.defaultModel;
-  if (primary !== article.summaryModel) {
-    await db.update(articles).set({ summaryModel: primary }).where(eq(articles.id, article.id));
-  }
-  for (const model of models) {
-    await requestSummary(db, { userId: job.userId, articleId: article.id, model });
-  }
+    // New content: summarize with the models for a new save, plus any model
+    // that already summarized an earlier (preview) copy.
+    const settings = await getSettings(tx, job.userId);
+    const earlier = await tx
+      .select({ model: summaries.model })
+      .from(summaries)
+      .where(eq(summaries.articleId, article.id));
+    const models = new Set<SummaryModel>(modelsForNewSave(settings));
+    for (const { model } of earlier) if (isSummaryModel(model)) models.add(model);
+    const primary = isSummaryModel(article.summaryModel) ? article.summaryModel : settings.defaultModel;
+    if (primary !== article.summaryModel) {
+      await tx.update(articles).set({ summaryModel: primary }).where(eq(articles.id, article.id));
+    }
+    for (const model of models) {
+      await requestSummary(tx, { userId: job.userId, articleId: article.id, model });
+    }
+  });
 }
 
 export async function processArticleFailed(db: Db, job: Job, message: string, willRetry: boolean): Promise<void> {

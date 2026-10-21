@@ -54,11 +54,19 @@ export async function claimJobs(db: Db, limit: number, workerId: string): Promis
     .returning();
 }
 
+/**
+ * Updates only while this worker still holds the job. A worker that ran so
+ * long its job was taken back by another one must not overwrite that one.
+ */
+function stillOurs(job: Job) {
+  return and(eq(jobs.id, job.id), eq(jobs.status, "running"), job.lockedBy ? eq(jobs.lockedBy, job.lockedBy) : undefined);
+}
+
 export async function completeJob(db: Db, job: Job): Promise<void> {
   await db
     .update(jobs)
     .set({ status: "done", lockedAt: null, lockedBy: null, lastError: null, finishedAt: sql`now()` })
-    .where(eq(jobs.id, job.id));
+    .where(stillOurs(job));
 }
 
 /** 30 s, 2 min, 8 min, 32 min, then hourly; with ±20% jitter. */
@@ -69,11 +77,12 @@ export function backoffDelayMs(attempt: number, random: () => number = Math.rand
 
 /**
  * Records a failure. Retryable failures go back in the queue with backoff
- * until the job runs out of attempts. Returns true if the job will retry.
+ * until the job runs out of attempts. Returns whether the job will retry, or
+ * null if another worker has taken the job over (then nothing is recorded).
  */
-export async function failJob(db: Db, job: Job, error: string, retryable: boolean): Promise<boolean> {
+export async function failJob(db: Db, job: Job, error: string, retryable: boolean): Promise<boolean | null> {
   const willRetry = retryable && job.attempts < job.maxAttempts;
-  await db
+  const updated = await db
     .update(jobs)
     .set(
       willRetry
@@ -92,12 +101,26 @@ export async function failJob(db: Db, job: Job, error: string, retryable: boolea
             finishedAt: sql`now()`,
           },
     )
-    .where(eq(jobs.id, job.id));
-  return willRetry;
+    .where(stillOurs(job))
+    .returning({ id: jobs.id });
+  return updated.length > 0 ? willRetry : null;
 }
 
-/** True if the article already has a queued or running job of this type. */
-export async function hasPendingJob(db: Db, articleId: string, type: JobType, model?: string): Promise<boolean> {
+/**
+ * True if the article already has a job of this type waiting to start. A
+ * running job doesn't count: it has already read the old state, so a change
+ * made now needs a run of its own.
+ */
+export async function hasQueuedJob(db: Db, articleId: string, type: JobType, model?: string): Promise<boolean> {
+  const rows = await db
+    .select({ id: jobs.id, payload: jobs.payload })
+    .from(jobs)
+    .where(and(eq(jobs.articleId, articleId), eq(jobs.type, type), eq(jobs.status, "queued")));
+  return model ? rows.some((row) => row.payload.model === model) : rows.length > 0;
+}
+
+/** True if a job of this type is queued or running for the article. */
+export async function hasLiveJob(db: Db, articleId: string, type: JobType, model?: string): Promise<boolean> {
   const rows = await db
     .select({ id: jobs.id, payload: jobs.payload })
     .from(jobs)

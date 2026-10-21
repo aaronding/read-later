@@ -23,7 +23,8 @@ import { updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
-import { parsePastedUrl } from "@/lib/urls";
+import { safeRedirectPath } from "@/lib/redirects";
+import { parseHttpUrl, parsePastedUrl } from "@/lib/urls";
 
 // Every action checks the session itself and only touches the signed-in
 // user's rows; the forms that call them are not a security boundary.
@@ -61,8 +62,7 @@ export async function readAction(formData: FormData) {
 export async function deleteAction(formData: FormData) {
   const user = await requireUser();
   await deleteArticle(getDb(), user.id, articleId(formData));
-  const back = String(formData.get("redirectTo") ?? "");
-  if (back.startsWith("/") && !back.startsWith("//")) redirect(back);
+  if (formData.get("redirectTo")) redirect(safeRedirectPath(formData.get("redirectTo")));
   refresh();
 }
 
@@ -104,6 +104,21 @@ export async function triageAction(formData: FormData) {
   if (formData.get("decision") === "archive") await setArchived(db, user.id, id, true);
   else await triageLater(db, user.id, id);
   refresh();
+}
+
+/** The "Save it" button on the share confirmation page. */
+export async function saveSharedLinkAction(formData: FormData) {
+  const user = await requireUser();
+  const url = parseHttpUrl(String(formData.get("url") ?? ""));
+  if (!url) redirect("/inbox?shared=nolink");
+  const result = await saveArticle(getDb(), {
+    userId: user.id,
+    url: url.href,
+    title: String(formData.get("title") ?? "") || null,
+    source: "android",
+  });
+  if (result.queued) scheduleJobProcessing();
+  redirect(`/inbox?saved=${result.outcome}`);
 }
 
 export interface SaveUrlState {

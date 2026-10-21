@@ -4,17 +4,14 @@ import { redirect } from "next/navigation";
 import { SignInButton } from "@/components/sign-in-button";
 import { APP_NAME } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
+import { safeRedirectPath } from "@/lib/redirects";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-/** Only same-site paths, so the sign-in page can't be used to redirect elsewhere. */
-function safeNext(value: unknown): string {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") ? value : "/inbox";
-}
-
 export default async function SignInPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const params = await searchParams;
-  const next = safeNext(params.next);
+  // Only paths on this site, so the sign-in page can't redirect elsewhere.
+  const next = safeRedirectPath(params.next);
   if (await getCurrentUser()) redirect(next);
   const error = params.error;
   return (
@@ -25,7 +22,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <p className="muted">Save articles to read later, with a clean copy and an AI summary.</p>
         {error && (
           <p className="notice error small">
-            Sign-in didn’t work. Only Google accounts listed in the server’s ALLOWED_EMAILS can sign in.
+            {error === "NOT_ALLOWED"
+              ? "That Google account isn’t allowed to sign in. Only the accounts listed in the server’s ALLOWED_EMAILS can."
+              : "Sign-in didn’t work. Please try again."}
           </p>
         )}
         <SignInButton next={next} />

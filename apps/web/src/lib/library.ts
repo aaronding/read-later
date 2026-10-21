@@ -3,7 +3,7 @@ import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, jobs, summaries, type Article, type Summary } from "@/db/schema";
 import { requestSummary } from "@/lib/jobs/handlers";
-import { enqueueJob, hasPendingJob } from "@/lib/jobs/queue";
+import { enqueueJob, hasLiveJob, hasQueuedJob } from "@/lib/jobs/queue";
 
 // Every query here takes the user id and filters on it.
 
@@ -218,12 +218,17 @@ export async function retryArticle(db: Db, userId: string, id: string) {
   const { article } = found;
   if (article.status === "failed" || (!article.contentHtml && article.status !== "processing")) {
     await db.update(articles).set({ status: "pending", error: null }).where(own(userId, id));
-    if (!(await hasPendingJob(db, id, "process_article"))) {
+    if (!(await hasQueuedJob(db, id, "process_article"))) {
       await enqueueJob(db, { userId, articleId: id, type: "process_article" });
     }
   } else {
     for (const summary of found.summaries) {
-      if (summary.status === "failed" && isSummaryModel(summary.model)) {
+      if (!isSummaryModel(summary.model)) continue;
+      // Failed summaries, and any stuck as pending or running with no job.
+      const stuck =
+        (summary.status === "pending" || summary.status === "running") &&
+        !(await hasLiveJob(db, id, "summarize", summary.model));
+      if (summary.status === "failed" || stuck) {
         await requestSummary(db, { userId, articleId: id, model: summary.model });
       }
     }

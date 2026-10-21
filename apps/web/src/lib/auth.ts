@@ -12,6 +12,18 @@ import { appUrl, isEmailAllowed, requireEnv } from "@/config/env";
 import { getDb } from "@/db";
 import { accounts, sessions, users, verifications } from "@/db/schema";
 
+/**
+ * The error the sign-in hooks throw for an email that isn't allowed. It needs
+ * a `code`: Better Auth's OAuth callback only redirects back to the sign-in
+ * page (with ?error=NOT_ALLOWED) for errors that have one.
+ */
+export function notAllowedError(): APIError {
+  return new APIError("FORBIDDEN", {
+    code: "NOT_ALLOWED",
+    message: "This Google account is not allowed to sign in.",
+  });
+}
+
 function createAuth() {
   const db = getDb();
   return betterAuth({
@@ -40,9 +52,7 @@ function createAuth() {
         create: {
           // Only emails in ALLOWED_EMAILS get an account.
           before: async (user) => {
-            if (!isEmailAllowed(user.email)) {
-              throw new APIError("FORBIDDEN", { message: "not_allowed" });
-            }
+            if (!isEmailAllowed(user.email)) throw notAllowedError();
           },
         },
       },
@@ -56,9 +66,7 @@ function createAuth() {
               .from(users)
               .where(eq(users.id, session.userId))
               .limit(1);
-            if (!isEmailAllowed(owner?.email)) {
-              throw new APIError("FORBIDDEN", { message: "not_allowed" });
-            }
+            if (!isEmailAllowed(owner?.email)) throw notAllowedError();
           },
         },
       },
