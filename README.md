@@ -124,3 +124,14 @@ When the free plans stop being enough: [Move to one server](docs/move-to-server.
 ## Decisions
 
 Choices the brief didn't settle are recorded, with the reasoning, in [docs/decisions.md](docs/decisions.md).
+
+## How this is being built
+
+Read Later is built by Aaron Ding with Claude, in Claude Code.
+
+- **Planning.** [BRIEF.md](BRIEF.md) sets what each stage builds. Where it leaves a choice open, Claude makes one and records it, with the reasoning, in [docs/decisions.md](docs/decisions.md).
+- **Research.** The facts in the setup guides were checked by a separate Claude agent against the vendors' current documentation.
+- **Review.** An independent Claude agent reviewed the code for security problems, and each finding was fixed with a test.
+- **Code.** Claude writes the code, the tests and the docs. Aaron decides what ships.
+
+This section is the credit for Claude's part, so commits carry no AI attribution lines.
