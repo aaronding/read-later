@@ -14,8 +14,8 @@ neither.
 
 ## Commits
 
-- The subject says what changes, in the imperative. The body explains why, in plain prose,
-  wrapped at 72 columns, without lists.
+- Keep messages short. The subject says what changes, in the imperative; the body, a sentence
+  or two wrapped at 72 columns, says why. No lists.
 - No `Co-Authored-By`, `Claude-Session` or other AI attribution line, unless asked for on a
   particular commit. The README's "How this is being built" section credits Claude instead,
   without naming a model version.
