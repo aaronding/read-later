@@ -6,6 +6,7 @@ node_modules/
 out/
 dist/
 apps/extension/dist-firefox/
+apps/extension/dist-firefox.zip
 build/
 *.tsbuildinfo
 next-env.d.ts
