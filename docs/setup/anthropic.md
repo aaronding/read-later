@@ -7,7 +7,9 @@ Summaries are written by Claude through the Anthropic API. This is the only paid
 1. Sign in to the Claude Console at <https://platform.claude.com> (Anthropic's developer console, formerly console.anthropic.com; it's separate from a claude.ai chat subscription).
 2. **Billing** (<https://platform.claude.com/settings/billing>): the API only works with prepaid credits. Click **Buy credits** and buy a small amount, such as $5–10; a few dollars cover hundreds of summaries (see the costs below). Credits are non-refundable and expire a year after purchase, so don't buy much more than you'll use. Auto-reload is optional; leave it off to start with.
 3. **Spend limits** (on the same Billing page): click **Set limit** and choose a monthly limit, so a mistake can never cost more than you expect.
-4. **API keys** (<https://platform.claude.com/settings/keys>): click **Create key**, name it `read-later`, and copy it. It starts with `sk-ant-` and is shown only once.
+4. **API keys** (<https://platform.claude.com/settings/keys>): click **Create key** and name it `read-later`. Under **Expires**, choose **Custom** and a date about a year away, and put a reminder in your calendar a week before it. Credits expire a year after purchase too, so both can be renewed together. Shorter lifetimes mean replacing the key in Vercel every few weeks, and **Never** leaves a leaked key working forever; the monthly spend limit caps what a leaked key could cost in the meantime. Copy the key: it starts with `sk-ant-` and is shown only once. The `apikey_…` the list of keys shows afterwards is only the key's ID, which can't be used in its place.
+
+   If the key does expire, new summaries fail with an authentication error. Put a new key in Vercel, redeploy, and use **Retry** on each affected article to run its failed summaries again.
 
 Put it in Vercel's environment variables (and your local `.env`) as `ANTHROPIC_API_KEY`. Use a separate key for development if you like, so each shows up separately in the Console's usage page.
 

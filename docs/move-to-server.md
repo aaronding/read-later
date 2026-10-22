@@ -101,4 +101,4 @@ cd /opt/read-later && git pull && docker compose up -d --build
 
 New database migrations run automatically (the `migrate` service runs before `web` and `worker` start).
 
-**Logs:** `docker compose logs -f web worker`. **Restart:** `docker compose restart web worker`.
+**Logs:** `docker compose logs -f web worker`. **Restart:** `docker compose restart web worker`. After changing `.env`, run `docker compose up -d` instead: it recreates the containers with the new values, which `restart` doesn't.

@@ -36,6 +36,7 @@ export function ArticleCard({ item }: { item: ArticleListItem }) {
         status={item.status}
         error={item.error}
         summaryStatus={item.summaryStatus}
+        summaryError={item.summaryError}
         hasSummary={Boolean(item.tldr)}
       />
       <div className="card-actions">

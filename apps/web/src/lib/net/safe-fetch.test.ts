@@ -1,8 +1,9 @@
 import dns from "node:dns";
 import http from "node:http";
+import https from "node:https";
 import type { AddressInfo } from "node:net";
 import zlib from "node:zlib";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { isBlockedAddress } from "./address-policy";
 import { decodeHtml } from "./decode";
 import { FetchError, safeFetch, type SafeFetchOptions } from "./safe-fetch";
@@ -144,6 +145,17 @@ describe("safeFetch", () => {
   it("returns non-2xx responses so callers can spot login walls", async () => {
     const response = await safeFetch(`${base()}/login`, options());
     expect(response.status).toBe(401);
+  });
+
+  it("names HTTP/1.1 in the TLS handshake, as browsers and curl do", async () => {
+    const request = vi.spyOn(https, "request");
+    try {
+      // The local server speaks plain HTTP, so the handshake itself fails.
+      await expect(safeFetch(`https://public.test:${port}/article`, options())).rejects.toBeInstanceOf(FetchError);
+      expect(request.mock.calls[0]?.[1]).toMatchObject({ ALPNProtocols: ["http/1.1"] });
+    } finally {
+      request.mockRestore();
+    }
   });
 
   it("refuses non-http schemes", async () => {

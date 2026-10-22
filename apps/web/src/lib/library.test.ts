@@ -87,6 +87,22 @@ describe("listArticles", () => {
     expect(items[2]).toMatchObject({ tldr: "Towns are planting fruit trees again.", summaryStatus: "ready" });
   });
 
+  it("carries a failed summary's reason, so the card can show it", async () => {
+    const [failed] = await db
+      .insert(summaries)
+      .values({ userId: "user-1", articleId: ids.trams!, model: "claude-opus-5-5", status: "failed", error: "Check ANTHROPIC_API_KEY." })
+      .returning();
+    try {
+      const { items } = await listArticles(db, "user-1", { view: "inbox" });
+      expect(items.find((item) => item.title === "Why the tram plan stalled")).toMatchObject({
+        summaryStatus: "failed",
+        summaryError: "Check ANTHROPIC_API_KEY.",
+      });
+    } finally {
+      await db.delete(summaries).where(eq(summaries.id, failed!.id));
+    }
+  });
+
   it("separates Inbox, Favorites and Archive", async () => {
     await setArchived(db, "user-1", ids.trams!, true);
     await setFavorite(db, "user-1", ids.orchards!, true);

@@ -1,11 +1,14 @@
 import { Readability } from "@mozilla/readability";
 import { JSDOM, VirtualConsole } from "jsdom";
+import { parse, serialize, type DefaultTreeAdapterTypes } from "parse5";
 import type { ContentSource } from "@/db/schema";
 import {
   checkPreview,
   findPaywallMarkup,
+  isJsonLdType,
   hasPasswordField,
   hasPaywallMarker,
+  MIN_ARTICLE_WORDS,
   readJsonLd,
   removeNonFreeSections,
   type PreviewKind,
@@ -92,6 +95,57 @@ function withoutLeadingTitle(html: string, title: string): string {
   return container.innerHTML;
 }
 
+/**
+ * The most HTML a page may still have once its scripts and style sheets are
+ * emptied: the same as a page sent from the browser. Beyond it, building the
+ * DOM takes tens of seconds and over a gigabyte.
+ */
+export const MAX_PAGE_HTML_BYTES = 4 * 1024 * 1024;
+
+export class PageTooLargeError extends Error {
+  constructor() {
+    super("The page is too large to save.");
+  }
+}
+
+function isJsonLd(element: DefaultTreeAdapterTypes.Element): boolean {
+  return isJsonLdType(element.attrs.find((a) => a.name === "type")?.value);
+}
+
+/**
+ * Scripts and style sheets are most of a big page's bytes (on a CNN article,
+ * 5 of its 5.6 MB) and never part of the article, so their contents go before
+ * jsdom builds the DOM. parse5, the parser jsdom itself uses, decides where
+ * each one starts and ends. The elements stay, with their attributes, and so
+ * does JSON-LD, which the paywall rules read.
+ */
+export function withoutScriptsAndStyles(html: string): string {
+  const document = parse(html, { scriptingEnabled: false });
+  const stack: DefaultTreeAdapterTypes.ParentNode[] = [document];
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    if ("tagName" in node && (node.tagName === "style" || (node.tagName === "script" && !isJsonLd(node)))) {
+      node.childNodes = [];
+      continue;
+    }
+    for (const child of node.childNodes) if ("childNodes" in child) stack.push(child);
+    if ("content" in node) stack.push(node.content); // <template>
+  }
+  return serialize(document);
+}
+
+/**
+ * Narrows the page to what is left of the article around its removed
+ * subscriber-only sections. The head stays, with JSON-LD moved into it, so
+ * Readability still finds the title, author and date.
+ */
+function keepOnlyFreePart(document: Document, containers: Element[]): void {
+  for (const script of document.body.querySelectorAll("script")) {
+    if (isJsonLdType(script.getAttribute("type"))) document.head.append(script);
+  }
+  document.body.replaceChildren(...containers);
+}
+
 function short(value: string | null | undefined, max: number): string | null {
   const text = value?.replace(/\s+/g, " ").trim();
   return text ? text.slice(0, max) : null;
@@ -103,7 +157,9 @@ function short(value: string | null | undefined, max: number): string | null {
  * jsdom does not execute them unless asked to.
  */
 export function extractArticle(input: ExtractInput): ExtractedArticle {
-  const dom = new JSDOM(input.html, { url: input.url, virtualConsole: new VirtualConsole() });
+  const html = withoutScriptsAndStyles(input.html);
+  if (Buffer.byteLength(html) > MAX_PAGE_HTML_BYTES) throw new PageTooLargeError();
+  const dom = new JSDOM(html, { url: input.url, virtualConsole: new VirtualConsole() });
   const document = dom.window.document;
 
   try {
@@ -120,12 +176,23 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     const metaDescription = meta(document, "description", "og:description");
     const htmlLang = document.documentElement.getAttribute("lang")?.trim() || null;
 
-    const removedSections =
-      input.contentSource === "server" ? removeNonFreeSections(document, paywall.selectors) : 0;
+    const removed =
+      input.contentSource === "server" ? removeNonFreeSections(document, paywall.selectors) : { count: 0, containers: [] };
+    const removedSections = removed.count;
 
-    const article = new Readability(document).parse();
-    const textContent = cleanText(article?.textContent ?? "");
-    const { wordCount, readingMinutes } = textStats(textContent);
+    // Without its subscriber-only sections, the free part of the article is
+    // what is left of it, not whatever Readability finds elsewhere on the
+    // page, such as a sidebar of stock prices.
+    if (removedSections > 0) keepOnlyFreePart(document, removed.containers);
+    let article = new Readability(document).parse();
+    let textContent = cleanText(article?.textContent ?? "");
+    let { wordCount, readingMinutes } = textStats(textContent);
+    if (removedSections > 0 && wordCount < MIN_ARTICLE_WORDS) {
+      // A caption and share buttons are not a free part worth keeping.
+      article = article && { ...article, content: "", textContent: "", excerpt: null };
+      textContent = "";
+      ({ wordCount, readingMinutes } = textStats(""));
+    }
 
     const siteName =
       short(article?.siteName ?? metaSite, 200) ?? new URL(input.url).hostname.replace(/^www\./, "");

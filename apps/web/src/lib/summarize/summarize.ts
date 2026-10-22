@@ -146,8 +146,34 @@ export function isRetryableApiError(error: unknown): boolean {
   if (error instanceof Anthropic.RateLimitError) return true;
   if (error instanceof Anthropic.InternalServerError) return true; // 5xx, including 529 overloaded
   if (error instanceof Anthropic.ConflictError) return true;
+  // An error event in the middle of a stream comes without an HTTP status,
+  // and the SDK doesn't retry it.
+  if (error instanceof Anthropic.APIError && error.status === undefined && error.type && TRANSIENT_STREAM_ERRORS.has(error.type)) {
+    return true;
+  }
   if (error instanceof Anthropic.APIError) return false; // 400, 401, 403, 404, 422
   return false;
+}
+
+const TRANSIENT_STREAM_ERRORS = new Set(["overloaded_error", "api_error", "rate_limit_error", "timeout_error"]);
+
+// The reader, the lists and Compare show the error, so it stays short.
+const MAX_ERROR_DETAIL = 300;
+
+/**
+ * The error as the reader, the lists and Compare show it. The SDK's own
+ * message is the status followed by the raw body (JSON, or a proxy's HTML
+ * page), so only the API's own message is kept, and a refused key says what
+ * to do about it.
+ */
+export function describeApiError(error: InstanceType<typeof Anthropic.APIError>): string {
+  const body = error.error as { error?: { message?: unknown } } | undefined;
+  const apiMessage = typeof body?.error?.message === "string" ? body.error.message.slice(0, MAX_ERROR_DETAIL) : null;
+  if (error instanceof Anthropic.AuthenticationError) {
+    return `The Claude API didn't accept the API key${apiMessage ? ` (${apiMessage})` : ""}. Check ANTHROPIC_API_KEY, restart the app (redeploy it on Vercel), then try the summary again.`;
+  }
+  if (error.status === undefined) return `Claude API error: ${apiMessage ?? error.message.slice(0, MAX_ERROR_DETAIL)}`;
+  return apiMessage ? `Claude API error ${error.status}: ${apiMessage}` : `Claude API error ${error.status}.`;
 }
 
 export interface SummarizeInput {
@@ -184,7 +210,7 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
       throw new SummaryError("Claude took too long to answer.", true);
     }
     if (error instanceof Anthropic.APIError) {
-      throw new SummaryError(`Claude API error${error.status ? ` ${error.status}` : ""}: ${error.message}`, isRetryableApiError(error));
+      throw new SummaryError(describeApiError(error), isRetryableApiError(error));
     }
     throw error;
   }

@@ -22,6 +22,7 @@ export function ArticleStatus({
   status,
   error,
   summaryStatus,
+  summaryError = null,
   hasSummary,
   stale = false,
 }: {
@@ -29,6 +30,8 @@ export function ArticleStatus({
   status: Article["status"];
   error: string | null;
   summaryStatus: Summary["status"] | null;
+  /** Why the summary failed, when it did. */
+  summaryError?: string | null;
   hasSummary: boolean;
   /** The summary has said "Summarizing…" for a long time: offer Retry. */
   stale?: boolean;
@@ -61,7 +64,7 @@ export function ArticleStatus({
   if (summaryStatus === "failed") {
     return (
       <div className="status error">
-        The summary failed. <RetryButton id={id} />
+        The summary failed{summaryError ? `: ${summaryError}` : "."} <RetryButton id={id} />
       </div>
     );
   }

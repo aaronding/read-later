@@ -60,6 +60,7 @@ export default async function TriagePage() {
               status={article.status}
               error={article.error}
               summaryStatus={chosen?.status ?? null}
+              summaryError={chosen?.error ?? null}
               hasSummary={false}
             />
             {article.excerpt && <p>{article.excerpt}</p>}

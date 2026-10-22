@@ -136,6 +136,11 @@ function requestOnce(url: URL, options: SafeFetchOptions, signal: AbortSignal): 
           "accept-encoding": "gzip, deflate, br",
         },
         lookup: guardedLookup(options.lookup ?? dns.lookup, isBlocked),
+        // Browsers and curl name the protocol they'll speak in the TLS
+        // handshake (ALPN). Node leaves it out unless asked, and some sites'
+        // bot protection refuses such handshakes: CNN answered Node's
+        // HTTP/1.1 requests with a 403 and curl's with the page.
+        ...(url.protocol === "https:" ? { ALPNProtocols: ["http/1.1"] } : {}),
         signal,
       },
       (response) => resolve({ response, request }),

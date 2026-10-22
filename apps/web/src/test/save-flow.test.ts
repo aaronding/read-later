@@ -460,6 +460,23 @@ describe("failures", () => {
     expect(summary!.error).toMatch(/declined.*cyber/);
   });
 
+  it("says what to do when the Claude API refuses the key, without retrying", async () => {
+    reply = () =>
+      Anthropic.APIError.generate(
+        401,
+        { type: "error", error: { type: "authentication_error", message: "invalid x-api-key" } },
+        undefined,
+        new Headers(),
+      );
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    const stats = await processJobs({ db });
+    expect(stats).toMatchObject({ succeeded: 1, failed: 1, retrying: 0 });
+    const [summary] = await summariesFor(id);
+    expect(summary).toMatchObject({ status: "failed" });
+    expect(summary!.error).toMatch(/didn't accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
+    expect(summary!.error).not.toContain("{");
+  });
+
   it("retries a connection failure later, with backoff", async () => {
     reply = () => new Anthropic.APIConnectionError({ message: "socket hang up" });
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
@@ -476,6 +493,21 @@ describe("failures", () => {
     await db.update(jobs).set({ runAt: new Date(Date.now() - 1000) }).where(eq(jobs.id, job!.id));
     await processJobs({ db });
     expect((await summariesFor(id))[0]?.status).toBe("ready");
+  });
+
+  it("fails a page too large to parse, without retrying", async () => {
+    vi.mocked(safeFetch).mockResolvedValue({
+      url: ARTICLE_URL,
+      status: 200,
+      headers: {},
+      contentType: "text/html",
+      body: Buffer.from(`<html><body>${"<div><p>word word word</p></div>".repeat(150_000)}</body></html>`),
+      redirects: [],
+    });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
+    const stats = await processJobs({ db });
+    expect(stats).toMatchObject({ failed: 1, retrying: 0 });
+    expect(await articleById(id)).toMatchObject({ status: "failed", error: "The page is too large to save." });
   });
 
   it("fails a page that cannot be downloaded, and lets a re-save retry it", async () => {

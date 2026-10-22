@@ -8,6 +8,11 @@
 type JsonLdNode = Record<string, unknown>;
 
 /** All JSON-LD objects on the page, with arrays and @graph flattened. */
+/** True for a script type of JSON-LD, written in any case and with any parameters. */
+export function isJsonLdType(type: string | null | undefined): boolean {
+  return /^\s*application\/ld\+json\s*(;|$)/i.test(type ?? "");
+}
+
 export function readJsonLd(document: Document): JsonLdNode[] {
   const nodes: JsonLdNode[] = [];
   const visit = (value: unknown, depth: number) => {
@@ -20,7 +25,8 @@ export function readJsonLd(document: Document): JsonLdNode[] {
     nodes.push(node);
     if (node["@graph"]) visit(node["@graph"], depth + 1);
   };
-  for (const script of document.querySelectorAll('script[type="application/ld+json"]')) {
+  for (const script of document.querySelectorAll("script")) {
+    if (!isJsonLdType(script.getAttribute("type"))) continue;
     try {
       visit(JSON.parse(script.textContent ?? ""), 0);
     } catch {
@@ -65,9 +71,33 @@ export function findPaywallMarkup(nodes: JsonLdNode[]): PaywallMarkup {
   return { notFree, selectors };
 }
 
-/** Removes the marked sections. Returns how many elements were removed. */
-export function removeNonFreeSections(document: Document, selectors: string[]): number {
-  let removed = 0;
+export interface RemovedSections {
+  count: number;
+  /**
+   * What is left of the article around the largest removed section: its
+   * nearest article element, or main, or else the nearest wrapper that still
+   * holds text. Never the whole body. The free part of the article is in
+   * here, never elsewhere on the page; empty when there is no such place.
+   */
+  containers: Element[];
+}
+
+function articleAround(parent: Element): Element | null {
+  const container = parent.closest("article") ?? parent.closest("main, [role=main]");
+  if (container) return container;
+  // No article or main: the nearest wrapper that still holds text, short of the body.
+  let node: Element | null = parent;
+  while (node && node.tagName !== "BODY" && node.tagName !== "HTML") {
+    if (node.textContent?.trim()) return node;
+    node = node.parentElement;
+  }
+  return null;
+}
+
+/** Removes the marked sections, and says where the rest of the article is. */
+export function removeNonFreeSections(document: Document, selectors: string[]): RemovedSections {
+  let count = 0;
+  let largest: { parent: Element; size: number } | null = null;
   for (const selector of selectors) {
     let matches: NodeListOf<Element>;
     try {
@@ -76,11 +106,16 @@ export function removeNonFreeSections(document: Document, selectors: string[]): 
       continue; // invalid selector in the publisher's markup
     }
     for (const element of matches) {
+      const size = element.textContent?.length ?? 0;
+      if (element.parentElement && (!largest || size > largest.size)) largest = { parent: element.parentElement, size };
       element.remove();
-      removed++;
+      count++;
     }
   }
-  return removed;
+  // A stray match elsewhere on the page (a promo box) must not widen the
+  // article to the page around it, so only the largest section counts.
+  const container = largest?.parent.isConnected ? articleAround(largest.parent) : null;
+  return { count, containers: container ? [container] : [] };
 }
 
 const PAYWALL_MARKER =
@@ -108,6 +143,14 @@ export const TEASER_MAX_WORDS = 400;
 // Below this, whatever we saved is too short to be the article.
 export const MIN_ARTICLE_WORDS = 100;
 
+// What our own download was told instead of the page. A 403 is not always a
+// login: some sites turn away any download that doesn't come from a browser.
+const REFUSED_DOWNLOAD: Record<number, string> = {
+  401: "The site asked for a login before showing this page (HTTP 401).",
+  402: "The site asked for a subscription before showing this page (HTTP 402).",
+  403: "The site refused the server's download (HTTP 403). It may want a login, or it may turn away downloads that don't come from a browser.",
+};
+
 export interface PreviewCheck {
   contentSource: "client" | "server";
   httpStatus?: number;
@@ -134,19 +177,21 @@ export interface PreviewVerdict {
 
 /** Why the saved copy is only a preview, or null when it looks complete. */
 export function checkPreview(check: PreviewCheck): PreviewVerdict | null {
-  if (check.contentSource === "server" && check.httpStatus && [401, 402, 403].includes(check.httpStatus)) {
-    return { kind: "login", reason: "The site asked for a login or subscription before showing this page." };
-  }
-  if (!check.foundArticle) {
-    return { kind: "no_article", reason: "No article could be found on this page." };
+  if (check.contentSource === "server" && check.httpStatus && check.httpStatus in REFUSED_DOWNLOAD) {
+    return { kind: "login", reason: REFUSED_DOWNLOAD[check.httpStatus]! };
   }
   // Publishers keep this markup even for subscribers, so it only counts for
   // our own (signed-out) downloads.
   if (check.contentSource === "server" && (check.paywall.notFree || check.removedSections > 0)) {
     return {
       kind: "subscriber_only",
-      reason: "The site marks this article as subscriber-only, so only the free part was saved.",
+      reason: check.foundArticle
+        ? "The site marks this article as subscriber-only, so only the free part was saved."
+        : "The site marks this article as subscriber-only, and too little of it is free to keep.",
     };
+  }
+  if (!check.foundArticle) {
+    return { kind: "no_article", reason: "No article could be found on this page." };
   }
   if ((check.passwordField || LOGIN_TITLE.test(check.pageTitle)) && check.wordCount < LOGIN_PAGE_MAX_WORDS) {
     return { kind: "login", reason: "This looks like a login page rather than the article." };

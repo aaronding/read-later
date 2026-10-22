@@ -25,6 +25,7 @@ export interface ArticleListItem {
   folderName: string | null;
   tldr: string | null;
   summaryStatus: Summary["status"] | null;
+  summaryError: string | null;
 }
 
 const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
@@ -68,6 +69,10 @@ const shownTldr = sql<string | null>`(
 
 const shownSummaryStatus = sql<Summary["status"] | null>`(
   SELECT s.status FROM summaries s
+  WHERE s.article_id = "articles"."id" AND s.model = "articles"."summary_model")`;
+
+const shownSummaryError = sql<string | null>`(
+  SELECT s.error FROM summaries s
   WHERE s.article_id = "articles"."id" AND s.model = "articles"."summary_model")`;
 
 export const PAGE_SIZE = 50;
@@ -123,6 +128,7 @@ export async function listArticles(
       folderName,
       tldr: shownTldr,
       summaryStatus: shownSummaryStatus,
+      summaryError: shownSummaryError,
     })
     .from(articles)
     .where(and(...filters))

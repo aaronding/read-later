@@ -82,8 +82,8 @@ export default async function ReaderPage({ params }: Props) {
 
       {article.previewOnly && (
         <div className="notice warn">
-          <strong>Preview only.</strong> {article.previewReason} To keep the full article, open it in your browser while
-          signed in to the site and save it again with the Chrome extension or the Safari Shortcut.
+          <strong>Preview only.</strong> {article.previewReason} To keep the full article, open it in your browser (signed
+          in to the site, if it needs that) and save it again with the Chrome extension or the Safari Shortcut.
         </div>
       )}
 
@@ -92,6 +92,7 @@ export default async function ReaderPage({ params }: Props) {
         status={article.status}
         error={article.error}
         summaryStatus={chosen?.status ?? null}
+        summaryError={chosen?.error ?? null}
         hasSummary={Boolean(ready)}
         stale={stale}
       />

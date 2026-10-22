@@ -30,8 +30,17 @@ describe("isAccessibleForFree markup", () => {
 
   it("removes only the marked sections and survives bad selectors", () => {
     const document = doc(`<p class="free">free</p><div class="locked">a</div><div class="locked">b</div>`);
-    expect(removeNonFreeSections(document, [".locked", "::not a selector"])).toBe(2);
+    expect(removeNonFreeSections(document, [".locked", "::not a selector"]).count).toBe(2);
     expect(document.body.textContent).toBe("free");
+  });
+
+  it("says where the rest of the article is: the article or main around the removed part", () => {
+    const document = doc(`<aside>Markets</aside><main><article><h1>Title</h1><div class="body"><p>free</p><div class="locked">a</div></div></article></main>`);
+    const { count, containers } = removeNonFreeSections(document, [".locked"]);
+    expect(count).toBe(1);
+    expect(containers.map((c) => c.tagName)).toEqual(["ARTICLE"]);
+    const bare = doc(`<p>other</p><div class="wrap"><p>free</p><div class="locked">a</div></div>`);
+    expect(removeNonFreeSections(bare, [".locked"]).containers.map((c) => c.className)).toEqual(["wrap"]);
   });
 });
 
@@ -65,8 +74,12 @@ describe("checkPreview", () => {
     expect(checkPreview(complete)).toBeNull();
   });
 
-  it("flags login and subscription responses on our own downloads", () => {
-    expect(checkPreview({ ...complete, httpStatus: 402 })?.reason).toMatch(/login or subscription/);
+  it("flags login, subscription and refused responses on our own downloads", () => {
+    expect(checkPreview({ ...complete, httpStatus: 401 })).toMatchObject({ kind: "login", reason: expect.stringMatching(/login .*HTTP 401/) });
+    expect(checkPreview({ ...complete, httpStatus: 402 })?.reason).toMatch(/subscription .*HTTP 402/);
+    // A 403 may be a site turning away downloads that aren't from a browser, not a login.
+    expect(checkPreview({ ...complete, httpStatus: 403 })?.reason).toMatch(/refused the server's download \(HTTP 403\).*browser/);
+    expect(checkPreview({ ...complete, httpStatus: 403, contentSource: "client" })).toBeNull();
   });
 
   it("flags subscriber-only markup on our own downloads, not on the owner's browser copy", () => {

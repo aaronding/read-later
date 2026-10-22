@@ -5,7 +5,7 @@ import { envInt } from "@/config/env";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, summaries, tags, type Article, type ContentSource, type Job } from "@/db/schema";
-import { extractArticle, type ExtractedArticle } from "@/lib/extract/extract";
+import { extractArticle, PageTooLargeError, type ExtractedArticle, type ExtractInput } from "@/lib/extract/extract";
 import { previewIsSummarizable } from "@/lib/extract/paywall";
 import { decodeHtml, isHtmlContentType } from "@/lib/net/decode";
 import { FetchError, safeFetch, type SafeFetchResponse } from "@/lib/net/safe-fetch";
@@ -51,13 +51,23 @@ export async function requestSummary(
   });
 }
 
+/** extractArticle, with a page too large to parse failing the job for good. */
+function extract(input: ExtractInput): ExtractedArticle {
+  try {
+    return extractArticle(input);
+  } catch (error) {
+    if (error instanceof PageTooLargeError) throw new JobError(error.message, false);
+    throw error;
+  }
+}
+
 async function download(url: string): Promise<SafeFetchResponse> {
   let response: SafeFetchResponse;
   try {
     response = await safeFetch(url, {
       userAgent: downloadUserAgent(),
       timeoutMs: envInt("FETCH_TIMEOUT_MS", 15_000),
-      maxBytes: envInt("FETCH_MAX_BYTES", 5 * 1024 * 1024),
+      maxBytes: envInt("FETCH_MAX_BYTES", 10 * 1024 * 1024),
     });
   } catch (error) {
     if (error instanceof FetchError) throw new JobError(error.message, error.retryable);
@@ -113,7 +123,7 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   let pageUrl = article.url;
   if (submitted) {
     contentSource = "client";
-    extracted = extractArticle({
+    extracted = extract({
       html: submitted,
       url: article.url,
       contentSource,
@@ -123,7 +133,7 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
     contentSource = "server";
     const response = await download(article.url);
     pageUrl = response.url;
-    extracted = extractArticle({
+    extracted = extract({
       html: decodeHtml(response.body, response.contentType),
       url: response.url,
       contentSource,
