@@ -43,8 +43,11 @@ export async function saveAppearance(db: Db, userId: string, appearance: Appeara
     .onConflictDoUpdate({ target: userAppearance.userId, set: values });
 }
 
-/** The models to run on a new save: the default first, then the others in comparison mode. */
-export function modelsForNewSave(settings: Settings): SummaryModel[] {
-  if (!settings.comparisonMode) return [settings.defaultModel];
+/**
+ * The models to run on a new save: the default first, then the others in
+ * comparison mode, which only an admin can use.
+ */
+export function modelsForNewSave(settings: Settings, admin: boolean): SummaryModel[] {
+  if (!admin || !settings.comparisonMode) return [settings.defaultModel];
   return [settings.defaultModel, ...SUMMARY_MODELS.filter((model) => model !== settings.defaultModel)];
 }

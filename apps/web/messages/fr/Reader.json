@@ -6,7 +6,7 @@
     "favoriteOff": "☆ Favori",
     "markUnread": "Marquer comme non lu",
     "previewNotice": "<strong>Aperçu seulement.</strong> {reason} Pour conserver l’article complet, ouvrez-le dans votre navigateur (en vous connectant au site si nécessaire), puis enregistrez-le à nouveau avec l’extension de navigateur ou le raccourci {safari}.",
-    "noSummary": "Aucun résumé : l’article ne contient pas assez de texte. <compare>Comparer les modèles</compare>",
+    "noSummary": "Aucun résumé : l’article ne contient pas assez de texte.",
     "noReadableCopy": "Aucune copie lisible de cette page n’est disponible. <link>Ouvrez l’original</link>.",
     "openTheOriginal": "<link>Ouvrez l’original</link>.",
     "deleteConfirm": "Supprimer cet article et ses résumés ?"

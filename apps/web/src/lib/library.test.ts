@@ -161,7 +161,7 @@ describe("triage", () => {
 describe("retryArticle", () => {
   it("queues a failed download again", async () => {
     await db.update(articles).set({ status: "failed", error: "boom", contentHtml: null }).where(eq(articles.id, ids.trams!));
-    await retryArticle(db, "user-1", ids.trams!);
+    await retryArticle(db, "user-1", ids.trams!, { admin: false });
     const [row] = await db.select().from(articles).where(eq(articles.id, ids.trams!));
     expect(row).toMatchObject({ status: "pending", error: null });
     const queued = await db.select().from(jobs).where(eq(jobs.articleId, ids.trams!));

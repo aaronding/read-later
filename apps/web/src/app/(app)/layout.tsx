@@ -4,11 +4,11 @@ import { AppearanceMenu } from "@/components/appearance-menu";
 import { Logo } from "@/components/logo";
 import { NavTabs } from "@/components/nav-tabs";
 import { SearchForm } from "@/components/search-form";
-import { requireUser } from "@/lib/auth";
+import { isAdmin, requireUser } from "@/lib/auth";
 import { getSavedAppearance } from "@/lib/saved-appearance";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
-  await requireUser();
+  const user = await requireUser();
   const appearance = await getSavedAppearance();
   return (
     <div className="shell">
@@ -23,7 +23,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
           <AppearanceMenu saved={appearance} />
         </div>
-        <NavTabs />
+        <NavTabs admin={isAdmin(user)} />
       </header>
       <main>{children}</main>
     </div>

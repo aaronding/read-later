@@ -57,6 +57,7 @@ export function SummaryCard({
   summary,
   translations,
   children,
+  admin = false,
 }: {
   articleId: string;
   summary: Summary;
@@ -64,6 +65,8 @@ export function SummaryCard({
   translations?: React.ReactNode;
   /** Extra content under the summary, such as suggested tags. */
   children?: React.ReactNode;
+  /** Shows the cost, time, Compare and writing it again with another model. */
+  admin?: boolean;
 }) {
   const t = useTranslations("Summary");
   const tCommon = useTranslations("Common");
@@ -84,32 +87,35 @@ export function SummaryCard({
       )}
       {translations}
       {children}
-      <div className="summary-footer">
-        <span>
-          {formatCost(summary.costUsd, t, format)} · {formatDuration(summary.durationMs, t, format)}
-          {summary.servedModel && summary.servedModel !== summary.model
-            ? ` · ${t("answeredBy", { model: summary.servedModel })}`
-            : ""}
-        </span>
-        <Link href={`/articles/${articleId}/compare`}>{tCommon("compareModels")}</Link>
-        {/* Keyed by the model so the picker shows the new summary's, once it is written. */}
-        <form key={summary.model} action={resummarizeAction} className="inline-form">
-          <input type="hidden" name="id" value={articleId} />
-          <label htmlFor="resummarize-model" className="visually-hidden">
-            {t("modelLabel")}
-          </label>
-          <select id="resummarize-model" name="model" defaultValue={summary.model} style={{ width: "auto", minHeight: 32, padding: "0.2em 0.5em" }}>
-            {SUMMARY_MODELS.map((model) => (
-              <option key={model} value={model}>
-                {MODEL_INFO[model].shortLabel}
-              </option>
-            ))}
-          </select>{" "}
-          <SubmitButton className="button small" pendingText={tCommon("queued")}>
-            {t("resummarize")}
-          </SubmitButton>
-        </form>
-      </div>
+      {/* Costs, Compare and writing it again are for admins (ADMIN_EMAILS). */}
+      {admin && (
+        <div className="summary-footer">
+          <span>
+            {formatCost(summary.costUsd, t, format)} · {formatDuration(summary.durationMs, t, format)}
+            {summary.servedModel && summary.servedModel !== summary.model
+              ? ` · ${t("answeredBy", { model: summary.servedModel })}`
+              : ""}
+          </span>
+          <Link href={`/articles/${articleId}/compare`}>{tCommon("compareModels")}</Link>
+          {/* Keyed by the model so the picker shows the new summary's, once it is written. */}
+          <form key={summary.model} action={resummarizeAction} className="inline-form">
+            <input type="hidden" name="id" value={articleId} />
+            <label htmlFor="resummarize-model" className="visually-hidden">
+              {t("modelLabel")}
+            </label>
+            <select id="resummarize-model" name="model" defaultValue={summary.model} style={{ width: "auto", minHeight: 32, padding: "0.2em 0.5em" }}>
+              {SUMMARY_MODELS.map((model) => (
+                <option key={model} value={model}>
+                  {MODEL_INFO[model].shortLabel}
+                </option>
+              ))}
+            </select>{" "}
+            <SubmitButton className="button small" pendingText={tCommon("queued")}>
+              {t("resummarize")}
+            </SubmitButton>
+          </form>
+        </div>
+      )}
     </section>
   );
 }

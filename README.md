@@ -28,7 +28,7 @@ This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Saf
 1. **Saving.** The extension, the Shortcut, Android's Share menu and the web app's paste box all end up at `POST /api/save` (or the same code behind it). The request is authenticated with a personal access token, stored as a `pending` article together with a job, and answered right away with "Saved".
 2. **Background jobs.** Jobs live in a Postgres table and are claimed with `FOR UPDATE SKIP LOCKED` by one function, `processJobs()`. A job downloads the page if only a URL was sent (http and https only, private addresses blocked, with time and size limits), extracts the article with Mozilla Readability, sanitizes it with DOMPurify, applies the paywall rules, then queues a summary for each model wanted. Failures are retried with backoff.
 3. **Who runs the jobs.** On Vercel, `processJobs()` runs right after each save through Next.js `after()`, and the Cloudflare Worker calls `/api/jobs/run` every 5 minutes as a safety net. On a server, a worker process runs it in a loop.
-4. **Summaries.** Each summary is one Claude API call that returns structured JSON: a one-sentence TL;DR, 3 to 5 key points and 1 to 3 suggested tags, all in the article's language. Every row stores its tokens, estimated cost and time, so the three models (Opus 5.5, Sonnet 5.5, Haiku 5.5) can be compared side by side. Every answer Claude gives, for summaries and translations alike, is also recorded in `ai_usage` with its model, tokens, cost and time, for reports of what each user spends.
+4. **Summaries.** Each summary is one Claude API call that returns structured JSON: a one-sentence TL;DR, 3 to 5 key points and 1 to 3 suggested tags, all in the article's language. Every row stores its tokens, estimated cost and time, so the three models (Opus 5.5, Sonnet 5.5, Haiku 5.5) can be compared side by side. Every answer Claude gives, for summaries and translations alike, is also recorded in `ai_usage` with its model, tokens, cost and time; admins see each user's total by week, month and year in **Usage**.
 5. **Languages.** The app is in English, French, Simplified Chinese and Traditional Chinese (with Taiwan's usage), chosen in **Settings → Language** or, until then, from the browser. Summaries stay in each article's own language, and the reader can translate one into another of these languages, by the model that wrote it, up to three times per summary. Simplified and Traditional Chinese count as one language there: a Chinese summary can go to English or French, an English one to either Chinese. See [Translations](#translations).
 
 ## Local development (Windows, macOS or Linux)
@@ -55,6 +55,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
      `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
    - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: a Google OAuth client that allows `http://localhost:3000` (see [docs/setup/google-oauth.md](docs/setup/google-oauth.md)).
    - `ALLOWED_EMAILS`: your Google account's email.
+   - `ADMIN_EMAILS`: your email again, to see each summary's cost, Compare models, comparison mode and the AI usage report.
    - `ANTHROPIC_API_KEY`: your Claude API key, or use the mock below.
 
 4. Create the tables, then start the app:
@@ -128,7 +129,7 @@ When the free plans stop being enough: [Move to one server](docs/move-to-server.
 
 ## Security notes
 
-- Only the Google accounts in `ALLOWED_EMAILS` can sign in, and every database query is scoped to the signed-in user.
+- Only the Google accounts in `ALLOWED_EMAILS` can sign in, and every database query is scoped to the signed-in user. Only those also in `ADMIN_EMAILS` see costs in the app, Compare and the AI usage report, which covers every user; each user's own JSON export still has their summaries' costs.
 - Access tokens are stored only as SHA-256 hashes and shown once. Revoke them in Settings.
 - Server-side downloads refuse private, loopback and link-local addresses, also after redirects, so the server can't be pointed at internal services.
 - Saved HTML is sanitized before it is stored, and every page gets a nonce-based Content Security Policy, so even a script that got past the sanitizer would not run.

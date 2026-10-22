@@ -34,17 +34,32 @@ export function appUrl(): string {
   return envString("APP_URL", "http://localhost:3000").replace(/\/+$/, "");
 }
 
-/** Lower-cased emails from ALLOWED_EMAILS (comma or whitespace separated). */
-export function allowedEmails(): Set<string> {
+/** Lower-cased emails from a variable (comma or whitespace separated). */
+function emailList(name: string): Set<string> {
   return new Set(
-    (process.env.ALLOWED_EMAILS ?? "")
+    (process.env[name] ?? "")
       .split(/[\s,]+/)
       .map((email) => email.trim().toLowerCase())
       .filter(Boolean),
   );
 }
 
+/** Lower-cased emails from ALLOWED_EMAILS. */
+export function allowedEmails(): Set<string> {
+  return emailList("ALLOWED_EMAILS");
+}
+
 export function isEmailAllowed(email: string | null | undefined): boolean {
   if (!email) return false;
   return allowedEmails().has(email.trim().toLowerCase());
+}
+
+/**
+ * True for the emails in ADMIN_EMAILS, who see the models' costs, Compare,
+ * comparison mode and every user's AI usage. They must be in ALLOWED_EMAILS
+ * too, to sign in at all.
+ */
+export function isEmailAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return emailList("ADMIN_EMAILS").has(email.trim().toLowerCase());
 }

@@ -1,0 +1,21 @@
+{
+  "Admin": {
+    "usage": {
+      "title": "Utilisation de l’IA",
+      "intro": "Ce que Claude a fait pour chaque utilisateur et ce que cela a coûté, d’après chacune de ses réponses, utilisables ou non. Les semaines commencent le lundi, et toutes les périodes sont en UTC.",
+      "periodsLabel": "Période",
+      "period": "{period, select, week {Par semaine} month {Par mois} year {Par année} other {{period}}}",
+      "range": "{period, select, week {Les 12 dernières semaines.} month {Les 12 derniers mois.} year {Toutes les années.} other {}}",
+      "weekOf": "Semaine du {date}",
+      "user": "Utilisateur",
+      "answers": "Réponses",
+      "answersDetail": "{summaries, plural, one {# résumé} other {# résumés}} · {translations, plural, one {# traduction} other {# traductions}}",
+      "tokens": "Jetons en entrée / en sortie",
+      "cost": "Coût",
+      "time": "Durée",
+      "total": "Total",
+      "unpriced": "{count, plural, one {# réponse} other {# réponses}} sans prix connu",
+      "empty": "{period, select, week {Aucune réponse de Claude ces 12 dernières semaines.} month {Aucune réponse de Claude ces 12 derniers mois.} other {Aucune réponse de Claude pour l’instant.}}"
+    }
+  }
+}

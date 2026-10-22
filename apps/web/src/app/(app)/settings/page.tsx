@@ -12,7 +12,7 @@ import { appUrl } from "@/config/env";
 import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
 import { HTML_LANG, LOCALES, LOCALE_NAMES } from "@/i18n/locales";
-import { requireUser } from "@/lib/auth";
+import { isAdmin, requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getSavedAppearance } from "@/lib/saved-appearance";
 import { getSettings } from "@/lib/settings";
@@ -93,17 +93,19 @@ export default async function SettingsPage() {
               ))}
             </select>
           </div>
-          <div className="field">
-            <label className="checkbox" style={{ fontWeight: 400 }}>
-              <input type="checkbox" name="comparisonMode" defaultChecked={settings.comparisonMode} />
-              <span>
-                {t.rich("summaries.comparisonMode", {
-                  count: SUMMARY_MODELS.length,
-                  strong: (chunks) => <strong>{chunks}</strong>,
-                })}
-              </span>
-            </label>
-          </div>
+          {isAdmin(user) && (
+            <div className="field">
+              <label className="checkbox" style={{ fontWeight: 400 }}>
+                <input type="checkbox" name="comparisonMode" defaultChecked={settings.comparisonMode} />
+                <span>
+                  {t.rich("summaries.comparisonMode", {
+                    count: SUMMARY_MODELS.length,
+                    strong: (chunks) => <strong>{chunks}</strong>,
+                  })}
+                </span>
+              </label>
+            </div>
+          )}
           <SubmitButton className="button primary" pendingText={tCommon("saving")}>
             {tCommon("save")}
           </SubmitButton>

@@ -7,6 +7,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { and, eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, OPTIONS, POST } from "@/app/api/save/route";
+import { SUMMARY_MODELS } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, jobs, summaries } from "@/db/schema";
 import type { AppLocale } from "@/i18n/locales";
@@ -266,11 +267,16 @@ describe("save -> job -> summary", () => {
   });
 
   it("runs all three models in comparison mode, without fallbacks on Haiku", async () => {
-    await updateSettings(db, "user-1", { defaultModel: "claude-sonnet-5-5", comparisonMode: true });
-    const response = await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }));
-    const { id } = await response.json();
-    const stats = await processJobs({ db });
-    expect(stats.succeeded).toBe(4);
+    process.env.ADMIN_EMAILS = "owner@example.com";
+    let id: string;
+    try {
+      await updateSettings(db, "user-1", { defaultModel: "claude-sonnet-5-5", comparisonMode: true });
+      const response = await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }));
+      ({ id } = await response.json());
+      expect((await processJobs({ db })).succeeded).toBe(4);
+    } finally {
+      delete process.env.ADMIN_EMAILS;
+    }
 
     const rows = await summariesFor(id);
     expect(rows.map((row) => row.model).sort()).toEqual(["claude-haiku-5-5", "claude-opus-5-5", "claude-sonnet-5-5"]);
@@ -282,6 +288,38 @@ describe("save -> job -> summary", () => {
     expect(haiku).not.toHaveProperty("betas");
     const haikuRow = rows.find((row) => row.model === "claude-haiku-5-5")!;
     expect(haikuRow.costUsd).toBeCloseTo((2_000 * 0.1 + 400 * 0.5) / 1e6, 8);
+  });
+
+  it("ignores comparison mode for someone who isn't an admin", async () => {
+    await updateSettings(db, "user-1", { defaultModel: "claude-sonnet-5-5", comparisonMode: true });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    expect((await processJobs({ db })).succeeded).toBe(2);
+    expect((await summariesFor(id)).map((row) => row.model)).toEqual(["claude-sonnet-5-5"]);
+  });
+
+  it("runs other models that summarized an earlier copy again only for an admin", async () => {
+    for (const admin of [false, true]) {
+      if (admin) process.env.ADMIN_EMAILS = "owner@example.com";
+      // Both rounds save the same page.
+      await db.delete(articles);
+      try {
+        // A teaser saved first, summarized by the default model, and by the
+        // others too, as comparison mode did for everyone before.
+        const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("teaser-paywall.html") }))).json();
+        await processJobs({ db });
+        const shown = (await articleById(id)).summaryModel!;
+        const others = SUMMARY_MODELS.filter((model) => model !== shown);
+        await db.insert(summaries).values(others.map((model) => ({ userId: "user-1", articleId: id, model, status: "ready" as const })));
+
+        // The full page replaces the teaser.
+        requests.length = 0;
+        await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }));
+        await processJobs({ db });
+        expect(requests.map((params) => params.model).sort()).toEqual(admin ? [...SUMMARY_MODELS].sort() : [shown]);
+      } finally {
+        delete process.env.ADMIN_EMAILS;
+      }
+    }
   });
 
   it("marks a summary partial when the article is longer than the input limit", async () => {
@@ -439,7 +477,7 @@ describe("races and recovery", () => {
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
     await processJobs({ db });
     await db.update(summaries).set({ status: "pending" }).where(eq(summaries.articleId, id));
-    await retryArticle(db, "user-1", id);
+    await retryArticle(db, "user-1", id, { admin: false });
     await processJobs({ db });
     expect((await summariesFor(id))[0]?.status).toBe("ready");
   });
@@ -524,7 +562,7 @@ describe("failures", () => {
 
     // Retry runs it again and clears the old error until the new run says otherwise.
     reply = defaultReply;
-    await retryArticle(db, "user-1", id);
+    await retryArticle(db, "user-1", id, { admin: false });
     expect((await summariesFor(id))[0]).toMatchObject({ status: "pending", error: null, errorMessage: null });
     await processJobs({ db });
     expect((await summariesFor(id))[0]).toMatchObject({ status: "ready", error: null, errorMessage: null });
@@ -613,7 +651,7 @@ describe("failures", () => {
       errorMessage: { key: "download.notWebPage", values: { type: "application/pdf" } },
     });
 
-    await retryArticle(db, "user-1", id);
+    await retryArticle(db, "user-1", id, { admin: false });
     expect(await articleById(id)).toMatchObject({ status: "pending", error: null, errorMessage: null });
     await processJobs({ db });
     expect(await articleById(id)).toMatchObject({ status: "failed", errorMessage: { key: "download.notWebPage" } });

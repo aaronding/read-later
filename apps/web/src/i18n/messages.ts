@@ -1,4 +1,5 @@
 import type actions from "../../messages/en/Actions.json";
+import type admin from "../../messages/en/Admin.json";
 import type api from "../../messages/en/Api.json";
 import type appearance from "../../messages/en/Appearance.json";
 import type auth from "../../messages/en/Auth.json";
@@ -25,6 +26,7 @@ import { DEFAULT_LOCALE, type AppLocale } from "./locales";
 
 export const NAMESPACES = [
   "Actions",
+  "Admin",
   "Api",
   "Appearance",
   "Auth",
@@ -47,6 +49,7 @@ export const NAMESPACES = [
 export type Namespace = (typeof NAMESPACES)[number];
 
 export type Messages = typeof actions &
+  typeof admin &
   typeof api &
   typeof appearance &
   typeof auth &
