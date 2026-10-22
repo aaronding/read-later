@@ -108,6 +108,20 @@ export const userSettings = pgTable("user_settings", {
   updatedAt: updatedAt(),
 });
 
+// How articles look for this user (see lib/appearance.ts). Kept apart from
+// user_settings, whose row also fixes the default summary model.
+export const userAppearance = pgTable("user_appearance", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => users.id, { onDelete: "cascade" }),
+  theme: text("theme").notNull(),
+  lightPalette: text("light_palette").notNull(),
+  darkPalette: text("dark_palette").notNull(),
+  font: text("font").notNull(),
+  createdAt: createdAt(),
+  updatedAt: updatedAt(),
+});
+
 export const apiTokens = pgTable(
   "api_tokens",
   {

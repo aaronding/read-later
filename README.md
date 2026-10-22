@@ -73,7 +73,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 | `pnpm dev` | Runs the web app with hot reload (jobs run in `after()`) |
 | `pnpm test` | Runs every package's tests |
 | `pnpm typecheck` | Type-checks every package |
-| `pnpm build` | Builds the web app for production |
+| `pnpm build` | Builds the web app for production (it downloads the reading fonts from Google Fonts, so it needs internet access) |
 | `pnpm db:migrate` | Applies database migrations to `DATABASE_URL_UNPOOLED`, or to `DATABASE_URL` when that isn't set |
 | `pnpm db:generate` | Creates a new migration after changing `apps/web/src/db/schema.ts` |
 | `pnpm worker` | Runs the background worker loop (only needed on a server) |
