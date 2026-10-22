@@ -52,6 +52,18 @@
       "invalidUrl": "{field} must be an absolute http or https URL.",
       "htmlTooLarge": "The page’s HTML is too large to save.",
       "failed": "Could not save the article. Please try again."
+    },
+    "translation": {
+      "summaryNotReady": "The summary isn’t ready, so there is nothing to translate yet.",
+      "limitReached": "{claude} has already been asked to translate this summary {max, plural, one {# time} other {# times}}, the most allowed.",
+      "declined": "{claude} declined to translate this summary.",
+      "declinedCategory": "{claude} declined to translate this summary ({category, select, cyber {cyber} bio {bio} frontier_llm {frontier llm} reasoning_extraction {reasoning extraction} general_harms {general harms} other {{category}}}).",
+      "cutOff": "The translation was cut off before it was finished.",
+      "tooLong": "The summary is too long for this model.",
+      "empty": "{claude} returned no translation.",
+      "badFormat": "{claude}’s translation was not in the expected format.",
+      "apiKeyRejected": "The {claude} API didn’t accept the API key. Check {variable}, restart the app (redeploy it on {vercel}), then try the translation again.",
+      "apiKeyRejectedWithDetail": "The {claude} API didn’t accept the API key ({detail}). Check {variable}, restart the app (redeploy it on {vercel}), then try the translation again."
     }
   }
 }

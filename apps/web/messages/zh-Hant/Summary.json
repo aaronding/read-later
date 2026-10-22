@@ -7,6 +7,15 @@
     "partialShare": "這份摘要僅涵蓋這篇長文的前 {share, number, percent}。",
     "partialSaved": "這份摘要僅涵蓋文章中已儲存的部分。",
     "modelLabel": "模型",
-    "resummarize": "重新產生摘要"
+    "resummarize": "重新產生摘要",
+    "translateInto": "翻譯成",
+    "translate": "翻譯",
+    "languageName": "{language, select, en {英文} fr {法文} zh_Hans {簡體中文} zh_Hant {繁體中文} other {{language}}}",
+    "translationHeading": "{language, select, en {英文譯文} fr {法文譯文} zh_Hans {簡體中文譯文} zh_Hant {繁體中文譯文} other {譯文}}",
+    "translating": "正在翻譯…",
+    "translationFailed": "翻譯失敗。",
+    "translationFailedWithError": "翻譯失敗：{error}",
+    "translatedBy": "由 {model} 翻譯",
+    "removeTranslation": "移除"
   }
 }

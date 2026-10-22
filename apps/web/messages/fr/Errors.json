@@ -52,6 +52,18 @@
       "invalidUrl": "Le champ {field} doit contenir une URL http ou https absolue.",
       "htmlTooLarge": "Le HTML de la page est trop volumineux pour être enregistré.",
       "failed": "Impossible d’enregistrer l’article. Réessayez."
+    },
+    "translation": {
+      "summaryNotReady": "Le résumé n’est pas encore prêt : il n’y a rien à traduire pour l’instant.",
+      "limitReached": "On a déjà demandé à {claude} de traduire ce résumé {max, plural, one {# fois} other {# fois}}, le maximum autorisé.",
+      "declined": "{claude} a refusé de traduire ce résumé.",
+      "declinedCategory": "{claude} a refusé de traduire ce résumé ({category, select, cyber {cybersécurité} bio {biosécurité} frontier_llm {IA de pointe} reasoning_extraction {extraction du raisonnement} general_harms {préjudices généraux} other {{category}}}).",
+      "cutOff": "La traduction a été interrompue avant d’être terminée.",
+      "tooLong": "Le résumé est trop long pour ce modèle.",
+      "empty": "{claude} n’a renvoyé aucune traduction.",
+      "badFormat": "La traduction de {claude} n’était pas au format attendu.",
+      "apiKeyRejected": "L’API {claude} a refusé la clé d’API. Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez la traduction.",
+      "apiKeyRejectedWithDetail": "L’API {claude} a refusé la clé d’API ({detail}). Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez la traduction."
     }
   }
 }

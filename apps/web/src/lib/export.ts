@@ -3,7 +3,7 @@ import type { createTranslator } from "next-intl";
 import { APP_NAME } from "@/config/app";
 import { modelLabel } from "@/config/models";
 import type { Db } from "@/db";
-import { articleTags, articles, folders, summaries, tags } from "@/db/schema";
+import { articleTags, articles, folders, summaries, summaryTranslations, tags } from "@/db/schema";
 import type { Messages } from "@/i18n/messages";
 import { storedMessageText, type ErrorsTranslator } from "@/i18n/stored-message";
 
@@ -14,12 +14,13 @@ import { storedMessageText, type ErrorsTranslator } from "@/i18n/stored-message"
 export type ExportTranslator = ReturnType<typeof createTranslator<Messages, "Export">>;
 
 export async function loadExport(db: Db, userId: string) {
-  const [articleRows, summaryRows, folderRows, tagRows, links] = await Promise.all([
+  const [articleRows, summaryRows, folderRows, tagRows, links, translationRows] = await Promise.all([
     db.select().from(articles).where(eq(articles.userId, userId)).orderBy(asc(articles.savedAt)),
     db.select().from(summaries).where(eq(summaries.userId, userId)).orderBy(asc(summaries.createdAt)),
     db.select().from(folders).where(eq(folders.userId, userId)).orderBy(asc(folders.name)),
     db.select().from(tags).where(eq(tags.userId, userId)).orderBy(asc(tags.name)),
     db.select().from(articleTags).where(eq(articleTags.userId, userId)),
+    db.select().from(summaryTranslations).where(eq(summaryTranslations.userId, userId)).orderBy(asc(summaryTranslations.createdAt)),
   ]);
   const folderName = new Map(folderRows.map((folder) => [folder.id, folder.name]));
   const tagName = new Map(tagRows.map((tag) => [tag.id, tag.name]));
@@ -68,6 +69,17 @@ export async function loadExport(db: Db, userId: string) {
           durationMs: summary.durationMs,
           effort: summary.effort,
           completedAt: summary.completedAt,
+          translations: translationRows
+            .filter((translation) => translation.summaryId === summary.id && translation.status === "ready")
+            .map((translation) => ({
+              language: translation.language,
+              tldr: translation.tldr,
+              keyPoints: translation.keyPoints,
+              model: translation.model,
+              servedModel: translation.servedModel,
+              costUsd: translation.costUsd,
+              completedAt: translation.completedAt,
+            })),
         })),
       text: article.textContent,
       html: article.contentHtml,
@@ -113,6 +125,12 @@ export function exportToMarkdown(data: ExportData, t: ExportTranslator, tErrors:
       out.push(`### ${t("summary", { model: modelLabel(summary.model) })}`, "", summary.tldr ?? "", "");
       for (const point of summary.keyPoints ?? []) out.push(`- ${point}`);
       out.push("");
+      for (const translation of summary.translations) {
+        // Select keys can't contain "-".
+        out.push(`#### ${t("translation", { language: translation.language.replace("-", "_") })}`, "", translation.tldr ?? "", "");
+        for (const point of translation.keyPoints ?? []) out.push(`- ${point}`);
+        out.push("");
+      }
     }
     if (article.text) out.push(`### ${t("article")}`, "", article.text, "");
   }

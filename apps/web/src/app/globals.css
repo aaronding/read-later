@@ -578,6 +578,41 @@ label.checkbox input {
   margin: 4px 0;
   text-wrap: pretty;
 }
+/* A summary's translations, under its own text. */
+.summary-translations {
+  margin-top: 14px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.translation h3 {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.translation + .translation,
+.translation + .translate-form {
+  margin-top: 12px;
+}
+.translation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.translate-form label {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.translate-form select {
+  width: auto;
+  min-height: 32px;
+  padding: 0.2em 0.5em;
+}
 .summary-footer {
   display: flex;
   flex-wrap: wrap;

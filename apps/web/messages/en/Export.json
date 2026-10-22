@@ -15,6 +15,7 @@
     "tags": "Tags: {tags}",
     "previewOnly": "Preview only: {reason}",
     "summary": "Summary ({model})",
+    "translation": "{language, select, en {In English} fr {In French} zh_Hans {In Simplified Chinese} zh_Hant {In Traditional Chinese} other {In {language}}}",
     "article": "Article"
   }
 }

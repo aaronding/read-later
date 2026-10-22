@@ -268,7 +268,89 @@ export const summaries = pgTable(
   ],
 );
 
-export type JobType = "process_article" | "summarize";
+// A summary in another language (lib/summarize/languages.ts says which). It
+// is translated by the model that wrote the summary, and again whenever the
+// summary is written again.
+export const summaryTranslations = pgTable(
+  "summary_translations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    articleId: uuid("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    summaryId: uuid("summary_id")
+      .notNull()
+      .references(() => summaries.id, { onDelete: "cascade" }),
+    // en, fr, zh-Hans or zh-Hant.
+    language: text("language").notNull(),
+    status: text("status").$type<SummaryStatus>().notNull().default("pending"),
+    // The model asked, the summary's own; servedModel as on summaries.
+    model: text("model").notNull(),
+    servedModel: text("served_model"),
+    effort: text("effort"),
+    tldr: text("tldr"),
+    keyPoints: jsonb("key_points").$type<string[]>(),
+    inputTokens: integer("input_tokens"),
+    outputTokens: integer("output_tokens"),
+    costUsd: numeric("cost_usd", { precision: 12, scale: 6, mode: "number" }),
+    durationMs: integer("duration_ms"),
+    stopReason: text("stop_reason"),
+    error: text("error"),
+    errorMessage: jsonb("error_message").$type<StoredMessage>(),
+    // The job that may write this row. A job it no longer names was
+    // superseded (the summary was written again) and changes nothing.
+    jobId: uuid("job_id"),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("summary_translations_summary_language_idx").on(t.summaryId, t.language),
+    index("summary_translations_article_id_idx").on(t.articleId),
+    index("summary_translations_user_id_idx").on(t.userId),
+  ],
+);
+
+export type AiUsageKind = "summary" | "translation";
+
+// Every answer Claude gave, usable or not, for cost reports and limits.
+// Summaries and translations are written again or removed, so their own rows
+// can't say what was spent. A row outlives its article, not its user.
+export const aiUsage = pgTable(
+  "ai_usage",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    articleId: uuid("article_id").references(() => articles.id, { onDelete: "set null" }),
+    summaryId: uuid("summary_id").references(() => summaries.id, { onDelete: "set null" }),
+    kind: text("kind").$type<AiUsageKind>().notNull(),
+    // For a translation, the language asked for.
+    language: text("language"),
+    // The model asked; servedModel as on summaries.
+    model: text("model").notNull(),
+    servedModel: text("served_model"),
+    effort: text("effort"),
+    inputTokens: integer("input_tokens").notNull(),
+    outputTokens: integer("output_tokens").notNull(),
+    costUsd: numeric("cost_usd", { precision: 12, scale: 6, mode: "number" }),
+    durationMs: integer("duration_ms").notNull(),
+    stopReason: text("stop_reason"),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index("ai_usage_user_created_idx").on(t.userId, t.createdAt),
+    index("ai_usage_summary_kind_idx").on(t.summaryId, t.kind),
+    // Deleting an article clears its rows' article_id.
+    index("ai_usage_article_id_idx").on(t.articleId),
+  ],
+);
+
+export type JobType = "process_article" | "summarize" | "translate_summary";
 export type JobStatus = "queued" | "running" | "done" | "failed";
 
 export const jobs = pgTable(
@@ -330,6 +412,8 @@ export const articleTags = pgTable(
 
 export type Article = typeof articles.$inferSelect;
 export type Summary = typeof summaries.$inferSelect;
+export type SummaryTranslation = typeof summaryTranslations.$inferSelect;
+export type AiUsage = typeof aiUsage.$inferSelect;
 export type Job = typeof jobs.$inferSelect;
 export type ApiToken = typeof apiTokens.$inferSelect;
 export type UserSettings = typeof userSettings.$inferSelect;

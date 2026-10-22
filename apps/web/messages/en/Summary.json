@@ -7,6 +7,15 @@
     "partialShare": "This summary covers only the first {share, number, percent} of a very long article.",
     "partialSaved": "This summary covers only the part of the article that was saved.",
     "modelLabel": "Model",
-    "resummarize": "Re-summarize"
+    "resummarize": "Re-summarize",
+    "translateInto": "Translate into",
+    "translate": "Translate",
+    "languageName": "{language, select, en {English} fr {French} zh_Hans {Simplified Chinese} zh_Hant {Traditional Chinese} other {{language}}}",
+    "translationHeading": "{language, select, en {In English} fr {In French} zh_Hans {In Simplified Chinese} zh_Hant {In Traditional Chinese} other {Translation}}",
+    "translating": "Translating…",
+    "translationFailed": "The translation failed.",
+    "translationFailedWithError": "The translation failed: {error}",
+    "translatedBy": "Translated by {model}",
+    "removeTranslation": "Remove"
   }
 }

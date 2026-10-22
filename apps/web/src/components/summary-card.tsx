@@ -32,13 +32,14 @@ export function formatDuration(ms: number | null, t: SummaryTranslator, format: 
   });
 }
 
-export function SummaryBody({ summary }: { summary: Summary }) {
+/** A TL;DR and key points, a summary's or a translation's, marked with their language. */
+export function SummaryText({ lang, tldr, keyPoints }: { lang: string | null; tldr: string | null; keyPoints: string[] | null }) {
   return (
-    <div className="summary-body" lang={summary.language ?? undefined}>
-      <p className="tldr">{summary.tldr}</p>
-      {summary.keyPoints && summary.keyPoints.length > 0 && (
+    <div className="summary-body" lang={lang ?? undefined}>
+      <p className="tldr">{tldr}</p>
+      {keyPoints && keyPoints.length > 0 && (
         <ul>
-          {summary.keyPoints.map((point, index) => (
+          {keyPoints.map((point, index) => (
             <li key={index}>{point}</li>
           ))}
         </ul>
@@ -47,13 +48,20 @@ export function SummaryBody({ summary }: { summary: Summary }) {
   );
 }
 
+export function SummaryBody({ summary }: { summary: Summary }) {
+  return <SummaryText lang={summary.language} tldr={summary.tldr} keyPoints={summary.keyPoints} />;
+}
+
 export function SummaryCard({
   articleId,
   summary,
+  translations,
   children,
 }: {
   articleId: string;
   summary: Summary;
+  /** The summary's translations, right under its text. */
+  translations?: React.ReactNode;
   /** Extra content under the summary, such as suggested tags. */
   children?: React.ReactNode;
 }) {
@@ -74,6 +82,7 @@ export function SummaryCard({
             : t("partialSaved")}
         </p>
       )}
+      {translations}
       {children}
       <div className="summary-footer">
         <span>

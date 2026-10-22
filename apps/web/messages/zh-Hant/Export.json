@@ -15,6 +15,7 @@
     "tags": "標籤：{tags}",
     "previewOnly": "僅預覽：{reason}",
     "summary": "摘要 ({model})",
+    "translation": "{language, select, en {英文譯文} fr {法文譯文} zh_Hans {簡體中文譯文} zh_Hant {繁體中文譯文} other {{language} 譯文}}",
     "article": "文章"
   }
 }
