@@ -56,7 +56,8 @@ function searchCondition(query: string): { where: SQL | undefined; rank: SQL | u
     const like = `%${escapeLike(query.trim())}%`;
     conditions.push(
       sql`(${articles.title} ILIKE ${like} OR ${articles.textContent} ILIKE ${like} OR EXISTS (
-        SELECT 1 FROM summaries s WHERE s.article_id = "articles"."id" AND s.tldr ILIKE ${like}))`,
+        SELECT 1 FROM summaries s WHERE s.article_id = "articles"."id" AND s.tldr ILIKE ${like}) OR EXISTS (
+        SELECT 1 FROM summary_translations t WHERE t.article_id = "articles"."id" AND t.tldr ILIKE ${like}))`,
     );
   }
   return { where: conditions.length ? or(...conditions) : sql`false`, rank };
@@ -242,7 +243,7 @@ export async function retryArticle(db: Db, userId: string, id: string) {
       // Failed summaries, and any stuck as pending or running with no job.
       const stuck =
         (summary.status === "pending" || summary.status === "running") &&
-        !(await hasLiveJob(db, id, "summarize", summary.model));
+        !(await hasLiveJob(db, id, "summarize", { model: summary.model }));
       if (summary.status === "failed" || stuck) {
         await requestSummary(db, { userId, articleId: id, model: summary.model });
       }

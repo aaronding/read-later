@@ -1,6 +1,6 @@
 // A stand-in for the Claude API, for trying the app locally without an API
 // key or any cost. It answers POST /v1/messages with a streamed, made-up
-// summary in the shape the real API uses.
+// summary or translation in the shape the real API uses.
 //
 //   pnpm mock-claude            # listens on http://127.0.0.1:4010
 //   ANTHROPIC_BASE_URL=http://127.0.0.1:4010 ANTHROPIC_API_KEY=mock pnpm dev
@@ -36,6 +36,25 @@ function fakeSummary(prompt: string, model: string) {
       };
 }
 
+// The translation prompt names the target language first, then gives the summary as JSON.
+const TRANSLATION_LABELS: Record<string, string> = {
+  English: "(Mock translation)",
+  French: "(Traduction fictive)",
+  "Simplified Chinese": "（模拟翻译）",
+  "Traditional Chinese": "（模擬翻譯）",
+};
+
+function fakeTranslation(prompt: string) {
+  const target = /<target_language>\s*([^\n]*)/.exec(prompt)?.[1] ?? "";
+  const label = Object.entries(TRANSLATION_LABELS).find(([name]) => target.startsWith(name))?.[1] ?? "(Mock translation)";
+  const json = /<summary[^>]*>\s*([\s\S]*?)\s*<\/summary>/.exec(prompt)?.[1] ?? "{}";
+  const summary = JSON.parse(json) as { tldr?: string; key_points?: string[] };
+  return {
+    tldr: `${label} ${summary.tldr ?? ""}`,
+    key_points: (summary.key_points ?? []).map((point) => `${label} ${point}`),
+  };
+}
+
 const server = http.createServer(async (req, res) => {
   if (req.method !== "POST" || !req.url?.startsWith("/v1/messages")) {
     res.writeHead(404, { "content-type": "application/json" });
@@ -45,7 +64,8 @@ const server = http.createServer(async (req, res) => {
   for await (const chunk of req) chunks.push(chunk as Buffer);
   const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
   const prompt = String(body.messages?.[0]?.content ?? "");
-  const text = JSON.stringify(fakeSummary(prompt, body.model));
+  const translating = String(body.system ?? "").startsWith("You translate article summaries");
+  const text = JSON.stringify(translating ? fakeTranslation(prompt) : fakeSummary(prompt, body.model));
   const inputTokens = Math.ceil(prompt.length / 4);
   console.log(`mock-claude: ${body.model}, ~${inputTokens} input tokens`);
 

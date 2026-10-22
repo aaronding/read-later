@@ -52,6 +52,18 @@
       "invalidUrl": "{field} 必须是以 http 或 https 开头的绝对 URL。",
       "htmlTooLarge": "网页的 HTML 太大，无法保存。",
       "failed": "无法保存文章，请重试。"
+    },
+    "translation": {
+      "summaryNotReady": "摘要尚未完成，暂时没有可翻译的内容。",
+      "limitReached": "已请 {claude} 翻译此摘要 {max, plural, other {# 次}}，已达上限。",
+      "declined": "{claude} 拒绝翻译此摘要。",
+      "declinedCategory": "{claude} 拒绝翻译此摘要（{category, select, cyber {网络安全} bio {生物安全} frontier_llm {前沿大模型} reasoning_extraction {推理过程提取} general_harms {一般性危害} other {{category}}}）。",
+      "cutOff": "翻译在完成前被截断。",
+      "tooLong": "摘要太长，此模型无法处理。",
+      "empty": "{claude} 未返回翻译。",
+      "badFormat": "{claude} 返回的翻译格式不符合预期。",
+      "apiKeyRejected": "{claude} API 不接受此 API 密钥。请检查 {variable}，重启应用（在 {vercel} 上则重新部署），然后重新翻译。",
+      "apiKeyRejectedWithDetail": "{claude} API 不接受此 API 密钥（{detail}）。请检查 {variable}，重启应用（在 {vercel} 上则重新部署），然后重新翻译。"
     }
   }
 }

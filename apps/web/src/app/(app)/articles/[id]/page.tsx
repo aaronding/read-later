@@ -12,11 +12,13 @@ import { FolderPicker } from "@/components/folder-picker";
 import { SubmitButton } from "@/components/submit-button";
 import { SummaryCard } from "@/components/summary-card";
 import { SuggestedTags } from "@/components/suggested-tags";
+import { SummaryTranslations } from "@/components/summary-translations";
 import { getDb } from "@/db";
 import { storedMessageText } from "@/i18n/stored-message";
 import { requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
+import { listTranslations, translationRunsLeft } from "@/lib/translations";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -35,8 +37,18 @@ export default async function ReaderPage({ params }: Props) {
   const { article } = found;
   const summary = shownSummary(article, found.summaries);
   const ready = summary?.status === "ready" ? summary : undefined;
+  const translations = ready ? await listTranslations(db, user.id, ready.id) : [];
+  const runsLeft = ready ? await translationRunsLeft(db, ready.id) : 0;
   const chosen = found.summaries.find((row) => row.model === article.summaryModel);
-  const busy = isBusy(article.status, chosen?.status ?? null) || found.summaries.some((row) => isBusy("ready", row.status));
+  const busy =
+    isBusy(article.status, chosen?.status ?? null) ||
+    found.summaries.some((row) => isBusy("ready", row.status)) ||
+    translations.some((row) => isBusy("ready", row.status));
+  // New work (a translation asked for) starts the refreshing afresh, even after it gave up.
+  const work = [...found.summaries, ...translations]
+    .filter((row) => isBusy("ready", row.status))
+    .map((row) => row.id)
+    .join(",");
   // Longer than any summary takes: something went wrong, so offer Retry.
   const stale = Boolean(chosen && isBusy("ready", chosen.status) && Date.now() - chosen.updatedAt.getTime() > 10 * 60_000);
   const [t, tCommon, tErrors] = await Promise.all([
@@ -48,7 +60,7 @@ export default async function ReaderPage({ params }: Props) {
   return (
     <article className="reader">
       <MarkOpened id={article.id} alreadyRead={Boolean(article.readAt)} />
-      <AutoRefresh active={busy} />
+      <AutoRefresh key={work} active={busy} />
 
       <header className="reader-header">
         <div className="meta">
@@ -110,7 +122,11 @@ export default async function ReaderPage({ params }: Props) {
       />
 
       {ready ? (
-        <SummaryCard articleId={article.id} summary={ready}>
+        <SummaryCard
+          articleId={article.id}
+          summary={ready}
+          translations={<SummaryTranslations summary={ready} translations={translations} runsLeft={runsLeft} />}
+        >
           <SuggestedTags articleId={article.id} userId={user.id} suggestions={ready.suggestedTags ?? []} />
         </SummaryCard>
       ) : (

@@ -22,6 +22,27 @@
       "when": 1792644998841,
       "tag": "0002_i18n",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792649534617,
+      "tag": "0003_summary_translations",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1792706800247,
+      "tag": "0004_ai_usage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792706801305,
+      "tag": "0005_backfill_ai_usage",
+      "breakpoints": true
     }
   ]
 }

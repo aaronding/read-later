@@ -15,6 +15,8 @@ import { refreshSearchVector } from "@/lib/search-index";
 import { getSettings, modelsForNewSave } from "@/lib/settings";
 import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
+import { retranslate } from "@/lib/translations";
+import { recordUsage } from "@/lib/usage";
 import { JobError, type JobFailure } from "./errors";
 import { enqueueJob, hasQueuedJob } from "./queue";
 
@@ -47,7 +49,7 @@ export async function requestSummary(
         target: [summaries.articleId, summaries.model],
         set: { status: "pending", error: null, errorMessage: null, stopReason: null },
       });
-    if (!(await hasQueuedJob(tx, articleId, "summarize", model))) {
+    if (!(await hasQueuedJob(tx, articleId, "summarize", { model }))) {
       await enqueueJob(tx, { userId, articleId, type: "summarize", payload: { model } });
     }
   });
@@ -235,7 +237,11 @@ export async function summarize(db: Db, job: Job): Promise<void> {
   if (!article.textContent) throw new JobError(errorMessage("summary.noText"), false);
 
   const summaryWhere = and(eq(summaries.articleId, article.id), eq(summaries.model, model), eq(summaries.userId, job.userId));
-  await db.update(summaries).set({ status: "running", error: null, errorMessage: null }).where(summaryWhere);
+  const [running] = await db
+    .update(summaries)
+    .set({ status: "running", error: null, errorMessage: null })
+    .where(summaryWhere)
+    .returning({ id: summaries.id });
 
   const existingTags = await db
     .select({ name: tags.name })
@@ -258,6 +264,12 @@ export async function summarize(db: Db, job: Job): Promise<void> {
         text: article.textContent,
         previewOnly: article.previewOnly,
       },
+      onAnswer: (usage) =>
+        recordUsage(
+          db,
+          { userId: job.userId, articleId: article.id, summaryId: running?.id ?? null, kind: "summary", model },
+          usage,
+        ),
     });
   } catch (error) {
     if (error instanceof SummaryError) throw new JobError(error.storedMessage, error.retryable, error.stopReason);
@@ -284,10 +296,15 @@ export async function summarize(db: Db, job: Job): Promise<void> {
     errorMessage: null,
     completedAt: new Date(),
   };
-  await db
-    .insert(summaries)
-    .values({ userId: job.userId, articleId: article.id, model, ...values })
-    .onConflictDoUpdate({ target: [summaries.articleId, summaries.model], set: values });
+  // The new text and the requests to translate it again are stored together.
+  await db.transaction(async (tx) => {
+    const [stored] = await tx
+      .insert(summaries)
+      .values({ userId: job.userId, articleId: article.id, model, ...values })
+      .onConflictDoUpdate({ target: [summaries.articleId, summaries.model], set: values })
+      .returning();
+    await retranslate(tx, stored!);
+  });
   await refreshSearchVector(db, article.id);
 }
 

@@ -106,26 +106,32 @@ export async function failJob(db: Db, job: Job, error: string, retryable: boolea
   return updated.length > 0 ? willRetry : null;
 }
 
+/** Payload values a job must have, such as { model } for a summary. */
+type PayloadMatch = Record<string, string>;
+
+const matches = (payload: Record<string, unknown>, match: PayloadMatch = {}) =>
+  Object.entries(match).every(([key, value]) => payload[key] === value);
+
 /**
  * True if the article already has a job of this type waiting to start. A
  * running job doesn't count: it has already read the old state, so a change
  * made now needs a run of its own.
  */
-export async function hasQueuedJob(db: Db, articleId: string, type: JobType, model?: string): Promise<boolean> {
+export async function hasQueuedJob(db: Db, articleId: string, type: JobType, match?: PayloadMatch): Promise<boolean> {
   const rows = await db
     .select({ id: jobs.id, payload: jobs.payload })
     .from(jobs)
     .where(and(eq(jobs.articleId, articleId), eq(jobs.type, type), eq(jobs.status, "queued")));
-  return model ? rows.some((row) => row.payload.model === model) : rows.length > 0;
+  return rows.some((row) => matches(row.payload, match));
 }
 
 /** True if a job of this type is queued or running for the article. */
-export async function hasLiveJob(db: Db, articleId: string, type: JobType, model?: string): Promise<boolean> {
+export async function hasLiveJob(db: Db, articleId: string, type: JobType, match?: PayloadMatch): Promise<boolean> {
   const rows = await db
     .select({ id: jobs.id, payload: jobs.payload })
     .from(jobs)
     .where(and(eq(jobs.articleId, articleId), eq(jobs.type, type), inArray(jobs.status, ["queued", "running"])));
-  return model ? rows.some((row) => row.payload.model === model) : rows.length > 0;
+  return rows.some((row) => matches(row.payload, match));
 }
 
 /** Finished jobs are kept for a week for debugging, then deleted. */

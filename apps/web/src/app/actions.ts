@@ -28,6 +28,7 @@ import { saveAppearance, updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
+import { deleteTranslation, requestTranslation } from "@/lib/translations";
 import { safeRedirectPath } from "@/lib/redirects";
 import { parseHttpUrl, parsePastedUrl } from "@/lib/urls";
 
@@ -92,6 +93,24 @@ export async function showSummaryAction(formData: FormData) {
   const model = formData.get("model");
   if (!isSummaryModel(model)) throw new Error("Unknown model.");
   await showSummaryFrom(getDb(), user.id, articleId(formData), model);
+  refresh();
+}
+
+/** Translates a summary into another language, or tries a failed translation again. */
+export async function translateSummaryAction(formData: FormData) {
+  const user = await requireUser();
+  const summaryId = String(formData.get("summaryId") ?? "");
+  if (!UUID.test(summaryId)) throw new Error("Invalid summary id.");
+  await requestTranslation(getDb(), { userId: user.id, summaryId, language: String(formData.get("language") ?? "") });
+  scheduleJobProcessing();
+  refresh();
+}
+
+export async function removeTranslationAction(formData: FormData) {
+  const user = await requireUser();
+  const id = String(formData.get("translationId") ?? "");
+  if (!UUID.test(id)) throw new Error("Invalid translation id.");
+  await deleteTranslation(getDb(), user.id, id);
   refresh();
 }
 

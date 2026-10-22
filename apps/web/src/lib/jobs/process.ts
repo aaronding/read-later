@@ -6,6 +6,7 @@ import type { Job, JobType } from "@/db/schema";
 import { englishText } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { JobError, type JobFailure } from "./errors";
+import { translateSummaryFailed, translateSummaryJob } from "@/lib/translations";
 import { processArticle, processArticleFailed, summarize, summarizeFailed } from "./handlers";
 import { claimJobs, completeJob, failJob, pruneFinishedJobs } from "./queue";
 
@@ -17,6 +18,7 @@ interface Handler {
 const HANDLERS: Record<JobType, Handler> = {
   process_article: { run: processArticle, failed: processArticleFailed },
   summarize: { run: summarize, failed: summarizeFailed },
+  translate_summary: { run: translateSummaryJob, failed: translateSummaryFailed },
 };
 
 export interface ProcessOptions {
@@ -56,9 +58,14 @@ async function runJob(db: Db, job: Job, stats: ProcessStats): Promise<void> {
     if (!known) console.error(`Job ${job.id} (${job.type}) failed:`, error);
     try {
       const text = await englishText(message);
-      const willRetry = await failJob(db, job, text, retryable);
+      // The job and its row record the failure together, so a row is never
+      // left waiting on a job that has ended.
+      const willRetry = await db.transaction(async (tx) => {
+        const retry = await failJob(tx, job, text, retryable);
+        if (retry !== null) await handler.failed(tx, job, { message, text, willRetry: retry, stopReason });
+        return retry;
+      });
       if (willRetry === null) return; // another worker owns this job now
-      await handler.failed(db, job, { message, text, willRetry, stopReason });
       if (willRetry) stats.retrying++;
       else stats.failed++;
     } catch (recordError) {

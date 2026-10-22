@@ -3,7 +3,7 @@ import { z } from "zod";
 import { envInt, envString } from "@/config/env";
 import { MODEL_INFO, estimateCostUsd, type SummaryModel } from "@/config/models";
 import type { StoredMessage } from "@/i18n/stored-message";
-import { errorMessage } from "@/lib/error-message";
+import { errorMessage, type ErrorKey } from "@/lib/error-message";
 import {
   SUMMARY_JSON_SCHEMA,
   SUMMARY_SYSTEM_PROMPT,
@@ -12,7 +12,7 @@ import {
   type PromptArticle,
 } from "./prompt";
 
-type Effort = "low" | "medium" | "high" | "xhigh" | "max";
+export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 const EFFORTS: readonly Effort[] = ["low", "medium", "high", "xhigh", "max"];
 
 /** Summaries are short, simple output; low effort keeps them fast and cheap. */
@@ -166,20 +166,46 @@ const MAX_ERROR_DETAIL = 300;
 // Product names go into the messages as values, so they are never translated.
 const CLAUDE = { claude: "Claude" };
 
+/** The messages for each way a request can fail, so they can name what was being done. */
+export interface FailureMessages {
+  declined: ErrorKey;
+  declinedCategory: ErrorKey;
+  cutOff: ErrorKey;
+  tooLong: ErrorKey;
+  empty: ErrorKey;
+  badFormat: ErrorKey;
+  apiKeyRejected: ErrorKey;
+  apiKeyRejectedWithDetail: ErrorKey;
+}
+
+const SUMMARY_FAILURES: FailureMessages = {
+  declined: "summary.declined",
+  declinedCategory: "summary.declinedCategory",
+  cutOff: "summary.cutOff",
+  tooLong: "summary.tooLong",
+  empty: "summary.empty",
+  badFormat: "summary.badFormat",
+  apiKeyRejected: "summary.apiKeyRejected",
+  apiKeyRejectedWithDetail: "summary.apiKeyRejectedWithDetail",
+};
+
 /**
  * The error as the reader, the lists and Compare show it. The SDK's own
  * message is the status followed by the raw body (JSON, or a proxy's HTML
  * page), so only the API's own message is kept, and a refused key says what
  * to do about it.
  */
-export function describeApiError(error: InstanceType<typeof Anthropic.APIError>): StoredMessage {
+export function describeApiError(
+  error: InstanceType<typeof Anthropic.APIError>,
+  failures: FailureMessages = SUMMARY_FAILURES,
+): StoredMessage {
   const body = error.error as { error?: { message?: unknown } } | undefined;
   const apiMessage = typeof body?.error?.message === "string" ? body.error.message.slice(0, MAX_ERROR_DETAIL) : null;
   if (error instanceof Anthropic.AuthenticationError) {
     const values = { ...CLAUDE, variable: "ANTHROPIC_API_KEY", vercel: "Vercel" };
     return apiMessage
-      ? errorMessage("summary.apiKeyRejectedWithDetail", { ...values, detail: apiMessage })
-      : errorMessage("summary.apiKeyRejected", values);
+      ? errorMessage(failures.apiKeyRejectedWithDetail, { ...values, detail: apiMessage })
+      : errorMessage(failures.apiKeyRejected, values);
   }
   if (error.status === undefined) {
     const detail = apiMessage ?? error.message.slice(0, MAX_ERROR_DETAIL);
@@ -191,27 +217,67 @@ export function describeApiError(error: InstanceType<typeof Anthropic.APIError>)
     : errorMessage("summary.apiErrorStatus", { ...CLAUDE, status });
 }
 
-export interface SummarizeInput {
+export interface ClaudeRequest {
   model: SummaryModel;
-  article: PromptArticle;
-  existingTags: string[];
+  system: string;
+  user: string;
+  /** The JSON schema the answer must follow. */
+  schema: Record<string, unknown>;
+  failures: FailureMessages;
+  /**
+   * Called with what each answer used, before it is checked, so a refused or
+   * unusable answer counts too, and with what a stream used before it broke
+   * off (a time-out, an error mid-answer). Not called when the request got no
+   * answer at all.
+   */
+  onAnswer: (usage: ClaudeUsage) => Promise<void>;
 }
 
-export async function summarizeArticle({ model, article, existingTags }: SummarizeInput): Promise<SummaryResult> {
-  const prepared = prepareArticleText(article.text, maxInputChars());
+/** What one answer from Claude used. */
+export interface ClaudeUsage {
+  servedModel: string;
+  effort: Effort;
+  inputTokens: number;
+  outputTokens: number;
+  costUsd: number | null;
+  durationMs: number;
+  stopReason: string | null;
+}
+
+export interface ClaudeAnswer extends ClaudeUsage {
+  /** The answer's JSON, not yet checked beyond the schema. */
+  json: unknown;
+}
+
+/**
+ * One request for structured JSON, as summaries and their translations make:
+ * streamed, with adaptive thinking, an overall time limit and, where the model
+ * has one, the server-side refusal fallback. Failures become SummaryErrors
+ * with the request's own messages.
+ */
+export async function askClaude({ model, system, user, schema, failures, onAnswer }: ClaudeRequest): Promise<ClaudeAnswer> {
   const effort = summaryEffort();
   const started = Date.now();
 
+  const usageOf = (answer: Anthropic.Beta.BetaMessage): ClaudeUsage => ({
+    servedModel: answer.model ?? model,
+    effort,
+    ...usageTotals(answer, model),
+    durationMs: Date.now() - started,
+    stopReason: answer.stop_reason ?? null,
+  });
+
   let message: Anthropic.Beta.BetaMessage;
   const signal = AbortSignal.timeout(callTimeoutMs());
+  let stream: { currentMessage?: Anthropic.Beta.BetaMessage } | undefined;
   try {
-    const stream = getClient().beta.messages.stream({
+    const opened = getClient().beta.messages.stream({
       model,
       max_tokens: MAX_TOKENS,
-      system: SUMMARY_SYSTEM_PROMPT,
-      messages: [{ role: "user", content: buildUserMessage(article, prepared, existingTags) }],
+      system,
+      messages: [{ role: "user", content: user }],
       thinking: { type: "adaptive" },
-      output_config: { effort, format: { type: "json_schema", schema: SUMMARY_JSON_SCHEMA } },
+      output_config: { effort, format: { type: "json_schema", schema } },
       // Opus 5.5 and Sonnet 5.5: if a safety classifier declines the request,
       // the API retries it on Anthropic's recommended fallback model. Haiku 5.5
       // has no server-side fallback, so the parameter is left off.
@@ -219,27 +285,29 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
         ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }
         : {}),
     }, { signal });
-    message = await stream.finalMessage();
+    stream = opened;
+    message = await opened.finalMessage();
   } catch (error) {
+    // A stream that had begun reached Claude, and what it used so far counts.
+    const partial = stream?.currentMessage;
+    if (partial) await onAnswer(usageOf(partial));
     if (signal.aborted) {
       throw new SummaryError(errorMessage("summary.timeout", CLAUDE), true);
     }
     if (error instanceof Anthropic.APIError) {
-      throw new SummaryError(describeApiError(error), isRetryableApiError(error));
+      throw new SummaryError(describeApiError(error, failures), isRetryableApiError(error));
     }
     throw error;
   }
 
-  const durationMs = Date.now() - started;
-  const usage = usageTotals(message, model);
+  const usage = usageOf(message);
+  await onAnswer(usage);
 
   // Check why the model stopped before reading any content.
   if (message.stop_reason === "refusal") {
     const category = message.stop_details?.category;
     throw new SummaryError(
-      category
-        ? errorMessage("summary.declinedCategory", { ...CLAUDE, category })
-        : errorMessage("summary.declined", CLAUDE),
+      category ? errorMessage(failures.declinedCategory, { ...CLAUDE, category }) : errorMessage(failures.declined, CLAUDE),
       false,
       "refusal",
     );
@@ -247,10 +315,10 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   if (message.stop_reason === "max_tokens") {
     // The same request would most likely stop the same way, so this isn't
     // retried automatically; Retry in the app tries again on purpose.
-    throw new SummaryError(errorMessage("summary.cutOff"), false, "max_tokens");
+    throw new SummaryError(errorMessage(failures.cutOff), false, "max_tokens");
   }
   if (message.stop_reason === "model_context_window_exceeded") {
-    throw new SummaryError(errorMessage("summary.tooLong"), false, message.stop_reason);
+    throw new SummaryError(errorMessage(failures.tooLong), false, message.stop_reason);
   }
 
   // After a refusal fallback, content holds the declined model's partial
@@ -259,27 +327,48 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   const lastFallback = message.content.findLastIndex((block) => block.type === "fallback");
   const text = message.content.slice(lastFallback + 1).find((block) => block.type === "text");
   if (!text || text.type !== "text") {
-    throw new SummaryError(errorMessage("summary.empty", CLAUDE), true, message.stop_reason);
+    throw new SummaryError(errorMessage(failures.empty, CLAUDE), true, message.stop_reason);
   }
-  let parsed: z.infer<typeof SummaryOutput>;
+  let json: unknown;
   try {
-    parsed = SummaryOutput.parse(JSON.parse(text.text));
+    json = JSON.parse(text.text);
   } catch {
-    throw new SummaryError(errorMessage("summary.badFormat", CLAUDE), true, message.stop_reason);
+    throw new SummaryError(errorMessage(failures.badFormat, CLAUDE), true, message.stop_reason);
   }
+  return { json, ...usage };
+}
+
+export interface SummarizeInput {
+  model: SummaryModel;
+  article: PromptArticle;
+  existingTags: string[];
+  onAnswer: ClaudeRequest["onAnswer"];
+}
+
+export async function summarizeArticle({ model, article, existingTags, onAnswer }: SummarizeInput): Promise<SummaryResult> {
+  const prepared = prepareArticleText(article.text, maxInputChars());
+  const answer = await askClaude({
+    model,
+    system: SUMMARY_SYSTEM_PROMPT,
+    user: buildUserMessage(article, prepared, existingTags),
+    schema: SUMMARY_JSON_SCHEMA,
+    failures: SUMMARY_FAILURES,
+    onAnswer,
+  });
+  const parsed = SummaryOutput.safeParse(answer.json);
+  if (!parsed.success) {
+    throw new SummaryError(errorMessage("summary.badFormat", CLAUDE), true, answer.stopReason);
+  }
+  const { json: _json, ...call } = answer;
 
   return {
     model,
-    servedModel: message.model ?? model,
-    effort,
-    language: parsed.language?.trim() || null,
-    tldr: parsed.tldr.trim(),
+    ...call,
+    language: parsed.data.language?.trim() || null,
+    tldr: parsed.data.tldr.trim(),
     // The schema can't enforce the counts, so they are enforced here.
-    keyPoints: dedupe(parsed.key_points).slice(0, 5),
-    suggestedTags: dedupe(parsed.suggested_tags.map((tag) => tag.replace(/^#/, ""))).slice(0, 3),
-    ...usage,
-    durationMs,
-    stopReason: message.stop_reason,
+    keyPoints: dedupe(parsed.data.key_points).slice(0, 5),
+    suggestedTags: dedupe(parsed.data.suggested_tags.map((tag) => tag.replace(/^#/, ""))).slice(0, 3),
     // Covers only part of the article: cut for length, or only a preview was saved.
     partial: prepared.partial || Boolean(article.previewOnly),
     inputChars: prepared.inputChars,

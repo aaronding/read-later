@@ -15,6 +15,7 @@
     "tags": "Étiquettes : {tags}",
     "previewOnly": "Aperçu seulement : {reason}",
     "summary": "Résumé ({model})",
+    "translation": "{language, select, en {En anglais} fr {En français} zh_Hans {En chinois simplifié} zh_Hant {En chinois traditionnel} other {En {language}}}",
     "article": "Article"
   }
 }
