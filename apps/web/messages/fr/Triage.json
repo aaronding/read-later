@@ -1,0 +1,9 @@
+{
+  "Triage": {
+    "remaining": "{remaining, plural, one {# non lu} other {# non lus}}",
+    "allCaughtUp": "Vous avez tout trié : aucun article non lu dans votre boîte de réception. <inbox>Revenir à la boîte de réception</inbox>",
+    "readNow": "Lire maintenant",
+    "later": "Plus tard",
+    "laterHint": "« {later} » laisse l’article dans votre boîte de réception et le renvoie à la fin de cette file."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "Compare": {
+    "title": "Comparer les résumés",
+    "backToArticle": "← Revenir à l’article",
+    "wordCount": "{count, plural, one {# mot} other {# mots}}",
+    "wordCountUnknown": "? mots",
+    "totalCost": "{count, plural, one {# résumé coûte {cost}} other {# résumés coûtent {cost} au total}}",
+    "noText": "L’article ne contient encore aucun texte à résumer.",
+    "footnote": "Les coûts sont estimés à partir du nombre de jetons et des tarifs publiés. Activez le mode comparaison dans Paramètres pour lancer les {count, number} modèles à chaque enregistrement.",
+    "shown": "Affiché",
+    "notRunYet": "Pas encore lancé.",
+    "summarizeWith": "Résumer avec {model}",
+    "showThisOne": "Afficher celui-ci",
+    "runAgain": "Relancer",
+    "stats": {
+      "cost": "Coût",
+      "time": "Durée",
+      "tokens": "Jetons",
+      "effort": "Effort",
+      "answeredBy": "Réponse de",
+      "note": "Remarque"
+    },
+    "tokenCounts": "{input} en entrée · {output} en sortie",
+    "effortLevel": "{effort, select, low {faible} medium {moyen} high {élevé} xhigh {très élevé} max {maximal} other {{effort}}}",
+    "fallbackModel": "{model} (modèle de secours)",
+    "partial": "Ne couvre qu’une partie de l’article"
+  }
+}

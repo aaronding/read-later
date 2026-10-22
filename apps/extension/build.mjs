@@ -1,11 +1,13 @@
 // Builds the extension for Chrome into dist/ ("Load unpacked") and for Firefox
 // into dist-firefox/, with dist-firefox.zip to upload to addons.mozilla.org
 // for signing: compiles the TypeScript, copies the static files and writes
-// each browser's manifest.json with the product name from packages/brand.
+// each browser's manifest.json and each language's messages.json with the
+// product name from packages/brand.
 import { execFileSync } from "node:child_process";
-import { cpSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { APP_NAME, APP_SHORT_NAME } from "@read-later/brand";
+import { readCatalogues, withBrand } from "./locales.mjs";
 import { manifest } from "./manifest.mjs";
 import { zipDirectory } from "./zip.mjs";
 
@@ -17,6 +19,10 @@ const writeJson = (file, value) => writeFileSync(file, `${JSON.stringify(value, 
 for (const output of ["dist", "dist-firefox", "dist-firefox.zip"]) rmSync(output, { recursive: true, force: true });
 execFileSync(process.execPath, [require.resolve("typescript/bin/tsc"), "-p", "tsconfig.json"], { stdio: "inherit" });
 cpSync("static", "dist", { recursive: true });
+for (const [folder, catalogue] of Object.entries(readCatalogues())) {
+  mkdirSync(`dist/_locales/${folder}`, { recursive: true });
+  writeJson(`dist/_locales/${folder}/messages.json`, withBrand(catalogue, APP_NAME));
+}
 cpSync("dist", "dist-firefox", { recursive: true });
 writeJson("dist/manifest.json", manifest("chrome", info));
 writeJson("dist-firefox/manifest.json", manifest("firefox", info));

@@ -1,0 +1,48 @@
+{
+  "Guides": {
+    "chrome": {
+      "build": "在電腦上的專案資料夾中執行 <kbd>pnpm extension:build</kbd>。這會建立 <code>apps/extension/dist</code>。",
+      "load": "在 {chrome} 中前往 <code>chrome://extensions</code>，開啟「<strong>開發人員模式</strong>」，點選「<strong>載入未封裝項目</strong>」，然後選取 <code>apps/extension/dist</code> 資料夾。",
+      "connect": "開啟擴充功能的「<strong>選項</strong>」，然後輸入伺服器網址 <code>{url}</code> 和在上方建立的存取權杖。",
+      "use": "使用工具列按鈕或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (在 {mac} 上為 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) 儲存網頁。在連結上按右鍵並選擇「<strong>將連結儲存至 {app}</strong>」，即可只儲存連結。徽章顯示 ✓ 表示儲存成功，顯示 ! 表示儲存失敗。"
+    },
+    "shortcut": {
+      "intro": "兩個捷徑只需手動建立一次，之後會透過 {icloud} 同步到你的 {iphone}、{ipad} 和 {mac}。第一個捷徑會從 {safari} 傳送整個網頁，因此付費牆後的文章只要你能閱讀，就能完整儲存。第二個捷徑用於其他 App (例如 {iphone} 上的 {chrome})，只會傳送連結。",
+      "before": {
+        "heading": "開始之前",
+        "scriptsOnIos": "<strong>{iphone} 和 {ipad}：</strong>前往「設定」→「App」→「捷徑」→「進階」，然後開啟「<strong>允許執行工序指令</strong>」({ios} 17 或以前版本：「設定」→「捷徑」→「進階」)。",
+        "scriptsOnMac": "<strong>{mac}：</strong>在「捷徑」App 中選擇「捷徑」→「設定」→「進階」，然後開啟「<strong>允許執行工序指令</strong>」。如果 {safari} 仍然拒絕執行指令碼，請選擇「{safari}」→「設定」→「進階」，開啟「<strong>顯示網頁開發者功能</strong>」，然後在 {safari} 設定中新出現的「<strong>開發者</strong>」面板裡開啟「<strong>允許來自 Apple 事件的 JavaScript</strong>」，再重新啟動 {safari}。",
+        "token": "在上方為這個裝置建立存取權杖，並放在手邊備用。"
+      },
+      "page": {
+        "name": "儲存至 {app}",
+        "heading": "捷徑 1：「{name}」({safari})",
+        "create": "在「捷徑」App 中點一下 <strong>+</strong> 來建立新捷徑，並將它命名為「{name}」。",
+        "shareSheet": "進入捷徑的詳細資訊 (點一下 ⓘ 按鈕，或從名稱選單選擇「詳細資訊」)，然後開啟「<strong>在分享表單中顯示</strong>」。在頂端從分享表單接收輸入的那一行，點一下輸入類型，只保留選取「<strong>Safari 網頁</strong>」。",
+        "script": "加入「<strong>在網頁上執行 JavaScript</strong>」動作 (在 {mac} 上為「<strong>在使用中的 Safari 標籤頁上執行 JavaScript</strong>」)。在 {iphone} 和 {ipad} 上，這個動作會將「捷徑輸入」作為網頁。將其中的指令碼取代為以下內容：",
+        "copyScript": "複製指令碼",
+        "request": "加入「<strong>取得 URL 內容</strong>」。將 URL 設為 <code>{url}</code>，然後點一下「<strong>顯示更多</strong>」：",
+        "method": "方法：<strong>POST</strong>",
+        "headers": "標頭：加入 <code>Authorization</code>，值為 <code>Bearer </code> 後接你的權杖；再加入 <code>Content-Type</code>，值為 <code>application/json</code>",
+        "body": "要求主體：「<strong>檔案</strong>」，然後選擇「<strong>JavaScript 結果</strong>」變數",
+        "message": "加入「<strong>取得辭典值</strong>」：取得「<strong>URL 內容</strong>」中 <code>message</code> 鍵的值。",
+        "notification": "加入「<strong>顯示通知</strong>」，並在其中放入「<strong>辭典值</strong>」。通知會顯示「{saved}」。",
+        "tryIt": "試試看：在 {safari} 中開啟一篇文章，點一下「分享」，然後選擇這個捷徑。第一次執行時，請允許它在該網站上執行 JavaScript (選擇「<strong>永遠允許</strong>」)。"
+      },
+      "link": {
+        "name": "將連結儲存至 {app}",
+        "heading": "捷徑 2：「{name}」(其他 App)",
+        "create": "建立新捷徑，開啟「<strong>在分享表單中顯示</strong>」，並只保留「<strong>URL</strong>」和「<strong>文字</strong>」這兩種輸入類型。",
+        "input": "加入「<strong>從輸入取得 URL</strong>」(輸入來自「捷徑輸入」)，然後加入「<strong>從列表取得項目</strong>」(「第一個項目」)。",
+        "request": "加入「<strong>取得 URL 內容</strong>」，URL 設為 <code>{url}</code>。在「顯示更多」中：方法選擇 <strong>POST</strong>；標頭 <code>Authorization</code> = <code>Bearer </code> + 你的權杖；要求主體選擇 <strong>JSON</strong>，並加入兩個「文字」欄位：<code>url</code> 設為「<strong>列表中的項目</strong>」變數，<code>source</code> 設為 <code>shortcut</code>。",
+        "notification": "和捷徑 1 一樣，加入「<strong>取得辭典值</strong>」(取得 <code>message</code>) 和「<strong>顯示通知</strong>」。",
+        "note": "以這種方式儲存的連結會由伺服器下載，因此需要登入或有付費牆的網頁會顯示為「{previewOnly}」；請在 {safari} 中開啟這類網頁，並使用捷徑 1 儲存完整內容。"
+      }
+    },
+    "android": {
+      "open": "在手機上用 {chrome} 開啟這個網站並登入。",
+      "install": "開啟 {chrome} 的 ⋮ 選單，選擇「<strong>加到主畫面</strong>」→「<strong>安裝</strong>」(或「<strong>安裝應用程式</strong>」)。",
+      "share": "在任何應用程式中輕觸「分享」，然後選擇「<strong>{app}</strong>」。連結隨即儲存，並開啟收件匣。"
+    }
+  }
+}

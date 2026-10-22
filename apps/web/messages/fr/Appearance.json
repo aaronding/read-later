@@ -1,0 +1,36 @@
+{
+  "Appearance": {
+    "title": "Apparence",
+    "done": "OK",
+    "theme": "Thème",
+    "themes": {
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "lightColors": "Couleurs du thème clair",
+    "darkColors": "Couleurs du thème sombre",
+    "palettes": {
+      "paper": "Papier",
+      "white": "Blanc",
+      "sepia": "Sépia",
+      "sage": "Sauge",
+      "mist": "Brume",
+      "graphite": "Graphite",
+      "black": "Noir",
+      "slate": "Ardoise",
+      "midnight": "Minuit",
+      "dusk": "Crépuscule"
+    },
+    "font": "Police des articles et des résumés",
+    "fonts": {
+      "classic": "Classique",
+      "literata": "Literata",
+      "source-serif": "Source Serif",
+      "merriweather": "Merriweather",
+      "sans": "Sans serif",
+      "atkinson": "Atkinson"
+    },
+    "saveFailed": "Impossible d’enregistrer ce choix dans votre compte. Il ne s’appliquera que jusqu’au rechargement de la page."
+  }
+}

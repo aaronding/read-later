@@ -1,0 +1,9 @@
+{
+  "Share": {
+    "title": "要儲存這個連結嗎？",
+    "fromAnotherSite": "另一個網站要求將這個連結儲存到你的資料庫。",
+    "saveIt": "儲存",
+    "noLink": "沒有可儲存的連結。",
+    "goToInbox": "不用，前往收件匣"
+  }
+}

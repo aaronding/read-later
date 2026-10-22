@@ -1,13 +1,16 @@
+import { useTranslations } from "next-intl";
 import { retryAction } from "@/app/actions";
 import type { Article, Summary } from "@/db/schema";
+import { storedMessageText, type StoredMessage } from "@/i18n/stored-message";
 import { SubmitButton } from "./submit-button";
 
 function RetryButton({ id }: { id: string }) {
+  const t = useTranslations("Common");
   return (
     <form action={retryAction} className="inline-form">
       <input type="hidden" name="id" value={id} />
-      <SubmitButton className="button small" pendingText="Retrying…">
-        Retry
+      <SubmitButton className="button small" pendingText={t("retrying")}>
+        {t("retry")}
       </SubmitButton>
     </form>
   );
@@ -20,26 +23,37 @@ function RetryButton({ id }: { id: string }) {
 export function ArticleStatus({
   id,
   status,
-  error,
+  error: errorText,
+  errorMessage = null,
   summaryStatus,
-  summaryError = null,
+  summaryError: summaryErrorText = null,
+  summaryErrorMessage = null,
   hasSummary,
   stale = false,
 }: {
   id: string;
   status: Article["status"];
+  /** Why saving failed, in English, as saved by older versions. */
   error: string | null;
+  /** The same, to be translated; preferred when present. */
+  errorMessage?: StoredMessage | null;
   summaryStatus: Summary["status"] | null;
   /** Why the summary failed, when it did. */
   summaryError?: string | null;
+  summaryErrorMessage?: StoredMessage | null;
   hasSummary: boolean;
   /** The summary has said "Summarizing…" for a long time: offer Retry. */
   stale?: boolean;
 }) {
+  const t = useTranslations("Status");
+  const tCommon = useTranslations("Common");
+  const tErrors = useTranslations("Errors");
+  const error = storedMessageText(tErrors, errorMessage, errorText);
+  const summaryError = storedMessageText(tErrors, summaryErrorMessage, summaryErrorText);
   if (status === "failed") {
     return (
       <div className="status error">
-        Couldn’t save this page{error ? `: ${error}` : "."} <RetryButton id={id} />
+        {error ? t("saveFailedWithError", { error }) : t("saveFailed")} <RetryButton id={id} />
       </div>
     );
   }
@@ -47,7 +61,7 @@ export function ArticleStatus({
     return (
       <div className="status">
         <span className="spinner" aria-hidden="true" />
-        {error ? `Trying again soon (${error})` : "Saving…"}
+        {error ? t("retryingSoon", { error }) : tCommon("saving")}
         {error && <RetryButton id={id} />}
       </div>
     );
@@ -56,7 +70,7 @@ export function ArticleStatus({
   if (summaryStatus === "pending" || summaryStatus === "running") {
     return (
       <div className="status">
-        <span className="spinner" aria-hidden="true" /> Summarizing…
+        <span className="spinner" aria-hidden="true" /> {t("summarizing")}
         {stale && <RetryButton id={id} />}
       </div>
     );
@@ -64,7 +78,8 @@ export function ArticleStatus({
   if (summaryStatus === "failed") {
     return (
       <div className="status error">
-        The summary failed{summaryError ? `: ${summaryError}` : "."} <RetryButton id={id} />
+        {summaryError ? t("summaryFailedWithError", { error: summaryError }) : t("summaryFailed")}{" "}
+        <RetryButton id={id} />
       </div>
     );
   }

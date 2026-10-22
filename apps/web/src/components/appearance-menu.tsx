@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import type { Appearance } from "@/lib/appearance";
 import { AppearancePicker } from "./appearance-picker";
 
@@ -7,16 +8,23 @@ import { AppearancePicker } from "./appearance-picker";
  * popover, which needs no script to open and close.
  */
 export function AppearanceMenu({ saved }: { saved: Appearance }) {
+  const t = useTranslations("Appearance");
   return (
     <>
-      <button type="button" className="button ghost appearance-button" popoverTarget="appearance-menu" aria-label="Appearance" title="Appearance">
+      <button
+        type="button"
+        className="button ghost appearance-button"
+        popoverTarget="appearance-menu"
+        aria-label={t("title")}
+        title={t("title")}
+      >
         Aa
       </button>
       <div id="appearance-menu" popover="auto" role="dialog" aria-labelledby="appearance-menu-title" className="appearance-menu">
         <div className="appearance-menu-header">
-          <h2 id="appearance-menu-title">Appearance</h2>
+          <h2 id="appearance-menu-title">{t("title")}</h2>
           <button type="button" className="button small" popoverTarget="appearance-menu" popoverTargetAction="hide">
-            Done
+            {t("done")}
           </button>
         </div>
         <AppearancePicker saved={saved} />

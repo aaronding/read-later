@@ -1,0 +1,13 @@
+{
+  "ErrorPages": {
+    "error": {
+      "title": "Un problème est survenu",
+      "text": "Le problème est peut-être temporaire. Réessayez ou actualisez la page."
+    },
+    "notFound": {
+      "title": "Page introuvable",
+      "text": "Cette page ou cet article n’existe pas, ou a été supprimé.",
+      "goToInbox": "Aller à la boîte de réception"
+    }
+  }
+}

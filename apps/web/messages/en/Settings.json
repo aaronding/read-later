@@ -1,0 +1,51 @@
+{
+  "Settings": {
+    "languageHeading": "Language",
+    "languageLabel": "Language of the app",
+    "languageAutomatic": "Automatic (your browser’s language)",
+    "languageHelp": "Summaries are written in each article’s own language, whatever you choose here.",
+    "summaries": {
+      "heading": "Summaries",
+      "defaultModel": "Default model",
+      "comparisonMode": "<strong>Comparison mode:</strong> summarize every new save with all {count, number} models, to compare them on each article’s Compare page. Costs about {count, number} times as much."
+    },
+    "tokens": {
+      "heading": "Access tokens",
+      "intro": "The {chrome} extension and the {apple} Shortcuts use a token to save to your account. Make one per device, so you can revoke one without touching the others.",
+      "details": "<code>{prefix}…</code> · created <created></created> · last used <lastUsed></lastUsed>",
+      "detailsNeverUsed": "<code>{prefix}…</code> · created <created></created> · never used",
+      "revoke": "Revoke",
+      "revokeConfirm": "Revoke “{name}”? Anything using it stops working.",
+      "nameLabel": "Token name",
+      "namePlaceholder": "Name, e.g. {chrome} on my laptop",
+      "create": "Create token",
+      "creating": "Creating…",
+      "newToken": "<strong>New token for “{name}”.</strong> Copy it now: it won’t be shown again.",
+      "copyToken": "Copy token"
+    },
+    "copy": "Copy",
+    "copied": "Copied",
+    "guides": {
+      "chromeHeading": "Save from {chrome}",
+      "shortcutHeading": "Save from {safari} ({iphone}, {ipad} and {mac})",
+      "shortcutSummary": "Step-by-step instructions for the {apple} Shortcuts",
+      "androidHeading": "Save from {android}"
+    },
+    "folders": {
+      "heading": "Folders",
+      "empty": "No folders yet. Choose or create one at the bottom of an article.",
+      "articleCount": "· {count, plural, one {# article} other {# articles}}",
+      "deleteConfirm": "Delete the folder “{name}”? Its articles stay in your library."
+    },
+    "export": {
+      "heading": "Export",
+      "intro": "Everything you saved, with the article text and every summary.",
+      "download": "Download {format}"
+    },
+    "account": {
+      "heading": "Account",
+      "signedInAs": "Signed in as <strong>{email}</strong>."
+    },
+    "appearanceIntro": "Colors and a font for reading. {system} follows your device’s light or dark mode. The choice is saved to your account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page changes it while you read."
+  }
+}

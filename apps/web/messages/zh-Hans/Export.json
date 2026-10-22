@@ -1,0 +1,20 @@
+{
+  "Export": {
+    "signInFirst": "请先登录。",
+    "title": "{app} 导出",
+    "exported": "导出于 {date} · {count, plural, other {# 篇文章}}",
+    "url": "网址：{url}",
+    "published": "发布于 {date}",
+    "saved": "保存于 {date}",
+    "read": "已读于 {date}",
+    "unread": "未读",
+    "archived": "已归档",
+    "inInbox": "在收件箱中",
+    "favorite": "★ 已收藏",
+    "folder": "文件夹：{name}",
+    "tags": "标签：{tags}",
+    "previewOnly": "仅预览：{reason}",
+    "summary": "摘要（{model}）",
+    "article": "文章"
+  }
+}

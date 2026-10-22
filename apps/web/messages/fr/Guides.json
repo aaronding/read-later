@@ -1,0 +1,48 @@
+{
+  "Guides": {
+    "chrome": {
+      "build": "Sur votre ordinateur, dans le dossier du projet, exécutez <kbd>pnpm extension:build</kbd>. Cette commande crée <code>apps/extension/dist</code>.",
+      "load": "Dans {chrome}, ouvrez <code>chrome://extensions</code>, activez le <strong>Mode développeur</strong>, cliquez sur <strong>Charger l’extension non empaquetée</strong> et sélectionnez le dossier <code>apps/extension/dist</code>.",
+      "connect": "Ouvrez les <strong>Options</strong> de l’extension. Saisissez l’URL du serveur <code>{url}</code> et un jeton d’accès créé ci-dessus.",
+      "use": "Enregistrez une page avec le bouton de la barre d’outils ou <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd> (sur {mac}, <kbd>Option</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd>). Faites un clic droit sur un lien et choisissez <strong>Enregistrer le lien dans {app}</strong> pour n’enregistrer que le lien. Le badge indique si l’enregistrement a réussi (✓) ou échoué (!)."
+    },
+    "shortcut": {
+      "intro": "Vous créez deux raccourcis à la main, une seule fois : ils se synchronisent ensuite sur votre {iphone}, votre {ipad} et votre {mac} via {icloud}. Le premier envoie la page entière depuis {safari}, si bien que les articles réservés aux abonnés que vous pouvez lire sont enregistrés en entier. Le second, destiné aux autres apps comme {chrome} sur {iphone}, n’envoie que le lien.",
+      "before": {
+        "heading": "Avant de commencer",
+        "scriptsOnIos": "<strong>{iphone} et {ipad} :</strong> Réglages → Apps → Raccourcis → Avancés → activez <strong>Autoriser l’exécution de scripts</strong> (sous {ios} 17 ou version antérieure : Réglages → Raccourcis → Avancés).",
+        "scriptsOnMac": "<strong>{mac} :</strong> dans l’app Raccourcis, Raccourcis → Réglages → Avancé → activez <strong>Autoriser l’exécution de scripts</strong>. Si {safari} refuse toujours d’exécuter le script, ouvrez {safari} → Réglages → Avancés → activez <strong>Afficher les fonctionnalités pour les développeurs web</strong>, puis, dans le nouvel onglet <strong>Développeur</strong> des réglages de {safari}, activez <strong>Autoriser JavaScript depuis les Apple Events</strong> et relancez {safari}.",
+        "token": "Créez ci-dessus un jeton d’accès pour cet appareil et gardez-le à portée de main."
+      },
+      "page": {
+        "name": "Enregistrer dans {app}",
+        "heading": "Raccourci 1 : « {name} » ({safari})",
+        "create": "Dans l’app Raccourcis, touchez <strong>+</strong> pour créer un raccourci et nommez-le « {name} ».",
+        "shareSheet": "Ouvrez les détails du raccourci (le bouton ⓘ, ou le menu du nom → Détails) et activez <strong>Dans la feuille de partage</strong>. Dans la ligne « Recevoir … » qui apparaît en haut, touchez les types d’entrées et désélectionnez-les tous sauf <strong>Pages web Safari</strong>.",
+        "script": "Ajoutez l’action <strong>Exécuter JavaScript sur une page web</strong> (sur {mac} : <strong>Exécuter JavaScript sur l’onglet Safari actif</strong>). Sur {iphone} et {ipad}, elle utilise la variable Entrée du raccourci comme page. Remplacez son script par celui-ci :",
+        "copyScript": "Copier le script",
+        "request": "Ajoutez <strong>Obtenir le contenu de l’URL</strong>. Saisissez l’URL <code>{url}</code>, puis touchez <strong>En afficher plus</strong> :",
+        "method": "Méthode : <strong>POST</strong>",
+        "headers": "En-têtes : ajoutez <code>Authorization</code> avec la valeur <code>Bearer </code> suivie de votre jeton, et <code>Content-Type</code> avec la valeur <code>application/json</code>",
+        "body": "Demander le corps : <strong>Fichier</strong>, puis choisissez la variable <strong>Résultat JavaScript</strong>",
+        "message": "Ajoutez <strong>Obtenir la valeur du dictionnaire</strong> : obtenez la valeur de la clé <code>message</code> dans <strong>Contenu de l’URL</strong>.",
+        "notification": "Ajoutez <strong>Afficher la notification</strong> et insérez-y la <strong>Valeur du dictionnaire</strong>. Elle affichera « {saved} ».",
+        "tryIt": "Essayez-le : dans {safari}, ouvrez un article, touchez Partager et choisissez le raccourci. La première fois, autorisez-le à exécuter JavaScript sur le site (choisissez <strong>Toujours autoriser</strong>)."
+      },
+      "link": {
+        "name": "Enregistrer le lien dans {app}",
+        "heading": "Raccourci 2 : « {name} » (autres apps)",
+        "create": "Créez un raccourci, activez <strong>Dans la feuille de partage</strong> et ne gardez que <strong>URL</strong> et <strong>Texte</strong> comme types d’entrées.",
+        "input": "Ajoutez <strong>Obtenir les URL de l’entrée</strong> (depuis la variable Entrée du raccourci), puis <strong>Obtenir l’élément de la liste</strong> (Premier élément).",
+        "request": "Ajoutez <strong>Obtenir le contenu de l’URL</strong> avec l’URL <code>{url}</code>. Après avoir touché En afficher plus : Méthode <strong>POST</strong> ; en-tête <code>Authorization</code> = <code>Bearer </code> + votre jeton ; Demander le corps <strong>JSON</strong> avec deux champs Texte : <code>url</code> défini sur la variable <strong>Élément de la liste</strong>, et <code>source</code> défini sur <code>shortcut</code>.",
+        "notification": "Ajoutez <strong>Obtenir la valeur du dictionnaire</strong> pour <code>message</code>, puis <strong>Afficher la notification</strong>, comme dans le raccourci 1.",
+        "note": "Les liens enregistrés de cette façon sont téléchargés par le serveur. Les pages qui demandent une connexion ou sont réservées aux abonnés portent alors la mention « {previewOnly} ». Ouvrez-les dans {safari} et utilisez le raccourci 1 pour conserver la copie complète."
+      }
+    },
+    "android": {
+      "open": "Ouvrez ce site dans {chrome} sur le téléphone et connectez-vous.",
+      "install": "Ouvrez le menu ⋮ de {chrome} et choisissez <strong>Ajouter à l’écran d’accueil</strong> → <strong>Installer</strong> (ou <strong>Installer l’appli</strong>).",
+      "share": "Dans n’importe quelle application, appuyez sur Partager et choisissez <strong>{app}</strong>. Le lien est enregistré et la boîte de réception s’ouvre."
+    }
+  }
+}

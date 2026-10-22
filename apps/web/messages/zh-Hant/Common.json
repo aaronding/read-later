@@ -1,0 +1,26 @@
+{
+  "Common": {
+    "tagline": "儲存文章以便稍後閱讀，並附上簡潔的閱讀版本和 AI 摘要。",
+    "inbox": "收件匣",
+    "favorites": "我的最愛",
+    "archive": "封存",
+    "triage": "整理",
+    "settings": "設定",
+    "archiveAction": "封存",
+    "moveToInbox": "移回收件匣",
+    "favorite": "加入我的最愛",
+    "unfavorite": "從我的最愛移除",
+    "favoriteBadge": "★ 我的最愛",
+    "previewOnly": "僅預覽",
+    "minRead": "閱讀時間 {minutes, number} 分鐘",
+    "savedOn": "儲存於 <date></date>",
+    "compareModels": "比較模型",
+    "save": "儲存",
+    "saving": "儲存中…",
+    "delete": "刪除",
+    "retry": "重試",
+    "retrying": "正在重試…",
+    "tryAgain": "再試一次",
+    "queued": "已排入佇列…"
+  }
+}

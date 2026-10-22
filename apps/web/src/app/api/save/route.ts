@@ -1,8 +1,13 @@
+import { createTranslator } from "next-intl";
 import { z } from "zod";
 import { APP_NAME } from "@/config/app";
-import { getDb } from "@/db";
+import { getDb, type Db } from "@/db";
+import { preferredLocale, type AppLocale } from "@/i18n/locales";
+import { loadMessages } from "@/i18n/messages";
+import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
-import { SaveError, maxHtmlBytes, saveArticle } from "@/lib/save";
+import { SaveError, maxHtmlBytes, saveArticle, type SaveErrorCode } from "@/lib/save";
+import { getSettings } from "@/lib/settings";
 import { authenticateBearer } from "@/lib/tokens";
 
 // Lets after() keep processing for up to 300 seconds once "Saved" is sent.
@@ -19,6 +24,28 @@ const CORS_HEADERS = {
 
 function reply(status: number, body: Record<string, unknown>): Response {
   return Response.json(body, { status, headers: { ...CORS_HEADERS, "Cache-Control": "no-store" } });
+}
+
+/** Every error reply has a `code` for programs; `error` is for people. */
+type ErrorCode = "unauthorized" | "bad_request" | SaveErrorCode;
+
+function replyError(status: number, code: ErrorCode, error: string): Response {
+  return reply(status, { ok: false, error, code });
+}
+
+// The extension and the Shortcut show the replies' texts as they are. They
+// are in the token owner's language, else the one the request asks for.
+async function replyLocale(db: Db, request: Request, userId: string | null): Promise<AppLocale> {
+  const saved = userId ? (await getSettings(db, userId)).locale : null;
+  return preferredLocale(saved, request.headers.get("accept-language"));
+}
+
+async function translators(locale: AppLocale) {
+  const messages = await loadMessages(locale);
+  return {
+    t: createTranslator({ locale, messages, namespace: "Api" }),
+    tErrors: createTranslator({ locale, messages, namespace: "Errors" }),
+  };
 }
 
 const SaveBody = z.object({
@@ -53,34 +80,32 @@ export function OPTIONS(): Response {
 
 /** Lets the extension's options page check the server URL and token. */
 export async function GET(request: Request): Promise<Response> {
-  const userId = await authenticateBearer(getDb(), request.headers.get("authorization"));
-  if (!userId) {
-    return reply(401, { ok: false, error: "Missing or invalid access token. Create one in Settings." });
-  }
-  return reply(200, { ok: true, message: `Connected to ${APP_NAME}`, app: APP_NAME });
+  const db = getDb();
+  const userId = await authenticateBearer(db, request.headers.get("authorization"));
+  const { t } = await translators(await replyLocale(db, request, userId));
+  if (!userId) return replyError(401, "unauthorized", t("unauthorized"));
+  return reply(200, { ok: true, message: t("connected", { app: APP_NAME }), app: APP_NAME });
 }
 
 export async function POST(request: Request): Promise<Response> {
   const db = getDb();
   const userId = await authenticateBearer(db, request.headers.get("authorization"));
-  if (!userId) {
-    return reply(401, { ok: false, error: "Missing or invalid access token. Create one in Settings." });
-  }
+  const { t, tErrors } = await translators(await replyLocale(db, request, userId));
+  if (!userId) return replyError(401, "unauthorized", t("unauthorized"));
 
   // JSON escaping can make the body somewhat larger than the HTML itself.
   const maxBodyBytes = Math.ceil(maxHtmlBytes() * 1.5) + 64 * 1024;
   const declared = Number(request.headers.get("content-length"));
   const text = Number.isFinite(declared) && declared > maxBodyBytes ? null : await readLimitedText(request, maxBodyBytes);
-  if (text === null) {
-    return reply(413, { ok: false, error: "The page is too large to save." });
-  }
+  if (text === null) return replyError(413, "too_large", tErrors("pageTooLarge"));
 
   let body: z.infer<typeof SaveBody>;
   try {
     // Parsed whatever the Content-Type says; Shortcuts sometimes send text/plain.
     body = SaveBody.parse(JSON.parse(text));
   } catch {
-    return reply(400, { ok: false, error: 'Send JSON like {"url": "https://..."}, optionally with "html" and "title".' });
+    const example = '{"url": "https://..."}';
+    return replyError(400, "bad_request", t("badRequest", { example, html: '"html"', title: '"title"' }));
   }
 
   try {
@@ -95,13 +120,15 @@ export async function POST(request: Request): Promise<Response> {
     return reply(result.outcome === "created" ? 201 : 200, {
       ok: true,
       status: "saved",
-      message: result.outcome === "resaved" ? `Already in ${APP_NAME}, moved to the top` : `Saved to ${APP_NAME}`,
+      message: t(result.outcome === "resaved" ? "alreadySaved" : "saved", { app: APP_NAME }),
       id: result.articleId,
       outcome: result.outcome,
     });
   } catch (error) {
-    if (error instanceof SaveError) return reply(error.status, { ok: false, error: error.message });
+    if (error instanceof SaveError) {
+      return replyError(error.status, error.code, translateError(tErrors, error.storedMessage));
+    }
     console.error("Save failed:", error);
-    return reply(500, { ok: false, error: "Something went wrong while saving. Please try again." });
+    return replyError(500, "server_error", t("serverError"));
   }
 }

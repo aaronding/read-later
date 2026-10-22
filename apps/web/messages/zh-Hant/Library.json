@@ -1,0 +1,26 @@
+{
+  "Library": {
+    "sectionsLabel": "區塊",
+    "searchView": "{view, select, inbox {搜尋收件匣} favorites {搜尋我的最愛} archive {搜尋封存} other {搜尋}}",
+    "searchPlaceholder": "{view, select, inbox {搜尋收件匣} favorites {搜尋我的最愛} archive {搜尋封存} other {搜尋}}",
+    "pasteLinkToSave": "貼上要儲存的連結",
+    "notices": {
+      "resaved": "先前已儲存，已移到最上方。",
+      "saved": "已儲存。摘要稍後就會顯示。",
+      "sharedNoLink": "你分享的內容中找不到連結。"
+    },
+    "filterSummary": "{filters, select, q {「{query}」} f {在「{folder}」資料夾中} t {標籤為 #{tag}} qf {「{query}」，在「{folder}」資料夾中} qt {「{query}」，標籤為 #{tag}} ft {在「{folder}」資料夾中，標籤為 #{tag}} qft {「{query}」，在「{folder}」資料夾中，標籤為 #{tag}} other {}} · <clear>清除</clear>",
+    "filtersLabel": "資料夾和標籤",
+    "empty": {
+      "inbox": "還沒有儲存任何內容。請在上方貼上連結，也可以透過 {chrome} 擴充功能或 {safari} 捷徑儲存。",
+      "favorites": "我的最愛中還沒有文章。點一下文章上的「{favorite}」，即可將文章保留在這裡。",
+      "archive": "還沒有封存任何內容。",
+      "noMatch": "沒有符合條件的文章。"
+    },
+    "pager": {
+      "label": "分頁",
+      "newer": "較新",
+      "older": "較舊"
+    }
+  }
+}

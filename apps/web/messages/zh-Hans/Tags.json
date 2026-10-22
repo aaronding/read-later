@@ -1,0 +1,9 @@
+{
+  "Tags": {
+    "label": "标签",
+    "remove": "移除标签 {name}",
+    "addSuggested": "添加推荐标签 {name}",
+    "addLabel": "添加标签",
+    "addPlaceholder": "添加标签"
+  }
+}

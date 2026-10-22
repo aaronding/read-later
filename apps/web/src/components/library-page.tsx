@@ -1,3 +1,4 @@
+import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
@@ -9,13 +10,6 @@ import { ArticleCard } from "./article-card";
 import { isBusy } from "./article-status";
 import { AutoRefresh } from "./auto-refresh";
 import { SearchForm } from "./search-form";
-
-const TITLES: Record<LibraryView, string> = { inbox: "Inbox", favorites: "Favorites", archive: "Archive" };
-const EMPTY: Record<LibraryView, string> = {
-  inbox: "Nothing saved yet. Paste a link above, or save from the Chrome extension or the Safari Shortcut.",
-  favorites: "No favorites yet. Tap Favorite on an article to keep it here.",
-  archive: "Nothing archived yet.",
-};
 
 export async function LibraryPage({
   view,
@@ -40,6 +34,12 @@ export async function LibraryPage({
   const keep = { ...(query ? { q: query } : {}), ...(folder ? { folder: folder.id } : {}), ...(tag ? { tag } : {}) };
   const filtered = Boolean(query || folder || tag);
   const busy = items.some((item) => isBusy(item.status, item.summaryStatus));
+  const [t, tCommon, format] = await Promise.all([getTranslations("Library"), getTranslations("Common"), getFormatter()]);
+  const empty: Record<LibraryView, string> = {
+    inbox: t("empty.inbox", { chrome: "Chrome", safari: "Safari" }),
+    favorites: t("empty.favorites", { favorite: tCommon("favorite") }),
+    archive: t("empty.archive"),
+  };
 
   return (
     <>
@@ -48,25 +48,31 @@ export async function LibraryPage({
       </div>
       {params.saved && (
         <p className="notice success" role="status">
-          {params.saved === "resaved" ? "Already saved; moved to the top." : "Saved. The summary will appear in a moment."}
+          {params.saved === "resaved" ? t("notices.resaved") : t("notices.saved")}
         </p>
       )}
-      {params.shared === "nolink" && <p className="notice error">No link was found in what you shared.</p>}
+      {params.shared === "nolink" && <p className="notice error">{t("notices.sharedNoLink")}</p>}
       {view === "inbox" && !filtered && <AddUrlForm />}
       <div className="page-title">
-        <h1>{query ? `Search ${TITLES[view]}` : TITLES[view]}</h1>
+        <h1>{query ? t("searchView", { view }) : tCommon(view)}</h1>
         {filtered && (
           <span className="muted small">
-            {[query && `“${query}”`, folder && `in ${folder.name}`, tag && `tagged #${tag}`].filter(Boolean).join(", ")} ·{" "}
-            <Link href={`/${view}`}>Clear</Link>
+            {t.rich("filterSummary", {
+              // Which filters are on, as the message's select expects: q, f, t or a combination.
+              filters: `${query ? "q" : ""}${folder ? "f" : ""}${tag ? "t" : ""}`,
+              query,
+              folder: folder?.name ?? "",
+              tag: tag ?? "",
+              clear: (chunks) => <Link href={`/${view}`}>{chunks}</Link>,
+            })}
           </span>
         )}
       </div>
       {(folders.length > 0 || tags.length > 0) && (
-        <nav className="filters" aria-label="Folders and tags">
+        <nav className="filters" aria-label={t("filtersLabel")}>
           {folders.map((entry) => (
             <Link key={entry.id} className={`chip${entry.id === folder?.id ? " active" : ""}`} href={{ pathname: `/${view}`, query: { folder: entry.id } }}>
-              {entry.name} <span className="muted">{entry.count}</span>
+              {entry.name} <span className="muted">{format.number(entry.count)}</span>
             </Link>
           ))}
           {tags
@@ -79,7 +85,7 @@ export async function LibraryPage({
         </nav>
       )}
       {items.length === 0 ? (
-        <p className="empty">{filtered ? "No articles match." : EMPTY[view]}</p>
+        <p className="empty">{filtered ? t("empty.noMatch") : empty[view]}</p>
       ) : (
         <ul className="article-list">
           {items.map((item) => (
@@ -88,15 +94,15 @@ export async function LibraryPage({
         </ul>
       )}
       {(hasMore || page > 0) && (
-        <nav className="pager" aria-label="Pages">
+        <nav className="pager" aria-label={t("pager.label")}>
           {page > 0 && (
             <Link className="button" href={{ pathname: `/${view}`, query: { ...keep, page: page - 1 } }}>
-              Newer
+              {t("pager.newer")}
             </Link>
           )}
           {hasMore && (
             <Link className="button" href={{ pathname: `/${view}`, query: { ...keep, page: page + 1 } }}>
-              Older
+              {t("pager.older")}
             </Link>
           )}
         </nav>

@@ -1,8 +1,11 @@
+import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Db } from "@/db";
 import { articles, summaries } from "@/db/schema";
+import type { AppLocale } from "@/i18n/locales";
+import { loadMessages } from "@/i18n/messages";
 import { createTestDb, createTestUser } from "@/test/db";
-import { exportToMarkdown, loadExport } from "./export";
+import { exportToMarkdown, loadExport, type ExportData } from "./export";
 import { findOrCreateFolder, setArticleFolder } from "./folders";
 import { addTag } from "./tags";
 
@@ -44,6 +47,15 @@ beforeAll(async () => {
 });
 afterAll(() => close());
 
+async function markdownIn(locale: AppLocale, data: ExportData) {
+  const messages = await loadMessages(locale);
+  return exportToMarkdown(
+    data,
+    createTranslator({ locale, messages, namespace: "Export" }),
+    createTranslator({ locale, messages, namespace: "Errors" }),
+  );
+}
+
 describe("export", () => {
   it("includes everything for this user and nothing of anyone else's", async () => {
     const data = await loadExport(db, "user-1");
@@ -61,8 +73,10 @@ describe("export", () => {
   });
 
   it("writes readable Markdown", async () => {
-    const markdown = exportToMarkdown(await loadExport(db, "user-1"));
+    const markdown = await markdownIn("en", await loadExport(db, "user-1"));
     expect(markdown).toContain("# Read Later export");
+    expect(markdown).toMatch(/^Exported \d{4}-\d{2}-\d{2} · 1 article$/m);
+    expect(markdown).toMatch(/^- saved \d{4}-\d{2}-\d{2} · unread · in Inbox · ★ favorite$/m);
     expect(markdown).toContain("## Community orchards");
     expect(markdown).toContain("- URL: <https://example.com/orchards>");
     expect(markdown).toContain("- Folder: Long reads");
@@ -70,5 +84,33 @@ describe("export", () => {
     expect(markdown).toContain("### Summary (Claude Opus 5.5)");
     expect(markdown).toContain("- The fruit is free.");
     expect(markdown).toContain("### Article\n\nVolunteers plant apple trees.");
+  });
+
+  it("says why a copy is only a preview, in the reader's language", async () => {
+    const data = await loadExport(db, "user-1");
+    const preview = {
+      ...data.articles[0]!,
+      previewOnly: true,
+      previewReason: "Old English text.",
+      previewReasonMessage: { key: "preview.loginPage" },
+    };
+    const markdown = await markdownIn("en", { ...data, articles: [preview] });
+    expect(markdown).toContain("- Preview only: This looks like a login page rather than the article.");
+    // Rows saved before message keys show their English text.
+    const older = await markdownIn("en", { ...data, articles: [{ ...preview, previewReasonMessage: null }] });
+    expect(older).toContain("- Preview only: Old English text.");
+  });
+
+  it("keeps the same structure in another language", async () => {
+    const data = await loadExport(db, "user-1");
+    const headings = (markdown: string) => markdown.split("\n").filter((line) => /^#+ |^---$/.test(line));
+    const english = await markdownIn("en", data);
+    const french = await markdownIn("fr", data);
+    expect(headings(french).map((line) => line.replace(/ .*/, ""))).toEqual(["#", "---", "##", "###", "###"]);
+    expect(headings(french)).toContain("## Community orchards");
+    expect(french.split("\n")).toHaveLength(english.split("\n").length);
+    expect(french).toContain("<https://example.com/orchards>");
+    expect(french).toContain("#gardening");
+    expect(french).toContain("Volunteers plant apple trees.");
   });
 });

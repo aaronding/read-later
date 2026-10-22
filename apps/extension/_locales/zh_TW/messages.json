@@ -1,0 +1,126 @@
+{
+  "locale": {
+    "message": "zh-Hant"
+  },
+  "extensionDescription": {
+    "message": "將正在閱讀的網頁或連結儲存至 {app}。"
+  },
+  "actionTitle": {
+    "message": "儲存至 {app}"
+  },
+  "commandDescription": {
+    "message": "儲存這個網頁"
+  },
+  "contextMenuTitle": {
+    "message": "將連結儲存至 {app}"
+  },
+  "badgeTitle": {
+    "message": "{app}：$MESSAGE$",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "onlyWebPages": {
+    "message": "只能儲存網頁 (http 或 https)。"
+  },
+  "onlyWebLinks": {
+    "message": "只能儲存 http 和 https 連結。"
+  },
+  "notConfigured": {
+    "message": "請開啟擴充功能的「選項」，然後輸入伺服器網址和存取權杖。"
+  },
+  "saved": {
+    "message": "已儲存至 {app}"
+  },
+  "savedLinkOnly": {
+    "message": "已儲存至 {app} (僅連結：網頁太大，無法傳送)"
+  },
+  "alreadySaved": {
+    "message": "{app} 中已有這篇文章，已移到最上方"
+  },
+  "alreadySavedLinkOnly": {
+    "message": "{app} 中已有這篇文章，已移到最上方 (僅連結：網頁太大，無法傳送)"
+  },
+  "serverMessageLinkOnly": {
+    "message": "$MESSAGE$ (僅連結：網頁太大，無法傳送)",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "connected": {
+    "message": "已連線到 {app}。現在可以儲存網頁了。"
+  },
+  "unreachable": {
+    "message": "無法連線到 $SERVER$：$ERROR$",
+    "placeholders": {
+      "server": { "content": "$1" },
+      "error": { "content": "$2" }
+    }
+  },
+  "notTheApp": {
+    "message": "$SERVER$ 的回應並非來自 {app}。請檢查伺服器網址。",
+    "placeholders": {
+      "server": { "content": "$1" }
+    }
+  },
+  "serverAnswered": {
+    "message": "伺服器傳回 $STATUS$",
+    "placeholders": {
+      "status": { "content": "$1" }
+    }
+  },
+  "errorUnauthorized": {
+    "message": "缺少存取權杖或權杖無效。請在「設定」中建立一個。"
+  },
+  "errorTooLarge": {
+    "message": "網頁太大，無法儲存。"
+  },
+  "errorBadRequest": {
+    "message": "請傳送類似 {\"url\": \"https://...\"} 的 JSON，可另外附上 \"html\" 和 \"title\"。"
+  },
+  "errorInvalidUrl": {
+    "message": "url 必須是以 http 或 https 開頭的絕對 URL。"
+  },
+  "errorServer": {
+    "message": "儲存時發生錯誤，請再試一次。"
+  },
+  "optionsTitle": {
+    "message": "{app} 選項"
+  },
+  "serverUrlLabel": {
+    "message": "伺服器網址"
+  },
+  "serverUrlHint": {
+    "message": "你的 {app} 網頁應用程式的網址。"
+  },
+  "tokenLabel": {
+    "message": "存取權杖"
+  },
+  "tokenHint": {
+    "message": "請在網頁應用程式的「設定」→「存取權杖」中建立。權杖只會儲存在這個瀏覽器中。"
+  },
+  "saveAndCheck": {
+    "message": "儲存並檢查"
+  },
+  "enterServerUrl": {
+    "message": "請輸入伺服器的網址，例如 https://read.example.com。"
+  },
+  "enterToken": {
+    "message": "請貼上應用程式「設定」頁面中的存取權杖 (以 rl_ 開頭)。"
+  },
+  "checking": {
+    "message": "已儲存。正在檢查連線…"
+  },
+  "usage": {
+    "message": "使用工具列按鈕或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (Mac：<kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) 儲存網頁。在連結上按右鍵即可只儲存連結。$SHORTCUTS$",
+    "placeholders": {
+      "shortcuts": { "content": "$1" }
+    }
+  },
+  "shortcutsChrome": {
+    "message": "可以在 <code>chrome://extensions/shortcuts</code> 變更快速鍵。"
+  },
+  "shortcutsFirefox": {
+    "message": "可以在 <code>about:addons</code> 變更快速鍵：從齒輪選單中選擇「管理擴充套件快速鍵」。"
+  }
+}

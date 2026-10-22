@@ -2,6 +2,8 @@ import { Readability } from "@mozilla/readability";
 import { JSDOM, VirtualConsole } from "jsdom";
 import { parse, serialize, type DefaultTreeAdapterTypes } from "parse5";
 import type { ContentSource } from "@/db/schema";
+import type { StoredMessage } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
 import {
   checkPreview,
   findPaywallMarkup,
@@ -40,7 +42,8 @@ export interface ExtractedArticle {
   readingMinutes: number;
   previewOnly: boolean;
   previewKind: PreviewKind | null;
-  previewReason: string | null;
+  /** Why the copy is only a preview, as a message in the Errors namespace. */
+  previewReason: StoredMessage | null;
   canonicalHref: string | null;
 }
 
@@ -103,6 +106,8 @@ function withoutLeadingTitle(html: string, title: string): string {
 export const MAX_PAGE_HTML_BYTES = 4 * 1024 * 1024;
 
 export class PageTooLargeError extends Error {
+  readonly storedMessage = errorMessage("pageTooLarge");
+
   constructor() {
     super("The page is too large to save.");
   }

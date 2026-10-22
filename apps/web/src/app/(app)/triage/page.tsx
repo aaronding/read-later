@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { triageAction } from "@/app/actions";
 import { ArticleStatus, isBusy } from "@/components/article-status";
@@ -9,23 +10,25 @@ import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { getArticle, shownSummary, triageQueue } from "@/lib/library";
 
-export const metadata: Metadata = { title: "Triage" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Common");
+  return { title: t("triage") };
+}
 
 export default async function TriagePage() {
   const user = await requireUser("/triage");
   const db = getDb();
   const { nextId, remaining } = await triageQueue(db, user.id);
   const found = nextId ? await getArticle(db, user.id, nextId) : null;
+  const [t, tCommon] = await Promise.all([getTranslations("Triage"), getTranslations("Common")]);
 
   if (!found) {
     return (
       <div className="triage">
         <div className="page-title">
-          <h1>Triage</h1>
+          <h1>{tCommon("triage")}</h1>
         </div>
-        <p className="empty">
-          All caught up: no unread articles in your Inbox. <Link href="/inbox">Back to the Inbox</Link>
-        </p>
+        <p className="empty">{t.rich("allCaughtUp", { inbox: (chunks) => <Link href="/inbox">{chunks}</Link> })}</p>
       </div>
     );
   }
@@ -39,14 +42,14 @@ export default async function TriagePage() {
     <div className="triage">
       <AutoRefresh active={isBusy(article.status, chosen?.status ?? null)} />
       <div className="page-title">
-        <h1>Triage</h1>
-        <span className="muted small">{remaining} unread</span>
+        <h1>{tCommon("triage")}</h1>
+        <span className="muted small">{t("remaining", { remaining })}</span>
       </div>
       <section className="card triage-card">
         <div className="meta">
           <span>{article.siteName}</span>
-          {article.readingMinutes ? <span>{article.readingMinutes} min read</span> : null}
-          {article.previewOnly && <span className="badge warn">Preview only</span>}
+          {article.readingMinutes ? <span>{tCommon("minRead", { minutes: article.readingMinutes })}</span> : null}
+          {article.previewOnly && <span className="badge warn">{tCommon("previewOnly")}</span>}
         </div>
         <h2 style={{ fontSize: "1.3rem", marginTop: 6 }} lang={article.lang ?? undefined}>
           {article.title || article.url}
@@ -59,8 +62,10 @@ export default async function TriagePage() {
               id={article.id}
               status={article.status}
               error={article.error}
+              errorMessage={article.errorMessage}
               summaryStatus={chosen?.status ?? null}
               summaryError={chosen?.error ?? null}
+              summaryErrorMessage={chosen?.errorMessage ?? null}
               hasSummary={false}
             />
             {article.excerpt && <p>{article.excerpt}</p>}
@@ -68,22 +73,22 @@ export default async function TriagePage() {
         )}
         <div className="triage-actions">
           <Link className="button primary" href={`/articles/${article.id}`}>
-            Read now
+            {t("readNow")}
           </Link>
           <form action={triageAction}>
             <input type="hidden" name="id" value={article.id} />
             <input type="hidden" name="decision" value="later" />
-            <SubmitButton>Later</SubmitButton>
+            <SubmitButton>{t("later")}</SubmitButton>
           </form>
           <form action={triageAction}>
             <input type="hidden" name="id" value={article.id} />
             <input type="hidden" name="decision" value="archive" />
-            <SubmitButton>Archive</SubmitButton>
+            <SubmitButton>{tCommon("archiveAction")}</SubmitButton>
           </form>
         </div>
       </section>
       <p className="muted small" style={{ textAlign: "center" }}>
-        Later keeps the article in your Inbox and moves it to the back of this queue.
+        {t("laterHint", { later: t("later") })}
       </p>
     </div>
   );

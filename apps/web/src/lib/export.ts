@@ -1,11 +1,17 @@
 import { asc, eq } from "drizzle-orm";
+import type { createTranslator } from "next-intl";
 import { APP_NAME } from "@/config/app";
 import { modelLabel } from "@/config/models";
 import type { Db } from "@/db";
 import { articleTags, articles, folders, summaries, tags } from "@/db/schema";
+import type { Messages } from "@/i18n/messages";
+import { storedMessageText, type ErrorsTranslator } from "@/i18n/stored-message";
 
 // "Export everything": one JSON file with all data, or one readable
-// Markdown file.
+// Markdown file in the reader's language.
+
+/** A translator for the Export namespace, from getTranslations("Export") or createTranslator. */
+export type ExportTranslator = ReturnType<typeof createTranslator<Messages, "Export">>;
 
 export async function loadExport(db: Db, userId: string) {
   const [articleRows, summaryRows, folderRows, tagRows, links] = await Promise.all([
@@ -41,6 +47,7 @@ export async function loadExport(db: Db, userId: string) {
       status: article.status,
       previewOnly: article.previewOnly,
       previewReason: article.previewReason,
+      previewReasonMessage: article.previewReasonMessage,
       wordCount: article.wordCount,
       readingMinutes: article.readingMinutes,
       excerpt: article.excerpt,
@@ -72,37 +79,42 @@ export type ExportData = Awaited<ReturnType<typeof loadExport>>;
 
 const day = (value: Date | string | null | undefined) => (value ? new Date(value).toISOString().slice(0, 10) : null);
 
-export function exportToMarkdown(data: ExportData): string {
+export function exportToMarkdown(data: ExportData, t: ExportTranslator, tErrors: ErrorsTranslator): string {
   const out: string[] = [
-    `# ${data.app} export`,
+    `# ${t("title", { app: data.app })}`,
     "",
-    `Exported ${day(data.exportedAt)} · ${data.articles.length} article${data.articles.length === 1 ? "" : "s"}`,
+    t("exported", { date: day(data.exportedAt) ?? "", count: data.articles.length }),
     "",
   ];
   for (const article of [...data.articles].reverse()) {
     out.push("---", "", `## ${article.title || article.url}`, "");
-    out.push(`- URL: <${article.url}>`);
-    const source = [article.siteName, article.author, article.publishedAt && `published ${day(article.publishedAt)}`].filter(Boolean);
+    out.push(`- ${t("url", { url: `<${article.url}>` })}`);
+    const published = day(article.publishedAt);
+    const source = [article.siteName, article.author, published && t("published", { date: published })].filter(Boolean);
     if (source.length) out.push(`- ${source.join(" · ")}`);
+    const read = day(article.readAt);
     const state = [
-      `saved ${day(article.savedAt)}`,
-      article.readAt ? `read ${day(article.readAt)}` : "unread",
-      article.archivedAt ? "archived" : "in Inbox",
-      article.favorite && "★ favorite",
+      t("saved", { date: day(article.savedAt) ?? "" }),
+      read ? t("read", { date: read }) : t("unread"),
+      article.archivedAt ? t("archived") : t("inInbox"),
+      article.favorite && t("favorite"),
     ].filter(Boolean);
     out.push(`- ${state.join(" · ")}`);
-    if (article.folder) out.push(`- Folder: ${article.folder}`);
-    if (article.tags.length) out.push(`- Tags: ${article.tags.map((tag) => `#${tag}`).join(", ")}`);
-    if (article.previewOnly) out.push(`- Preview only: ${article.previewReason ?? ""}`);
+    if (article.folder) out.push(`- ${t("folder", { name: article.folder })}`);
+    if (article.tags.length) out.push(`- ${t("tags", { tags: article.tags.map((tag) => `#${tag}`).join(", ") })}`);
+    if (article.previewOnly) {
+      const reason = storedMessageText(tErrors, article.previewReasonMessage, article.previewReason) ?? "";
+      out.push(`- ${t("previewOnly", { reason })}`);
+    }
     out.push("");
     const summary =
       article.summaries.find((row) => row.model === article.shownSummaryModel) ?? article.summaries.at(-1);
     if (summary) {
-      out.push(`### Summary (${modelLabel(summary.model)})`, "", summary.tldr ?? "", "");
+      out.push(`### ${t("summary", { model: modelLabel(summary.model) })}`, "", summary.tldr ?? "", "");
       for (const point of summary.keyPoints ?? []) out.push(`- ${point}`);
       out.push("");
     }
-    if (article.text) out.push("### Article", "", article.text, "");
+    if (article.text) out.push(`### ${t("article")}`, "", article.text, "");
   }
   return `${out.join("\n").trimEnd()}\n`;
 }

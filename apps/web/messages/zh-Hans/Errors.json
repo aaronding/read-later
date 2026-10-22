@@ -1,0 +1,57 @@
+{
+  "Errors": {
+    "pageTooLarge": "网页太大，无法保存。",
+    "job": {
+      "tooManyAttempts": "尝试次数过多，已放弃。",
+      "unexpected": "发生意外错误：{detail}"
+    },
+    "download": {
+      "invalidUrl": "URL 无效：{url}",
+      "httpOnly": "只能下载 http 和 https 链接。",
+      "credentialsInUrl": "不会下载包含用户名或密码的链接。",
+      "noAddress": "找不到 {host} 的地址。",
+      "privateHost": "{host} 指向私有地址或保留地址。",
+      "privateAddress": "{host} 是私有地址或保留地址。",
+      "failed": "无法下载此网页：{detail}",
+      "interrupted": "下载中断：{detail}",
+      "timeout": "网站响应超时。",
+      "tooManyRedirects": "网页重定向次数过多。",
+      "notFound": "找不到该网页（HTTP {status}）。",
+      "unavailable": "网站暂时无法提供此网页（HTTP {status}）。",
+      "refused": "网站拒绝了下载请求（HTTP {status}）。",
+      "notWebPage": "此链接不是网页（{type}）。目前只能保存网页。"
+    },
+    "preview": {
+      "loginRequired": "网站要求先登录才能显示此网页（HTTP {status}）。",
+      "subscriptionRequired": "网站要求先订阅才能显示此网页（HTTP {status}）。",
+      "downloadRefused": "网站拒绝了服务器的下载请求（HTTP {status}）。该网站可能要求登录，也可能会拒绝并非来自浏览器的下载。",
+      "subscriberOnly": "网站将这篇文章标记为仅限订阅者阅读，因此只保存了免费部分。",
+      "subscriberOnlyNothingFree": "网站将这篇文章标记为仅限订阅者阅读，而且免费部分太少，无法保留。",
+      "noArticle": "在此网页上找不到文章。",
+      "loginPage": "这看起来是登录页面，而不是文章。",
+      "teaser": "此网页显示了付费墙，只有文章的开头部分。",
+      "tooShort": "只能从此网页读取到很短的文字。"
+    },
+    "summary": {
+      "noText": "没有可生成摘要的文章正文。",
+      "unknownModel": "未知的摘要模型：{model}",
+      "timeout": "{claude} 响应超时。",
+      "apiKeyRejected": "{claude} API 不接受此 API 密钥。请检查 {variable}，重启应用（在 {vercel} 上则重新部署），然后重新生成摘要。",
+      "apiKeyRejectedWithDetail": "{claude} API 不接受此 API 密钥（{detail}）。请检查 {variable}，重启应用（在 {vercel} 上则重新部署），然后重新生成摘要。",
+      "apiError": "{claude} API 错误：{detail}",
+      "apiErrorStatus": "{claude} API 错误 {status}。",
+      "apiErrorStatusWithDetail": "{claude} API 错误 {status}：{detail}",
+      "declined": "{claude} 拒绝为这篇文章生成摘要。",
+      "declinedCategory": "{claude} 拒绝为这篇文章生成摘要（{category, select, cyber {网络安全} bio {生物安全} frontier_llm {前沿大模型} reasoning_extraction {推理过程提取} general_harms {一般性危害} other {{category}}}）。",
+      "cutOff": "摘要在完成前被截断。",
+      "tooLong": "文章太长，此模型无法处理。",
+      "empty": "{claude} 未返回摘要。",
+      "badFormat": "{claude} 返回的摘要格式不符合预期。"
+    },
+    "save": {
+      "invalidUrl": "{field} 必须是以 http 或 https 开头的绝对 URL。",
+      "htmlTooLarge": "网页的 HTML 太大，无法保存。",
+      "failed": "无法保存文章，请重试。"
+    }
+  }
+}

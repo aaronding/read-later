@@ -1,0 +1,12 @@
+{
+  "Actions": {
+    "saveUrl": {
+      "notAWebAddress": "Cela ne ressemble pas à une adresse web (http ou https).",
+      "saved": "Enregistré dans {app}.",
+      "alreadySaved": "Déjà enregistré, remonté en haut de la liste."
+    },
+    "createToken": {
+      "nameRequired": "Donnez un nom au jeton, par exemple « {chrome} sur mon portable »."
+    }
+  }
+}

@@ -1,11 +1,15 @@
 "use server";
 
 import { refresh } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/config/app";
 import { isSummaryModel } from "@/config/models";
 import { getDb } from "@/db";
+import { LOCALE_COOKIE, isLocale } from "@/i18n/locales";
 import { requireUser } from "@/lib/auth";
+import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
 import {
   deleteArticle,
@@ -129,19 +133,20 @@ export interface SaveUrlState {
 
 export async function saveUrlAction(_previous: SaveUrlState, formData: FormData): Promise<SaveUrlState> {
   const user = await requireUser();
+  const t = await getTranslations("Actions.saveUrl");
   const url = parsePastedUrl(String(formData.get("url") ?? ""));
-  if (!url) return { ok: false, message: "That doesn't look like a web address (http or https)." };
+  if (!url) return { ok: false, message: t("notAWebAddress") };
   try {
     const result = await saveArticle(getDb(), { userId: user.id, url: url.href, source: "web" });
     if (result.queued) scheduleJobProcessing();
     refresh();
     return {
       ok: true,
-      message: result.outcome === "resaved" ? "Already saved; moved to the top." : `Saved to ${APP_NAME}.`,
+      message: result.outcome === "resaved" ? t("alreadySaved") : t("saved", { app: APP_NAME }),
     };
   } catch (error) {
-    if (error instanceof SaveError) return { ok: false, message: error.message };
-    throw error;
+    if (!(error instanceof SaveError)) throw error;
+    return { ok: false, message: translateError(await getTranslations("Errors"), error.storedMessage) };
   }
 }
 
@@ -162,6 +167,30 @@ export async function saveAppearanceAction(choice: Appearance) {
   await saveAppearance(getDb(), user.id, toAppearance(choice));
 }
 
+/**
+ * Saves the interface language. A cookie remembers it on this browser too,
+ * for pages seen signed out; "auto" follows the browser's languages again.
+ */
+export async function updateLocaleAction(formData: FormData) {
+  const user = await requireUser();
+  const value = formData.get("locale");
+  const locale = isLocale(value) ? value : null;
+  if (!locale && value !== "auto") throw new Error("Unknown language.");
+  await updateSettings(getDb(), user.id, { locale });
+  const jar = await cookies();
+  if (!locale) jar.delete(LOCALE_COOKIE);
+  else {
+    jar.set(LOCALE_COOKIE, locale, {
+      path: "/",
+      maxAge: 365 * 24 * 3600,
+      sameSite: "lax",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+    });
+  }
+  refresh();
+}
+
 export interface CreateTokenState {
   token?: string;
   name?: string;
@@ -171,7 +200,10 @@ export interface CreateTokenState {
 export async function createTokenAction(_previous: CreateTokenState, formData: FormData): Promise<CreateTokenState> {
   const user = await requireUser();
   const name = String(formData.get("name") ?? "").trim();
-  if (!name) return { error: "Give the token a name, such as “Chrome on my laptop”." };
+  if (!name) {
+    const t = await getTranslations("Actions.createToken");
+    return { error: t("nameRequired", { chrome: "Chrome" }) };
+  }
   const { token, record } = await createApiToken(getDb(), user.id, name);
   refresh();
   // Returned once, to be shown once. Only the hash is stored.

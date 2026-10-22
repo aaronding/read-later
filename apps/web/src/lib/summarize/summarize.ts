@@ -2,6 +2,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { envInt, envString } from "@/config/env";
 import { MODEL_INFO, estimateCostUsd, type SummaryModel } from "@/config/models";
+import type { StoredMessage } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
 import {
   SUMMARY_JSON_SCHEMA,
   SUMMARY_SYSTEM_PROMPT,
@@ -51,11 +53,12 @@ export function setAnthropicClient(fake: Anthropic | undefined): void {
 /** A summary attempt that failed. `retryable` says whether a later try may work. */
 export class SummaryError extends Error {
   constructor(
-    message: string,
+    /** What went wrong, as a message in the Errors namespace. */
+    readonly storedMessage: StoredMessage,
     readonly retryable: boolean,
     readonly stopReason: string | null = null,
   ) {
-    super(message);
+    super(storedMessage.key);
     this.name = "SummaryError";
   }
 }
@@ -160,20 +163,32 @@ const TRANSIENT_STREAM_ERRORS = new Set(["overloaded_error", "api_error", "rate_
 // The reader, the lists and Compare show the error, so it stays short.
 const MAX_ERROR_DETAIL = 300;
 
+// Product names go into the messages as values, so they are never translated.
+const CLAUDE = { claude: "Claude" };
+
 /**
  * The error as the reader, the lists and Compare show it. The SDK's own
  * message is the status followed by the raw body (JSON, or a proxy's HTML
  * page), so only the API's own message is kept, and a refused key says what
  * to do about it.
  */
-export function describeApiError(error: InstanceType<typeof Anthropic.APIError>): string {
+export function describeApiError(error: InstanceType<typeof Anthropic.APIError>): StoredMessage {
   const body = error.error as { error?: { message?: unknown } } | undefined;
   const apiMessage = typeof body?.error?.message === "string" ? body.error.message.slice(0, MAX_ERROR_DETAIL) : null;
   if (error instanceof Anthropic.AuthenticationError) {
-    return `The Claude API didn't accept the API key${apiMessage ? ` (${apiMessage})` : ""}. Check ANTHROPIC_API_KEY, restart the app (redeploy it on Vercel), then try the summary again.`;
+    const values = { ...CLAUDE, variable: "ANTHROPIC_API_KEY", vercel: "Vercel" };
+    return apiMessage
+      ? errorMessage("summary.apiKeyRejectedWithDetail", { ...values, detail: apiMessage })
+      : errorMessage("summary.apiKeyRejected", values);
   }
-  if (error.status === undefined) return `Claude API error: ${apiMessage ?? error.message.slice(0, MAX_ERROR_DETAIL)}`;
-  return apiMessage ? `Claude API error ${error.status}: ${apiMessage}` : `Claude API error ${error.status}.`;
+  if (error.status === undefined) {
+    const detail = apiMessage ?? error.message.slice(0, MAX_ERROR_DETAIL);
+    return errorMessage("summary.apiError", { ...CLAUDE, detail });
+  }
+  const status = String(error.status);
+  return apiMessage
+    ? errorMessage("summary.apiErrorStatusWithDetail", { ...CLAUDE, status, detail: apiMessage })
+    : errorMessage("summary.apiErrorStatus", { ...CLAUDE, status });
 }
 
 export interface SummarizeInput {
@@ -207,7 +222,7 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
     message = await stream.finalMessage();
   } catch (error) {
     if (signal.aborted) {
-      throw new SummaryError("Claude took too long to answer.", true);
+      throw new SummaryError(errorMessage("summary.timeout", CLAUDE), true);
     }
     if (error instanceof Anthropic.APIError) {
       throw new SummaryError(describeApiError(error), isRetryableApiError(error));
@@ -222,7 +237,9 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   if (message.stop_reason === "refusal") {
     const category = message.stop_details?.category;
     throw new SummaryError(
-      `Claude declined to summarize this article${category ? ` (${category.replace(/_/g, " ")})` : ""}.`,
+      category
+        ? errorMessage("summary.declinedCategory", { ...CLAUDE, category })
+        : errorMessage("summary.declined", CLAUDE),
       false,
       "refusal",
     );
@@ -230,10 +247,10 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   if (message.stop_reason === "max_tokens") {
     // The same request would most likely stop the same way, so this isn't
     // retried automatically; Retry in the app tries again on purpose.
-    throw new SummaryError("The summary was cut off before it was finished.", false, "max_tokens");
+    throw new SummaryError(errorMessage("summary.cutOff"), false, "max_tokens");
   }
   if (message.stop_reason === "model_context_window_exceeded") {
-    throw new SummaryError("The article is too long for this model.", false, message.stop_reason);
+    throw new SummaryError(errorMessage("summary.tooLong"), false, message.stop_reason);
   }
 
   // After a refusal fallback, content holds the declined model's partial
@@ -242,13 +259,13 @@ export async function summarizeArticle({ model, article, existingTags }: Summari
   const lastFallback = message.content.findLastIndex((block) => block.type === "fallback");
   const text = message.content.slice(lastFallback + 1).find((block) => block.type === "text");
   if (!text || text.type !== "text") {
-    throw new SummaryError("Claude returned no summary.", true, message.stop_reason);
+    throw new SummaryError(errorMessage("summary.empty", CLAUDE), true, message.stop_reason);
   }
   let parsed: z.infer<typeof SummaryOutput>;
   try {
     parsed = SummaryOutput.parse(JSON.parse(text.text));
   } catch {
-    throw new SummaryError("Claude's summary was not in the expected format.", true, message.stop_reason);
+    throw new SummaryError(errorMessage("summary.badFormat", CLAUDE), true, message.stop_reason);
   }
 
   return {

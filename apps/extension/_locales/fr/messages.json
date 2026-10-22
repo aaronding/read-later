@@ -1,0 +1,140 @@
+{
+  "locale": {
+    "message": "fr"
+  },
+  "extensionDescription": {
+    "message": "Enregistrez dans {app} la page que vous lisez, ou un lien."
+  },
+  "actionTitle": {
+    "message": "Enregistrer dans {app}"
+  },
+  "commandDescription": {
+    "message": "Enregistrer cette page"
+  },
+  "contextMenuTitle": {
+    "message": "Enregistrer le lien dans {app}"
+  },
+  "badgeTitle": {
+    "message": "{app} : $MESSAGE$",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "onlyWebPages": {
+    "message": "Seules les pages web (http ou https) peuvent être enregistrées."
+  },
+  "onlyWebLinks": {
+    "message": "Seuls les liens http et https peuvent être enregistrés."
+  },
+  "notConfigured": {
+    "message": "Ouvrez les options de l’extension et saisissez l’URL du serveur et un jeton d’accès."
+  },
+  "saved": {
+    "message": "Enregistré dans {app}"
+  },
+  "savedLinkOnly": {
+    "message": "Enregistré dans {app} (lien uniquement : la page était trop volumineuse pour être envoyée)"
+  },
+  "alreadySaved": {
+    "message": "Déjà dans {app}, remonté en haut de la liste"
+  },
+  "alreadySavedLinkOnly": {
+    "message": "Déjà dans {app}, remonté en haut de la liste (lien uniquement : la page était trop volumineuse pour être envoyée)"
+  },
+  "serverMessageLinkOnly": {
+    "message": "$MESSAGE$ (lien uniquement : la page était trop volumineuse pour être envoyée)",
+    "placeholders": {
+      "message": {
+        "content": "$1"
+      }
+    }
+  },
+  "connected": {
+    "message": "Connexion établie avec {app}. Vous pouvez maintenant enregistrer des pages."
+  },
+  "unreachable": {
+    "message": "Impossible de joindre $SERVER$ : $ERROR$",
+    "placeholders": {
+      "server": {
+        "content": "$1"
+      },
+      "error": {
+        "content": "$2"
+      }
+    }
+  },
+  "notTheApp": {
+    "message": "Ce n’est pas {app} qui a répondu à l’adresse $SERVER$. Vérifiez l’URL du serveur.",
+    "placeholders": {
+      "server": {
+        "content": "$1"
+      }
+    }
+  },
+  "serverAnswered": {
+    "message": "Réponse du serveur : $STATUS$",
+    "placeholders": {
+      "status": {
+        "content": "$1"
+      }
+    }
+  },
+  "errorUnauthorized": {
+    "message": "Jeton d’accès manquant ou non valide. Créez-en un dans Paramètres."
+  },
+  "errorTooLarge": {
+    "message": "La page est trop volumineuse pour être enregistrée."
+  },
+  "errorBadRequest": {
+    "message": "Envoyez un objet JSON de la forme {\"url\": \"https://...\"}, avec éventuellement \"html\" et \"title\"."
+  },
+  "errorInvalidUrl": {
+    "message": "Le champ url doit contenir une URL http ou https absolue."
+  },
+  "errorServer": {
+    "message": "Un problème est survenu lors de l’enregistrement. Réessayez."
+  },
+  "optionsTitle": {
+    "message": "Options de {app}"
+  },
+  "serverUrlLabel": {
+    "message": "URL du serveur"
+  },
+  "serverUrlHint": {
+    "message": "L’adresse de votre application web {app}."
+  },
+  "tokenLabel": {
+    "message": "Jeton d’accès"
+  },
+  "tokenHint": {
+    "message": "Créez-en un dans l’application web, sous Paramètres → Jetons d’accès. Il est stocké uniquement dans ce navigateur."
+  },
+  "saveAndCheck": {
+    "message": "Enregistrer et vérifier"
+  },
+  "enterServerUrl": {
+    "message": "Saisissez l’adresse de votre serveur, par exemple https://read.example.com."
+  },
+  "enterToken": {
+    "message": "Collez un jeton d’accès provenant de la page Paramètres de l’application (il commence par rl_)."
+  },
+  "checking": {
+    "message": "Enregistré. Vérification de la connexion…"
+  },
+  "usage": {
+    "message": "Enregistrez une page avec le bouton de la barre d’outils ou <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd> (Mac : <kbd>Option</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd>). Faites un clic droit sur un lien pour n’enregistrer que le lien. $SHORTCUTS$",
+    "placeholders": {
+      "shortcuts": {
+        "content": "$1"
+      }
+    }
+  },
+  "shortcutsChrome": {
+    "message": "Vous pouvez modifier le raccourci sur la page <code>chrome://extensions/shortcuts</code>."
+  },
+  "shortcutsFirefox": {
+    "message": "Vous pouvez modifier le raccourci dans <code>about:addons</code> : choisissez Gérer les raccourcis d’extensions dans le menu en forme de roue dentée."
+  }
+}

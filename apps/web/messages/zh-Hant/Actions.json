@@ -1,0 +1,12 @@
+{
+  "Actions": {
+    "saveUrl": {
+      "notAWebAddress": "這看起來不像網址 (http 或 https)。",
+      "saved": "已儲存至 {app}。",
+      "alreadySaved": "先前已儲存，已移到最上方。"
+    },
+    "createToken": {
+      "nameRequired": "請為權杖命名，例如「筆電上的 {chrome}」。"
+    }
+  }
+}

@@ -112,6 +112,15 @@ describe("appearanceCss", () => {
     expect(dark).toContain("color-scheme:dark");
   });
 
+  it("gives Traditional Chinese text Traditional Chinese fonts, whatever the reading font", () => {
+    const rules = css.split("\n").filter((rule) => rule.includes(":lang(zh-Hant)"));
+    expect(rules).toHaveLength(Object.keys(READING_FONTS).length);
+    const classic = rules.find((rule) => rule.includes(`[data-font="classic"]`))!;
+    expect(classic).toContain(":where(:root) :is(:lang(zh-Hant)");
+    expect(classic).toContain(`"Songti TC"`);
+    expect(classic).not.toContain(`"Songti SC"`);
+  });
+
   it("only uses font variables that src/app/fonts.ts defines", () => {
     const fontsModule = readFileSync(new URL("../app/fonts.ts", import.meta.url), "utf8");
     const defined = new Set([...fontsModule.matchAll(/variable: "(--font-[a-z-]+)"/g)].map((match) => match[1]));

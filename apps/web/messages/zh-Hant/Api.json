@@ -1,0 +1,10 @@
+{
+  "Api": {
+    "unauthorized": "缺少存取權杖或權杖無效。請在「設定」中建立一個。",
+    "connected": "已連線到 {app}",
+    "saved": "已儲存至 {app}",
+    "alreadySaved": "{app} 中已有這篇文章，已移到最上方",
+    "badRequest": "請傳送類似 {example} 的 JSON，可另外附上 {html} 和 {title}。",
+    "serverError": "儲存時發生錯誤，請再試一次。"
+  }
+}

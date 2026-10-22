@@ -5,6 +5,8 @@ import { envInt } from "@/config/env";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, summaries, tags, type Article, type ContentSource, type Job } from "@/db/schema";
+import { englishText } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
 import { extractArticle, PageTooLargeError, type ExtractedArticle, type ExtractInput } from "@/lib/extract/extract";
 import { previewIsSummarizable } from "@/lib/extract/paywall";
 import { decodeHtml, isHtmlContentType } from "@/lib/net/decode";
@@ -13,7 +15,7 @@ import { refreshSearchVector } from "@/lib/search-index";
 import { getSettings, modelsForNewSave } from "@/lib/settings";
 import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
-import { JobError } from "./errors";
+import { JobError, type JobFailure } from "./errors";
 import { enqueueJob, hasQueuedJob } from "./queue";
 
 /** Below this, there is not enough text for a useful summary. */
@@ -43,7 +45,7 @@ export async function requestSummary(
       .values({ userId, articleId, model, status: "pending" })
       .onConflictDoUpdate({
         target: [summaries.articleId, summaries.model],
-        set: { status: "pending", error: null, stopReason: null },
+        set: { status: "pending", error: null, errorMessage: null, stopReason: null },
       });
     if (!(await hasQueuedJob(tx, articleId, "summarize", model))) {
       await enqueueJob(tx, { userId, articleId, type: "summarize", payload: { model } });
@@ -56,7 +58,7 @@ function extract(input: ExtractInput): ExtractedArticle {
   try {
     return extractArticle(input);
   } catch (error) {
-    if (error instanceof PageTooLargeError) throw new JobError(error.message, false);
+    if (error instanceof PageTooLargeError) throw new JobError(error.storedMessage, false);
     throw error;
   }
 }
@@ -70,23 +72,24 @@ async function download(url: string): Promise<SafeFetchResponse> {
       maxBytes: envInt("FETCH_MAX_BYTES", 10 * 1024 * 1024),
     });
   } catch (error) {
-    if (error instanceof FetchError) throw new JobError(error.message, error.retryable);
+    if (error instanceof FetchError) throw new JobError(error.storedMessage, error.retryable);
     throw error;
   }
   const { status } = response;
+  const values = { status: String(status) };
   if (status === 404 || status === 410) {
-    throw new JobError(`The page was not found (HTTP ${status}).`, false);
+    throw new JobError(errorMessage("download.notFound", values), false);
   }
   if (status === 408 || status === 429 || status >= 500) {
-    throw new JobError(`The site could not serve the page right now (HTTP ${status}).`, true);
+    throw new JobError(errorMessage("download.unavailable", values), true);
   }
   // 401, 402 and 403 are kept: extraction flags them as "Preview only".
   if (status >= 400 && ![401, 402, 403].includes(status)) {
-    throw new JobError(`The site refused the download (HTTP ${status}).`, false);
+    throw new JobError(errorMessage("download.refused", values), false);
   }
   if (!isHtmlContentType(response.contentType)) {
-    const type = response.contentType.split(";")[0]?.trim();
-    throw new JobError(`This link is not a web page (${type}). Only web pages can be saved for now.`, false);
+    const type = response.contentType.split(";")[0]?.trim() ?? "";
+    throw new JobError(errorMessage("download.notWebPage", { type }), false);
   }
   return response;
 }
@@ -147,6 +150,7 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   const normalizedUrl = await bestNormalizedUrl(db, article, pageUrl, extracted.canonicalHref);
   const wantSummaries =
     !keepExisting && extracted.wordCount >= MIN_SUMMARY_WORDS && previewIsSummarizable(extracted.previewKind);
+  const previewReason = extracted.previewReason ? await englishText(extracted.previewReason) : null;
 
   // The article and its summary requests are stored together: if the process
   // dies in between, the job runs again instead of leaving no summaries.
@@ -156,6 +160,7 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
       .set({
         status: "ready",
         error: null,
+        errorMessage: null,
         normalizedUrl,
         // Cleared only if it is still the HTML processed here; a newer save
         // that arrived meanwhile keeps its HTML for its own job.
@@ -179,7 +184,8 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
               wordCount: extracted.wordCount,
               readingMinutes: extracted.readingMinutes,
               previewOnly: extracted.previewOnly,
-              previewReason: extracted.previewReason,
+              previewReason,
+              previewReasonMessage: extracted.previewReason,
             }),
       })
       .where(eq(articles.id, article.id));
@@ -207,17 +213,17 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   });
 }
 
-export async function processArticleFailed(db: Db, job: Job, message: string, willRetry: boolean): Promise<void> {
+export async function processArticleFailed(db: Db, job: Job, failure: JobFailure): Promise<void> {
   if (!job.articleId) return;
   await db
     .update(articles)
-    .set({ status: willRetry ? "pending" : "failed", error: message })
+    .set({ status: failure.willRetry ? "pending" : "failed", error: failure.text, errorMessage: failure.message })
     .where(and(eq(articles.id, job.articleId), eq(articles.userId, job.userId)));
 }
 
 function jobModel(job: Job): SummaryModel {
   const model = job.payload.model;
-  if (!isSummaryModel(model)) throw new JobError(`Unknown summary model: ${String(model)}`, false);
+  if (!isSummaryModel(model)) throw new JobError(errorMessage("summary.unknownModel", { model: String(model) }), false);
   return model;
 }
 
@@ -226,10 +232,10 @@ export async function summarize(db: Db, job: Job): Promise<void> {
   const model = jobModel(job);
   const article = await loadArticle(db, job);
   if (!article) return;
-  if (!article.textContent) throw new JobError("There is no article text to summarize.", false);
+  if (!article.textContent) throw new JobError(errorMessage("summary.noText"), false);
 
   const summaryWhere = and(eq(summaries.articleId, article.id), eq(summaries.model, model), eq(summaries.userId, job.userId));
-  await db.update(summaries).set({ status: "running", error: null }).where(summaryWhere);
+  await db.update(summaries).set({ status: "running", error: null, errorMessage: null }).where(summaryWhere);
 
   const existingTags = await db
     .select({ name: tags.name })
@@ -254,7 +260,7 @@ export async function summarize(db: Db, job: Job): Promise<void> {
       },
     });
   } catch (error) {
-    if (error instanceof SummaryError) throw new JobError(error.message, error.retryable, error.stopReason);
+    if (error instanceof SummaryError) throw new JobError(error.storedMessage, error.retryable, error.stopReason);
     throw error;
   }
 
@@ -275,6 +281,7 @@ export async function summarize(db: Db, job: Job): Promise<void> {
     totalChars: result.totalChars,
     stopReason: result.stopReason,
     error: null,
+    errorMessage: null,
     completedAt: new Date(),
   };
   await db
@@ -284,11 +291,16 @@ export async function summarize(db: Db, job: Job): Promise<void> {
   await refreshSearchVector(db, article.id);
 }
 
-export async function summarizeFailed(db: Db, job: Job, message: string, willRetry: boolean, stopReason: string | null) {
+export async function summarizeFailed(db: Db, job: Job, failure: JobFailure): Promise<void> {
   if (!job.articleId || !isSummaryModel(job.payload.model)) return;
   await db
     .update(summaries)
-    .set({ status: willRetry ? "pending" : "failed", error: message, stopReason })
+    .set({
+      status: failure.willRetry ? "pending" : "failed",
+      error: failure.text,
+      errorMessage: failure.message,
+      stopReason: failure.stopReason,
+    })
     .where(
       and(
         eq(summaries.articleId, job.articleId),

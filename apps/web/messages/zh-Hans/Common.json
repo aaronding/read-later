@@ -1,0 +1,26 @@
+{
+  "Common": {
+    "tagline": "保存文章以便稍后阅读，附带简洁的正文副本和 AI 摘要。",
+    "inbox": "收件箱",
+    "favorites": "收藏",
+    "archive": "归档",
+    "triage": "整理",
+    "settings": "设置",
+    "archiveAction": "归档",
+    "moveToInbox": "移回收件箱",
+    "favorite": "收藏",
+    "unfavorite": "取消收藏",
+    "favoriteBadge": "★ 已收藏",
+    "previewOnly": "仅预览",
+    "minRead": "阅读时长 {minutes, number} 分钟",
+    "savedOn": "保存于 <date></date>",
+    "compareModels": "比较模型",
+    "save": "保存",
+    "saving": "正在保存…",
+    "delete": "删除",
+    "retry": "重试",
+    "retrying": "正在重试…",
+    "tryAgain": "重试",
+    "queued": "已加入队列…"
+  }
+}

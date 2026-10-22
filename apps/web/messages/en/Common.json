@@ -1,0 +1,26 @@
+{
+  "Common": {
+    "tagline": "Save articles to read later, with a clean copy and an AI summary.",
+    "inbox": "Inbox",
+    "favorites": "Favorites",
+    "archive": "Archive",
+    "triage": "Triage",
+    "settings": "Settings",
+    "archiveAction": "Archive",
+    "moveToInbox": "Move to Inbox",
+    "favorite": "Favorite",
+    "unfavorite": "Unfavorite",
+    "favoriteBadge": "★ Favorite",
+    "previewOnly": "Preview only",
+    "minRead": "{minutes, number} min read",
+    "savedOn": "Saved <date></date>",
+    "compareModels": "Compare models",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "retry": "Retry",
+    "retrying": "Retrying…",
+    "tryAgain": "Try again",
+    "queued": "Queued…"
+  }
+}

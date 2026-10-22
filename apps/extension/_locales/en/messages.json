@@ -1,0 +1,148 @@
+{
+  "locale": {
+    "message": "en",
+    "description": "This catalogue’s language as a BCP 47 tag (en, fr, zh-Hans or zh-Hant), for the options page’s lang attribute. Not shown."
+  },
+  "extensionDescription": {
+    "message": "Save the page you’re reading, or a link, to {app}.",
+    "description": "The extension’s description in the browser’s list of extensions. {app} is the product name, which the build fills in; keep it as it is."
+  },
+  "actionTitle": {
+    "message": "Save to {app}",
+    "description": "The toolbar button’s tooltip."
+  },
+  "commandDescription": {
+    "message": "Save this page",
+    "description": "The keyboard shortcut’s name in the browser’s shortcut settings."
+  },
+  "contextMenuTitle": {
+    "message": "Save link to {app}",
+    "description": "The item the extension adds to the right-click menu of a link."
+  },
+  "badgeTitle": {
+    "message": "{app}: $MESSAGE$",
+    "description": "The toolbar button’s tooltip after a save, explaining its ✓ or ! badge.",
+    "placeholders": {
+      "message": { "content": "$1", "example": "Saved to Read Later" }
+    }
+  },
+  "onlyWebPages": {
+    "message": "Only web pages (http or https) can be saved."
+  },
+  "onlyWebLinks": {
+    "message": "Only http and https links can be saved."
+  },
+  "notConfigured": {
+    "message": "Open the extension’s options and enter the server URL and an access token."
+  },
+  "saved": {
+    "message": "Saved to {app}"
+  },
+  "savedLinkOnly": {
+    "message": "Saved to {app} (link only: the page was too large to send)",
+    "description": "The page’s HTML was over the server’s limit, so only its address was saved and the server downloads the page itself."
+  },
+  "alreadySaved": {
+    "message": "Already in {app}, moved to the top",
+    "description": "The article was saved before; saving it again moves it back to the top of the Inbox."
+  },
+  "alreadySavedLinkOnly": {
+    "message": "Already in {app}, moved to the top (link only: the page was too large to send)"
+  },
+  "serverMessageLinkOnly": {
+    "message": "$MESSAGE$ (link only: the page was too large to send)",
+    "description": "After a save the extension doesn’t have its own words for, as from a newer server.",
+    "placeholders": {
+      "message": { "content": "$1", "example": "Saved to Read Later" }
+    }
+  },
+  "connected": {
+    "message": "Connected to {app}. You’re ready to save pages.",
+    "description": "On the options page, when the server URL and the access token work."
+  },
+  "unreachable": {
+    "message": "Couldn’t reach $SERVER$: $ERROR$",
+    "description": "$ERROR$ is the browser’s own description of the network error.",
+    "placeholders": {
+      "server": { "content": "$1", "example": "https://read.example.com" },
+      "error": { "content": "$2", "example": "Failed to fetch" }
+    }
+  },
+  "notTheApp": {
+    "message": "Something other than {app} answered at $SERVER$. Check the server URL.",
+    "description": "A web page, not the app, answered at the server URL.",
+    "placeholders": {
+      "server": { "content": "$1", "example": "https://read.example.com" }
+    }
+  },
+  "serverAnswered": {
+    "message": "The server answered $STATUS$",
+    "description": "The server failed without saying why. $STATUS$ is the HTTP status.",
+    "placeholders": {
+      "status": { "content": "$1", "example": "502 Bad Gateway" }
+    }
+  },
+  "errorUnauthorized": {
+    "message": "Missing or invalid access token. Create one in Settings.",
+    "description": "Settings is the web app’s Settings page: use its name in the web app."
+  },
+  "errorTooLarge": {
+    "message": "The page is too large to save."
+  },
+  "errorBadRequest": {
+    "message": "Send JSON like {\"url\": \"https://...\"}, optionally with \"html\" and \"title\".",
+    "description": "The server couldn’t read the request. Keep the JSON as it is."
+  },
+  "errorInvalidUrl": {
+    "message": "url must be an absolute http or https URL.",
+    "description": "The server didn’t accept the page’s address. “url” is the request’s field."
+  },
+  "errorServer": {
+    "message": "Something went wrong while saving. Please try again."
+  },
+  "optionsTitle": {
+    "message": "{app} options",
+    "description": "The options page’s title."
+  },
+  "serverUrlLabel": {
+    "message": "Server URL"
+  },
+  "serverUrlHint": {
+    "message": "The address of your {app} web app."
+  },
+  "tokenLabel": {
+    "message": "Access token"
+  },
+  "tokenHint": {
+    "message": "Create one in the web app under Settings → Access tokens. It is stored only in this browser.",
+    "description": "“Settings → Access tokens” is a page of the web app and its section: use their names in the web app."
+  },
+  "saveAndCheck": {
+    "message": "Save and check",
+    "description": "The options page’s button: it saves the settings, then checks them with the server."
+  },
+  "enterServerUrl": {
+    "message": "Enter the address of your server, such as https://read.example.com."
+  },
+  "enterToken": {
+    "message": "Paste an access token from the app’s Settings page (it starts with rl_)."
+  },
+  "checking": {
+    "message": "Saved. Checking the connection…"
+  },
+  "usage": {
+    "message": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (Mac: <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link to save just the link. $SHORTCUTS$",
+    "description": "Text in <kbd>…</kbd> is shown as keys and in <code>…</code> as code: keep the tags, around the keys’ names on keyboards in this language. $SHORTCUTS$ is where to change the shortcut, from shortcutsChrome or shortcutsFirefox.",
+    "placeholders": {
+      "shortcuts": { "content": "$1", "example": "You can change the shortcut at <code>chrome://extensions/shortcuts</code>." }
+    }
+  },
+  "shortcutsChrome": {
+    "message": "You can change the shortcut at <code>chrome://extensions/shortcuts</code>.",
+    "description": "Shown in Chrome, Edge and other Chromium browsers. Keep the <code> tags and the address."
+  },
+  "shortcutsFirefox": {
+    "message": "You can change the shortcut in <code>about:addons</code>: choose Manage Extension Shortcuts from the gear menu.",
+    "description": "Shown in Firefox. Keep the <code> tags and the address. “Manage Extension Shortcuts” is Firefox’s own menu item: use its name in Firefox in this language."
+  }
+}

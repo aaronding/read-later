@@ -1,0 +1,20 @@
+{
+  "Export": {
+    "signInFirst": "Connectez-vous d’abord.",
+    "title": "Exportation de {app}",
+    "exported": "Exporté le {date} · {count, plural, one {# article} other {# articles}}",
+    "url": "URL : {url}",
+    "published": "publié le {date}",
+    "saved": "enregistré le {date}",
+    "read": "lu le {date}",
+    "unread": "non lu",
+    "archived": "archivé",
+    "inInbox": "dans la boîte de réception",
+    "favorite": "★ favori",
+    "folder": "Dossier : {name}",
+    "tags": "Étiquettes : {tags}",
+    "previewOnly": "Aperçu seulement : {reason}",
+    "summary": "Résumé ({model})",
+    "article": "Article"
+  }
+}

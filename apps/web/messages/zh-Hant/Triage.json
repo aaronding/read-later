@@ -1,0 +1,9 @@
+{
+  "Triage": {
+    "remaining": "{remaining, plural, other {# 篇未讀}}",
+    "allCaughtUp": "都處理完了：收件匣裡沒有未讀文章。<inbox>返回收件匣</inbox>",
+    "readNow": "立即閱讀",
+    "later": "稍後",
+    "laterHint": "「{later}」會將文章保留在收件匣中，並移到這個佇列的最後面。"
+  }
+}

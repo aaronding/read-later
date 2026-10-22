@@ -1,0 +1,9 @@
+{
+  "Share": {
+    "title": "保存此链接？",
+    "fromAnotherSite": "另一个网站请求将此链接保存到你的资料库。",
+    "saveIt": "保存",
+    "noLink": "没有可保存的链接。",
+    "goToInbox": "不保存，前往收件箱"
+  }
+}

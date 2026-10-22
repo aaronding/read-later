@@ -1,8 +1,10 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
-export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
+export function CopyButton({ text, label }: { text: string; label?: string }) {
+  const t = useTranslations("Settings");
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -18,7 +20,7 @@ export function CopyButton({ text, label = "Copy" }: { text: string; label?: str
         }
       }}
     >
-      {copied ? "Copied" : label}
+      {copied ? t("copied") : (label ?? t("copy"))}
     </button>
   );
 }

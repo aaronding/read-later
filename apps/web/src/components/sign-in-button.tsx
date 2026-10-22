@@ -1,9 +1,11 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 
 export function SignInButton({ next }: { next: string }) {
+  const t = useTranslations("Auth");
   const [busy, setBusy] = useState(false);
   return (
     <button
@@ -16,12 +18,13 @@ export function SignInButton({ next }: { next: string }) {
         setBusy(false);
       }}
     >
-      {busy ? "Opening Google…" : "Sign in with Google"}
+      {busy ? t("opening", { provider: "Google" }) : t("signInWith", { provider: "Google" })}
     </button>
   );
 }
 
 export function SignOutButton() {
+  const t = useTranslations("Auth");
   const [busy, setBusy] = useState(false);
   return (
     <button
@@ -34,7 +37,7 @@ export function SignOutButton() {
         window.location.href = "/sign-in";
       }}
     >
-      Sign out
+      {t("signOut")}
     </button>
   );
 }

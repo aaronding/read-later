@@ -1,0 +1,20 @@
+{
+  "Export": {
+    "signInFirst": "請先登入。",
+    "title": "{app} 匯出資料",
+    "exported": "匯出於 {date} · {count, plural, other {# 篇文章}}",
+    "url": "網址：{url}",
+    "published": "發布於 {date}",
+    "saved": "儲存於 {date}",
+    "read": "已讀於 {date}",
+    "unread": "未讀",
+    "archived": "已封存",
+    "inInbox": "在收件匣中",
+    "favorite": "★ 我的最愛",
+    "folder": "資料夾：{name}",
+    "tags": "標籤：{tags}",
+    "previewOnly": "僅預覽：{reason}",
+    "summary": "摘要 ({model})",
+    "article": "文章"
+  }
+}

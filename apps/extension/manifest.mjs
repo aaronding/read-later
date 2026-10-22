@@ -1,6 +1,8 @@
 // The extension's manifest.json for each browser. The code is the same; Chrome
 // runs the background script as a service worker, Firefox as an event page,
 // and Firefox also needs an add-on ID and a statement of what data is sent.
+// The name is the product's own; the other text is looked up in _locales.
+import { DEFAULT_LOCALE } from "./locales.mjs";
 
 /** Fixed, so renaming the app (packages/brand) never changes the add-on. */
 export const FIREFOX_ID = "read-later@aaronding";
@@ -13,9 +15,10 @@ export function manifest(target, { name, shortName, version }) {
     name,
     short_name: shortName,
     version,
-    description: `Save the page you're reading, or a link, to ${name}.`,
+    description: "__MSG_extensionDescription__",
+    default_locale: DEFAULT_LOCALE,
     icons,
-    action: { default_title: `Save to ${name}`, default_icon: icons },
+    action: { default_title: "__MSG_actionTitle__", default_icon: icons },
     // activeTab + scripting: read the current page only when you click or
     // press the shortcut. No access to any site otherwise.
     permissions: ["activeTab", "scripting", "contextMenus", "storage"],
@@ -23,7 +26,7 @@ export function manifest(target, { name, shortName, version }) {
     commands: {
       _execute_action: {
         suggested_key: { default: "Alt+Shift+S", mac: "Alt+Shift+S" },
-        description: "Save this page",
+        description: "__MSG_commandDescription__",
       },
     },
   };

@@ -1,13 +1,15 @@
 import type { MetadataRoute } from "next";
+import { getTranslations } from "next-intl/server";
 import { APP_NAME, APP_SHORT_NAME } from "@/config/app";
 
 // Installing the web app on Android adds it to the Share menu. Shared links
 // arrive at /share; many apps put the link in "text" instead of "url".
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const t = await getTranslations("Common");
   return {
     name: APP_NAME,
     short_name: APP_SHORT_NAME,
-    description: "Save articles to read later, with a clean copy and an AI summary.",
+    description: t("tagline"),
     id: "/",
     start_url: "/inbox",
     scope: "/",

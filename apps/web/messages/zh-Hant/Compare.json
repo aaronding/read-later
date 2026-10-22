@@ -1,0 +1,28 @@
+{
+  "Compare": {
+    "title": "比較摘要",
+    "backToArticle": "← 返回文章",
+    "wordCount": "{count, plural, other {# 字}}",
+    "wordCountUnknown": "字數未知",
+    "totalCost": "{count, plural, other {# 份摘要共計 {cost}}}",
+    "noText": "還沒有可用來產生摘要的文章內容。",
+    "footnote": "費用是根據 Token 數量和公開價格估算而得。在「設定」中開啟「比較模式」，即可在每次儲存時執行全部 {count, number} 個模型。",
+    "shown": "目前顯示",
+    "notRunYet": "尚未執行。",
+    "summarizeWith": "用 {model} 產生摘要",
+    "showThisOne": "顯示這份摘要",
+    "runAgain": "重新執行",
+    "stats": {
+      "cost": "費用",
+      "time": "耗時",
+      "tokens": "Token",
+      "effort": "推理強度",
+      "answeredBy": "回答模型",
+      "note": "附註"
+    },
+    "tokenCounts": "輸入 {input} · 輸出 {output}",
+    "effortLevel": "{effort, select, low {低} medium {中} high {高} xhigh {超高} max {最高} other {{effort}}}",
+    "fallbackModel": "{model} (備用模型)",
+    "partial": "僅涵蓋部分文章內容"
+  }
+}

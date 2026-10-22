@@ -1,0 +1,26 @@
+{
+  "Library": {
+    "sectionsLabel": "栏目",
+    "searchView": "{view, select, inbox {搜索收件箱} favorites {搜索收藏} archive {搜索归档} other {搜索}}",
+    "searchPlaceholder": "{view, select, inbox {搜索收件箱} favorites {搜索收藏} archive {搜索归档} other {搜索}}",
+    "pasteLinkToSave": "粘贴要保存的链接",
+    "notices": {
+      "resaved": "之前已保存，已移到最前面。",
+      "saved": "已保存。摘要稍后就会显示。",
+      "sharedNoLink": "在分享的内容中找不到链接。"
+    },
+    "filterSummary": "{filters, select, q {“{query}”} f {在“{folder}”文件夹中} t {标签为 #{tag}} qf {“{query}”，在“{folder}”文件夹中} qt {“{query}”，标签为 #{tag}} ft {在“{folder}”文件夹中，标签为 #{tag}} qft {“{query}”，在“{folder}”文件夹中，标签为 #{tag}} other {}} · <clear>清除</clear>",
+    "filtersLabel": "文件夹和标签",
+    "empty": {
+      "inbox": "还没有保存任何内容。在上方粘贴链接，也可以通过 {chrome} 扩展程序或 {safari} 快捷指令保存。",
+      "favorites": "还没有收藏的文章。轻点文章上的“{favorite}”，即可在这里找到它。",
+      "archive": "还没有归档的文章。",
+      "noMatch": "没有符合条件的文章。"
+    },
+    "pager": {
+      "label": "分页",
+      "newer": "较新",
+      "older": "较早"
+    }
+  }
+}

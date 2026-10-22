@@ -69,7 +69,7 @@ describe("extractArticle: paywall markup", () => {
     expect(result.textContent).not.toContain("SECRET-PAYWALLED-PARAGRAPH");
     expect(result.contentHtml).not.toContain("SECRET-PAYWALLED-PARAGRAPH");
     expect(result.previewOnly).toBe(true);
-    expect(result.previewReason).toMatch(/subscriber-only/);
+    expect(result.previewReason).toEqual({ key: "preview.subscriberOnly" });
   });
 
   it("keeps nothing when the whole article is subscriber-only, not the page around it", () => {
@@ -91,7 +91,7 @@ describe("extractArticle: paywall markup", () => {
     expect(result.wordCount).toBe(0);
     expect(result.previewOnly).toBe(true);
     expect(result.previewKind).toBe("subscriber_only");
-    expect(result.previewReason).toMatch(/too little of it is free/);
+    expect(result.previewReason).toEqual({ key: "preview.subscriberOnlyNothingFree" });
     expect(result.excerpt).toBe("LinkedIn is pushing back on AI-written posts.");
     expect(result.title).toBe("LinkedIn is tired of AI posts");
     // From the owner's browser the same page is saved in full.
@@ -113,14 +113,17 @@ describe("extractArticle: login pages and teasers", () => {
   it("flags a login page as preview only", () => {
     const result = extractArticle({ html: html("login-wall.html"), url, contentSource: "server", httpStatus: 200 });
     expect(result.previewOnly).toBe(true);
-    expect(result.previewReason).toMatch(/login/i);
+    expect(result.previewReason).toEqual({ key: "preview.loginPage" });
   });
 
   it("flags a 401 or 403 response as preview only", () => {
     for (const httpStatus of [401, 403]) {
       const result = extractArticle({ html: html("login-wall.html"), url, contentSource: "server", httpStatus });
       expect(result.previewOnly).toBe(true);
-      expect(result.previewReason).toMatch(httpStatus === 401 ? /asked for a login/ : /refused the server's download/);
+      expect(result.previewReason).toEqual({
+        key: httpStatus === 401 ? "preview.loginRequired" : "preview.downloadRefused",
+        values: { status: String(httpStatus) },
+      });
     }
   });
 
@@ -132,7 +135,7 @@ describe("extractArticle: login pages and teasers", () => {
     });
     expect(result.textContent).toContain("tram line along the old canal route");
     expect(result.previewOnly).toBe(true);
-    expect(result.previewReason).toMatch(/paywall/);
+    expect(result.previewReason).toEqual({ key: "preview.teaser" });
   });
 });
 
@@ -252,7 +255,7 @@ describe("extractArticle: scripts, styles and size", () => {
       <body><nav><p>${words(300, "SIDEBAR")}</p></nav><div class="paywall"><p>${words(300, "SECRET")}</p></div></body></html>`;
     const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
     expect(result.textContent).toBe("");
-    expect(result.previewReason).toMatch(/too little of it is free/);
+    expect(result.previewReason).toEqual({ key: "preview.subscriberOnlyNothingFree" });
   });
 
   it("refuses a page with too much HTML to parse, but not one made big by its scripts", () => {

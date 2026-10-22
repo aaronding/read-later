@@ -1,0 +1,51 @@
+{
+  "Settings": {
+    "languageHeading": "語言",
+    "languageLabel": "介面語言",
+    "languageAutomatic": "自動 (使用瀏覽器的語言)",
+    "languageHelp": "無論你在這裡選擇哪種語言，摘要一律會以各篇文章本身的語言撰寫。",
+    "summaries": {
+      "heading": "摘要",
+      "defaultModel": "預設模型",
+      "comparisonMode": "<strong>比較模式：</strong>每次新儲存文章時，都用全部 {count, number} 個模型產生摘要，方便在各篇文章的「比較摘要」頁面中比較。費用約為平常的 {count, number} 倍。"
+    },
+    "tokens": {
+      "heading": "存取權杖",
+      "intro": "{chrome} 擴充功能和 {apple} 捷徑會使用權杖將內容儲存到你的帳號。請為每個裝置分別建立一個權杖，這樣撤銷其中一個時，就不會影響其他權杖。",
+      "details": "<code>{prefix}…</code> · 建立於 <created></created> · 上次使用：<lastUsed></lastUsed>",
+      "detailsNeverUsed": "<code>{prefix}…</code> · 建立於 <created></created> · 從未使用",
+      "revoke": "撤銷",
+      "revokeConfirm": "要撤銷「{name}」嗎？所有使用它的裝置都將無法繼續儲存。",
+      "nameLabel": "權杖名稱",
+      "namePlaceholder": "名稱，例如：筆電上的 {chrome}",
+      "create": "建立權杖",
+      "creating": "建立中…",
+      "newToken": "<strong>已為「{name}」建立新權杖。</strong>請立即複製，之後不會再顯示。",
+      "copyToken": "複製權杖"
+    },
+    "copy": "複製",
+    "copied": "已複製",
+    "guides": {
+      "chromeHeading": "從 {chrome} 儲存",
+      "shortcutHeading": "從 {safari} 儲存 ({iphone}、{ipad} 和 {mac})",
+      "shortcutSummary": "{apple} 捷徑的逐步說明",
+      "androidHeading": "從 {android} 儲存"
+    },
+    "folders": {
+      "heading": "資料夾",
+      "empty": "還沒有資料夾。你可以在文章底部選擇或新增資料夾。",
+      "articleCount": "· {count, plural, other {# 篇文章}}",
+      "deleteConfirm": "要刪除資料夾「{name}」嗎？其中的文章仍會保留在資料庫中。"
+    },
+    "export": {
+      "heading": "匯出",
+      "intro": "你儲存的所有文章，連同文章內容和所有摘要。",
+      "download": "下載 {format}"
+    },
+    "account": {
+      "heading": "帳號",
+      "signedInAs": "目前登入帳號：<strong>{email}</strong>"
+    },
+    "appearanceIntro": "閱讀時使用的配色和字型。「{system}」會依照裝置的淺色或深色模式切換。你的選擇會儲存到帳號中，因此你登入的每個裝置都會套用；閱讀時，也可以用每個頁面頂端的 <strong>Aa</strong> 按鈕隨時變更。"
+  }
+}

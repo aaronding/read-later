@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Options</title>
+    <title data-i18n="optionsTitle"></title>
     <style>
       :root { color-scheme: light dark; --accent: #1f6f5c; }
       body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 16px; }
@@ -22,19 +22,16 @@
   <body>
     <h1><img src="icons/icon-48.png" width="32" height="32" alt="" /> <span class="app-name">Read Later</span></h1>
     <form id="settings">
-      <label for="serverUrl">Server URL</label>
+      <label for="serverUrl" data-i18n="serverUrlLabel"></label>
       <input id="serverUrl" type="text" inputmode="url" placeholder="https://read.example.com" autocomplete="off" required />
-      <p class="hint">The address of your <span class="app-name">Read Later</span> web app.</p>
-      <label for="token">Access token</label>
+      <p class="hint" data-i18n="serverUrlHint"></p>
+      <label for="token" data-i18n="tokenLabel"></label>
       <input id="token" type="password" placeholder="rl_…" autocomplete="off" required />
-      <p class="hint">Create one in the web app under Settings → Access tokens. It is stored only in this browser.</p>
-      <button type="submit">Save and check</button>
+      <p class="hint" data-i18n="tokenHint"></p>
+      <button type="submit" data-i18n="saveAndCheck"></button>
       <p id="status" role="status"></p>
     </form>
-    <p class="hint">
-      Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (Mac: <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>).
-      Right-click a link to save just the link. You can change the shortcut at <code>chrome://extensions/shortcuts</code>.
-    </p>
+    <p class="hint" id="usage"></p>
     <script type="module" src="options.js"></script>
   </body>
 </html>

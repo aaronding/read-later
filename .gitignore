@@ -10,6 +10,8 @@ apps/extension/dist-firefox.zip
 build/
 *.tsbuildinfo
 next-env.d.ts
+# Written by next typegen, dev and build from the English messages
+apps/web/messages/**/*.d.json.ts
 
 # Environment and secrets (only .env.example is committed)
 .env

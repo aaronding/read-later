@@ -1,0 +1,14 @@
+{
+  "Reader": {
+    "titleFallback": "文章",
+    "openOriginal": "開啟原文 ↗",
+    "favoriteOn": "★ 我的最愛",
+    "favoriteOff": "☆ 加入我的最愛",
+    "markUnread": "標示為未讀",
+    "previewNotice": "<strong>僅預覽。</strong>{reason}如要保留完整文章，請在瀏覽器中開啟文章 (如果網站要求登入，請先登入)，然後透過瀏覽器擴充功能或 {safari} 捷徑重新儲存。",
+    "noSummary": "沒有摘要：文章內容不足。<compare>比較模型</compare>",
+    "noReadableCopy": "這個網頁沒有可閱讀的副本。請<link>開啟原文</link>。",
+    "openTheOriginal": "<link>開啟原文</link>。",
+    "deleteConfirm": "要刪除這篇文章及其摘要嗎？"
+  }
+}

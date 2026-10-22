@@ -1,0 +1,10 @@
+{
+  "Status": {
+    "saveFailed": "Impossible d’enregistrer cette page.",
+    "saveFailedWithError": "Impossible d’enregistrer cette page : {error}",
+    "retryingSoon": "Nouvelle tentative sous peu ({error})",
+    "summarizing": "Résumé en cours…",
+    "summaryFailed": "Échec du résumé.",
+    "summaryFailedWithError": "Échec du résumé : {error}"
+  }
+}

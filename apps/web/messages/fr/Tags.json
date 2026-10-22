@@ -1,0 +1,9 @@
+{
+  "Tags": {
+    "label": "Étiquettes",
+    "remove": "Retirer l’étiquette {name}",
+    "addSuggested": "Ajouter l’étiquette suggérée {name}",
+    "addLabel": "Ajouter une étiquette",
+    "addPlaceholder": "Étiquette"
+  }
+}
