@@ -1,0 +1,9 @@
+# Keep Unix line endings where a Windows checkout would break things:
+# shell scripts run inside Docker, and files Docker copies as-is.
+* text=auto
+*.sh text eol=lf
+Dockerfile text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.png binary
+*.dump binary

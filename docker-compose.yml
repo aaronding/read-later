@@ -1,0 +1,79 @@
+# The one-server setup (see docs/move-to-server.md): Postgres, the web app,
+# the background worker and a Cloudflare Tunnel for HTTPS with no open ports.
+#
+#   docker compose up -d --build
+#
+# Configuration comes from .env next to this file (see .env.example). On the
+# server, also set COMPOSE_PROFILES=tunnel and CLOUDFLARE_TUNNEL_TOKEN there.
+name: read-later
+
+x-app: &app
+  image: read-later:latest
+  env_file: .env
+  environment:
+    DATABASE_URL: &database-url postgres://readlater:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@postgres:5432/readlater
+    # The migrations prefer this one, so a Neon value left in .env can't send them to Neon.
+    DATABASE_URL_UNPOOLED: *database-url
+  restart: unless-stopped
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: readlater
+      POSTGRES_USER: readlater
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U readlater -d readlater"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Applies database migrations, then exits. web and worker wait for it.
+  migrate:
+    <<: *app
+    build: .
+    command: ["migrate"]
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    command: ["web"]
+    # Reachable only from the server itself (for checks over SSH);
+    # the public reaches it through the tunnel.
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/sign-in').then(r=>process.exit(r.ok?0:1),()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    <<: *app
+    command: ["worker"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.0
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    command: ["tunnel", "--no-autoupdate", "run"]
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      - web
+
+volumes:
+  pgdata:

@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment and secrets (only .env.example is committed)
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Tooling
+.vercel/
+.wrangler/
+coverage/
+.DS_Store
+*.log
+
+# Local data
+pgdata/
+backups/
+.neon

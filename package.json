@@ -1,0 +1,23 @@
+{
+  "name": "read-later",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "start": "pnpm --filter web start",
+    "worker": "pnpm --filter web worker",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "db:generate": "pnpm --filter web db:generate",
+    "db:migrate": "pnpm --filter web db:migrate",
+    "extension:build": "pnpm --filter extension build"
+  },
+  "devDependencies": {
+    "@neon/config": "1.9.1",
+    "@neon/env": "1.6.2"
+  }
+}

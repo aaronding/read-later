@@ -1,0 +1,270 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import { decodeHtml } from "@/lib/net/decode";
+import { extractArticle, PageTooLargeError, withoutScriptsAndStyles } from "./extract";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
+const fixture = (name: string) => readFileSync(path.join(here, "fixtures", name));
+const html = (name: string) => fixture(name).toString("utf-8");
+
+describe("extractArticle: a typical news page", () => {
+  const url = "https://www.riversideledger.example/features/community-orchards?utm_source=newsletter";
+  const result = extractArticle({ html: html("news-article.html"), url, contentSource: "server", httpStatus: 200 });
+
+  it("reads the metadata", () => {
+    expect(result.title).toBe("The quiet return of community orchards");
+    expect(result.siteName).toBe("Riverside Ledger");
+    expect(result.author).toBe("Dana Whitfield");
+    expect(result.publishedAt?.toISOString()).toBe("2026-09-14T08:30:00.000Z");
+    expect(result.lang).toBe("en-GB");
+    expect(result.excerpt).toBeTruthy();
+    expect(result.canonicalHref).toBe(
+      "https://www.riversideledger.example/features/community-orchards?utm_source=canonical",
+    );
+  });
+
+  it("keeps the article and drops the page furniture", () => {
+    expect(result.textContent).toContain("forty young apple trees");
+    expect(result.textContent).toContain("That's sort of the point.");
+    expect(result.textContent).not.toContain("Most read");
+    expect(result.textContent).not.toContain("We use cookies");
+    expect(result.textContent).not.toContain("All rights reserved");
+  });
+
+  it("stores sanitized HTML only", () => {
+    const content = result.contentHtml ?? "";
+    expect(content).toContain("<h2>Why councils are saying yes</h2>");
+    for (const unsafe of ["<script", "onclick", "onerror", "javascript:", "<iframe", "<form", "<input", "<style", "<noscript"]) {
+      expect(content, unsafe).not.toContain(unsafe);
+    }
+  });
+
+  it("makes image and link URLs absolute and opens links safely", () => {
+    const content = result.contentHtml ?? "";
+    expect(content).toContain('src="https://www.riversideledger.example/images/orchard.jpg"');
+    expect(content).toContain('referrerpolicy="no-referrer"');
+    expect(content).toMatch(/<a href="https:\/\/www\.riversideledger\.example\/features\/orchard-guide" target="_blank" rel="noopener noreferrer nofollow">/);
+  });
+
+  it("counts words and reading time", () => {
+    expect(result.wordCount).toBeGreaterThan(650);
+    expect(result.wordCount).toBeLessThan(750);
+    expect(result.readingMinutes).toBe(3);
+  });
+
+  it("is not a preview", () => {
+    expect(result.previewOnly).toBe(false);
+    expect(result.previewReason).toBeNull();
+  });
+});
+
+describe("extractArticle: paywall markup", () => {
+  const url = "https://coastlinecourier.example/news/harbour-budget";
+
+  it("drops sections marked isAccessibleForFree: false on our own downloads and flags a preview", () => {
+    const result = extractArticle({ html: html("paywalled-server.html"), url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toContain("could not agree on next year's budget");
+    expect(result.textContent).not.toContain("SECRET-PAYWALLED-PARAGRAPH");
+    expect(result.contentHtml).not.toContain("SECRET-PAYWALLED-PARAGRAPH");
+    expect(result.previewOnly).toBe(true);
+    expect(result.previewReason).toMatch(/subscriber-only/);
+  });
+
+  it("keeps nothing when the whole article is subscriber-only, not the page around it", () => {
+    // Shaped like a CNN article: the article body is marked not free, and a
+    // long sidebar of stock prices sits elsewhere on the page.
+    const sidebar = Array.from({ length: 40 }, (_, i) => `<p>Stock ${i} rose sharply today on strong earnings and a bright outlook for the year.</p>`).join("");
+    const body = Array.from({ length: 30 }, (_, i) => `<p>Paragraph ${i} of the article SECRET-PAYWALLED-PARAGRAPH with enough words to read as text.</p>`).join("");
+    const page = `<!DOCTYPE html><html lang="en"><head><title>LinkedIn is tired of AI posts | CNN</title>
+      <meta name="description" content="LinkedIn is pushing back on AI-written posts.">
+      <script type="application/ld+json">{"@type":"NewsArticle","isAccessibleForFree":false,
+        "hasPart":{"@type":"WebPageElement","isAccessibleForFree":false,"cssSelector":".article__content"}}</script>
+      <style>${"p{color:red}".repeat(1000)}</style><script>${"var x=1;".repeat(1000)}</script></head>
+      <body><section class="markets">${sidebar}</section>
+      <article><main><h1>LinkedIn is tired of AI posts</h1><figure><figcaption>A photo of a phone.</figcaption></figure>
+      <div class="article__content">${body}</div><p>Share</p></main></article></body></html>`;
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toBe("");
+    expect(result.contentHtml).toBeNull();
+    expect(result.wordCount).toBe(0);
+    expect(result.previewOnly).toBe(true);
+    expect(result.previewKind).toBe("subscriber_only");
+    expect(result.previewReason).toMatch(/too little of it is free/);
+    expect(result.excerpt).toBe("LinkedIn is pushing back on AI-written posts.");
+    expect(result.title).toBe("LinkedIn is tired of AI posts");
+    // From the owner's browser the same page is saved in full.
+    const full = extractArticle({ html: page, url, contentSource: "client" });
+    expect(full.textContent).toContain("SECRET-PAYWALLED-PARAGRAPH");
+    expect(full.textContent).not.toContain("Stock 1 rose");
+  });
+
+  it("keeps the full copy the owner saved from their own signed-in browser", () => {
+    const result = extractArticle({ html: html("paywalled-server.html"), url, contentSource: "client" });
+    expect(result.textContent).toContain("SECRET-PAYWALLED-PARAGRAPH");
+    expect(result.previewOnly).toBe(false);
+  });
+});
+
+describe("extractArticle: login pages and teasers", () => {
+  const url = "https://metroreview.example/story/123";
+
+  it("flags a login page as preview only", () => {
+    const result = extractArticle({ html: html("login-wall.html"), url, contentSource: "server", httpStatus: 200 });
+    expect(result.previewOnly).toBe(true);
+    expect(result.previewReason).toMatch(/login/i);
+  });
+
+  it("flags a 401 or 403 response as preview only", () => {
+    for (const httpStatus of [401, 403]) {
+      const result = extractArticle({ html: html("login-wall.html"), url, contentSource: "server", httpStatus });
+      expect(result.previewOnly).toBe(true);
+      expect(result.previewReason).toMatch(httpStatus === 401 ? /asked for a login/ : /refused the server's download/);
+    }
+  });
+
+  it("flags a short teaser behind a paywall, even from the browser", () => {
+    const result = extractArticle({
+      html: html("teaser-paywall.html"),
+      url: "https://northernstandard.example/trams",
+      contentSource: "client",
+    });
+    expect(result.textContent).toContain("tram line along the old canal route");
+    expect(result.previewOnly).toBe(true);
+    expect(result.previewReason).toMatch(/paywall/);
+  });
+});
+
+describe("extractArticle: a GBK-encoded Chinese page", () => {
+  const page = decodeHtml(fixture("chinese-gbk.html"), "text/html");
+  const result = extractArticle({ html: page, url: "https://chenbao.example/life/doujiang", contentSource: "server" });
+
+  it("decodes the text and reads the metadata", () => {
+    expect(result.title).toBe("老街口的豆浆铺");
+    expect(result.siteName).toBe("城市晨报");
+    expect(result.lang).toBe("zh-CN");
+    expect(result.textContent).toContain("陈阿姨每天凌晨三点起床");
+  });
+
+  it("doesn't repeat the title as the first heading", () => {
+    expect(result.contentHtml).not.toContain("<h1>老街口的豆浆铺</h1>");
+    expect(result.contentHtml).toContain("早上七点");
+  });
+
+  it("counts Chinese characters as words", () => {
+    expect(result.wordCount).toBeGreaterThan(450);
+    expect(result.readingMinutes).toBeGreaterThanOrEqual(1);
+    expect(result.previewOnly).toBe(false);
+  });
+});
+
+describe("extractArticle: unusual input", () => {
+  it("handles a page with no article", () => {
+    const result = extractArticle({
+      html: "<html><head><title>Empty</title></head><body></body></html>",
+      url: "https://example.com/empty",
+      contentSource: "server",
+    });
+    expect(result.title).toBe("Empty");
+    expect(result.previewOnly).toBe(true);
+    expect(result.textContent).toBe("");
+  });
+
+  it("never executes page scripts", () => {
+    const result = extractArticle({
+      html: `<html><body><script>globalThis.__ranPageScript = true;</script><article><p>${"Words here. ".repeat(80)}</p></article></body></html>`,
+      url: "https://example.com/s",
+      contentSource: "server",
+    });
+    expect((globalThis as Record<string, unknown>).__ranPageScript).toBeUndefined();
+    expect(result.textContent).toContain("Words here.");
+  });
+});
+
+describe("extractArticle: titles", () => {
+  const page = (title: string, site: string) =>
+    `<html><head><title>${title}</title><meta property="og:site_name" content="${site}"></head><body><article><p>${"Plenty of words in this paragraph. ".repeat(40)}</p></article></body></html>`;
+  const extract = (title: string, site: string) =>
+    extractArticle({ html: page(title, site), url: "https://example.com/a", contentSource: "client" }).title;
+
+  it("removes the site name before or after a separator", () => {
+    expect(extract("A headline | Example Times", "Example Times")).toBe("A headline");
+    expect(extract("Example Times — A headline", "Example Times")).toBe("A headline");
+  });
+
+  it("keeps titles that merely contain a separator", () => {
+    expect(extract("Cats - a history", "Example Times")).toBe("Cats - a history");
+  });
+});
+
+describe("extractArticle: scripts, styles and size", () => {
+  const url = "https://example.com/story";
+  const words = (n: number, word = "text") => Array.from({ length: n }, (_, i) => `${word}${i}`).join(" ");
+  const story = `<article><h1>The story</h1><p>${words(150, "ARTICLE")}</p><p>${words(150, "MORE")}</p></article>`;
+
+  it("empties scripts and styles where the HTML parser sees them, and nowhere else", () => {
+    const cases = [
+      `<!-- TODO: move <script src="/old.js"> below -->${story}`,
+      `<script-loader>${story}</script-loader>`,
+      `<div data-embed="<script async src=x>">${story}</div>`,
+      `<script>var s = "<\/script>";</script>${story}`,
+      `<script>document.write("x")</script foo>${story}`,
+    ];
+    for (const body of cases) {
+      const page = `<!DOCTYPE html><html><head><title>Why the <script> tag blocks rendering</title></head><body>${body}</body></html>`;
+      const result = extractArticle({ html: page, url, contentSource: "client" });
+      expect(result.textContent, body).toContain("ARTICLE149");
+      expect(result.textContent, body).toContain("MORE149");
+      expect(result.textContent, body).not.toContain("document.write");
+    }
+    const stripped = withoutScriptsAndStyles(`<style id="paywall-css">.x{}</style><script>alert(1)</script><p>keep</p>`);
+    expect(stripped).toContain('<style id="paywall-css"></style>'); // the element and its name stay
+    expect(stripped).not.toContain("alert(1)");
+    expect(stripped).toContain("<p>keep</p>");
+  });
+
+  it("keeps JSON-LD, however its tag is written, so the paywall rules still apply", () => {
+    const page = `<!DOCTYPE html><html><head>
+      <script data-cfg="a>b" type='application/ld+json; charset=utf-8'>{"@type":"NewsArticle","isAccessibleForFree":false,
+        "hasPart":{"@type":"WebPageElement","isAccessibleForFree":false,"cssSelector":".locked"}}</script></head>
+      <body><article><h1>The story</h1><p>${words(120, "FREE")}</p><div class="locked"><p>${words(200, "SECRET")}</p></div></article></body></html>`;
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toContain("FREE119");
+    expect(result.textContent).not.toContain("SECRET");
+    expect(result.previewKind).toBe("subscriber_only");
+  });
+
+  it("keeps the article's JSON-LD details in the free part", () => {
+    const page = `<!DOCTYPE html><html><head><title>Story | Example News</title></head><body>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":"The Real Headline","author":{"@type":"Person","name":"Jane Writer"},
+        "datePublished":"2026-01-02T08:00:00Z","publisher":{"@type":"Organization","name":"Example News"},"isAccessibleForFree":false,
+        "hasPart":{"@type":"WebPageElement","isAccessibleForFree":false,"cssSelector":".locked"}}</script>
+      <article><p>${words(120, "FREE")}</p><div class="locked"><p>${words(200, "SECRET")}</p></div></article></body></html>`;
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result).toMatchObject({ title: "The Real Headline", author: "Jane Writer", siteName: "Example News" });
+    expect(result.publishedAt?.toISOString()).toBe("2026-01-02T08:00:00.000Z");
+  });
+
+  it("never takes the rest of the page as the free part when the locked part sits in the body", () => {
+    const page = `<!DOCTYPE html><html><head><script type="application/ld+json">{"@type":"NewsArticle","isAccessibleForFree":false,
+      "hasPart":{"@type":"WebPageElement","isAccessibleForFree":false,"cssSelector":".paywall"}}</script></head>
+      <body><nav><p>${words(300, "SIDEBAR")}</p></nav><div class="paywall"><p>${words(300, "SECRET")}</p></div></body></html>`;
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toBe("");
+    expect(result.previewReason).toMatch(/too little of it is free/);
+  });
+
+  it("refuses a page with too much HTML to parse, but not one made big by its scripts", () => {
+    const markup = `<!DOCTYPE html><html><body>${"<div><p>word word word</p></div>".repeat(150_000)}</body></html>`; // ~4.8 MB
+    expect(() => extractArticle({ html: markup, url, contentSource: "server", httpStatus: 200 })).toThrow(PageTooLargeError);
+    const scripted = `<!DOCTYPE html><html><head><script>${"x".repeat(5_000_000)}</script></head><body>${story}</body></html>`;
+    expect(extractArticle({ html: scripted, url, contentSource: "server", httpStatus: 200 }).textContent).toContain("ARTICLE149");
+  });
+
+  it("stays fast on a page of unclosed script tags", () => {
+    const started = performance.now();
+    extractArticle({ html: "<script>".repeat(125_000) + "<script ".repeat(125_000), url, contentSource: "server", httpStatus: 200 });
+    expect(performance.now() - started).toBeLessThan(5_000);
+  });
+});

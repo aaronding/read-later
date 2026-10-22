@@ -1,0 +1,239 @@
+import { Readability } from "@mozilla/readability";
+import { JSDOM, VirtualConsole } from "jsdom";
+import { parse, serialize, type DefaultTreeAdapterTypes } from "parse5";
+import type { ContentSource } from "@/db/schema";
+import {
+  checkPreview,
+  findPaywallMarkup,
+  isJsonLdType,
+  hasPasswordField,
+  hasPaywallMarker,
+  MIN_ARTICLE_WORDS,
+  readJsonLd,
+  removeNonFreeSections,
+  type PreviewKind,
+} from "./paywall";
+import { sanitizeArticleHtml } from "./sanitize";
+import { cleanText, textStats } from "./text-stats";
+
+export interface ExtractInput {
+  html: string;
+  /** The page URL; relative links and images are resolved against it. */
+  url: string;
+  contentSource: ContentSource;
+  /** HTTP status of our own download, when there was one. */
+  httpStatus?: number;
+  /** Title sent along with a save, used if the page has none. */
+  fallbackTitle?: string | null;
+}
+
+export interface ExtractedArticle {
+  title: string;
+  author: string | null;
+  siteName: string | null;
+  publishedAt: Date | null;
+  lang: string | null;
+  excerpt: string | null;
+  contentHtml: string | null;
+  textContent: string;
+  wordCount: number;
+  readingMinutes: number;
+  previewOnly: boolean;
+  previewKind: PreviewKind | null;
+  previewReason: string | null;
+  canonicalHref: string | null;
+}
+
+function meta(document: Document, ...keys: string[]): string | null {
+  for (const key of keys) {
+    const element =
+      document.querySelector(`meta[property="${key}"]`) ?? document.querySelector(`meta[name="${key}" i]`);
+    const value = element?.getAttribute("content")?.trim();
+    if (value) return value;
+  }
+  return null;
+}
+
+function parseDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function cleanAuthor(byline: string | null | undefined): string | null {
+  const value = byline?.replace(/^\s*(by|von|par|por)\s+/i, "").trim();
+  return value ? value.slice(0, 300) : null;
+}
+
+/** "Story title | Site Name" becomes "Story title" when we know the site name. */
+function stripSiteName(title: string, siteName: string | null): string {
+  if (!siteName) return title;
+  const site = siteName.trim().toLowerCase();
+  const separators = /\s+[|\-–—·:•]\s+/;
+  const parts = title.split(separators);
+  if (parts.length < 2) return title;
+  if (parts.at(-1)?.trim().toLowerCase() === site) return parts.slice(0, -1).join(" - ").trim() || title;
+  if (parts[0]?.trim().toLowerCase() === site) return parts.slice(1).join(" - ").trim() || title;
+  return title;
+}
+
+/**
+ * The reader shows the title above the article, so a heading at the top of
+ * the content that repeats it is removed. Readability only does this when
+ * the heading matches its own title, which may still carry the site name.
+ */
+function withoutLeadingTitle(html: string, title: string): string {
+  const fragment = JSDOM.fragment(html);
+  const normalize = (text: string | null | undefined) => (text ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+  const wanted = normalize(title);
+  const headings = [...fragment.querySelectorAll("h1, h2")].slice(0, 2);
+  const first = headings.find((heading) => normalize(heading.textContent) === wanted);
+  if (!first) return html;
+  first.remove();
+  const container = new JSDOM("").window.document.createElement("div");
+  container.append(fragment);
+  return container.innerHTML;
+}
+
+/**
+ * The most HTML a page may still have once its scripts and style sheets are
+ * emptied: the same as a page sent from the browser. Beyond it, building the
+ * DOM takes tens of seconds and over a gigabyte.
+ */
+export const MAX_PAGE_HTML_BYTES = 4 * 1024 * 1024;
+
+export class PageTooLargeError extends Error {
+  constructor() {
+    super("The page is too large to save.");
+  }
+}
+
+function isJsonLd(element: DefaultTreeAdapterTypes.Element): boolean {
+  return isJsonLdType(element.attrs.find((a) => a.name === "type")?.value);
+}
+
+/**
+ * Scripts and style sheets are most of a big page's bytes (on a CNN article,
+ * 5 of its 5.6 MB) and never part of the article, so their contents go before
+ * jsdom builds the DOM. parse5, the parser jsdom itself uses, decides where
+ * each one starts and ends. The elements stay, with their attributes, and so
+ * does JSON-LD, which the paywall rules read.
+ */
+export function withoutScriptsAndStyles(html: string): string {
+  const document = parse(html, { scriptingEnabled: false });
+  const stack: DefaultTreeAdapterTypes.ParentNode[] = [document];
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    if ("tagName" in node && (node.tagName === "style" || (node.tagName === "script" && !isJsonLd(node)))) {
+      node.childNodes = [];
+      continue;
+    }
+    for (const child of node.childNodes) if ("childNodes" in child) stack.push(child);
+    if ("content" in node) stack.push(node.content); // <template>
+  }
+  return serialize(document);
+}
+
+/**
+ * Narrows the page to what is left of the article around its removed
+ * subscriber-only sections. The head stays, with JSON-LD moved into it, so
+ * Readability still finds the title, author and date.
+ */
+function keepOnlyFreePart(document: Document, containers: Element[]): void {
+  for (const script of document.body.querySelectorAll("script")) {
+    if (isJsonLdType(script.getAttribute("type"))) document.head.append(script);
+  }
+  document.body.replaceChildren(...containers);
+}
+
+function short(value: string | null | undefined, max: number): string | null {
+  const text = value?.replace(/\s+/g, " ").trim();
+  return text ? text.slice(0, max) : null;
+}
+
+/**
+ * Extracts the article with Readability on a server-side DOM, applies the
+ * paywall rules, and sanitizes the HTML for storage. Scripts never run:
+ * jsdom does not execute them unless asked to.
+ */
+export function extractArticle(input: ExtractInput): ExtractedArticle {
+  const html = withoutScriptsAndStyles(input.html);
+  if (Buffer.byteLength(html) > MAX_PAGE_HTML_BYTES) throw new PageTooLargeError();
+  const dom = new JSDOM(html, { url: input.url, virtualConsole: new VirtualConsole() });
+  const document = dom.window.document;
+
+  try {
+    // Read everything Readability would remove (scripts, forms) first.
+    const canonicalHref = document.querySelector('link[rel~="canonical" i]')?.getAttribute("href") ?? null;
+    const paywall = findPaywallMarkup(readJsonLd(document));
+    const passwordField = hasPasswordField(document);
+    const paywallMarker = hasPaywallMarker(document);
+    const pageTitle = document.title?.trim() ?? "";
+    const metaTitle = meta(document, "og:title", "twitter:title");
+    const metaSite = meta(document, "og:site_name", "application-name");
+    const metaAuthor = meta(document, "author", "article:author");
+    const metaPublished = meta(document, "article:published_time", "og:published_time", "datePublished", "date");
+    const metaDescription = meta(document, "description", "og:description");
+    const htmlLang = document.documentElement.getAttribute("lang")?.trim() || null;
+
+    const removed =
+      input.contentSource === "server" ? removeNonFreeSections(document, paywall.selectors) : { count: 0, containers: [] };
+    const removedSections = removed.count;
+
+    // Without its subscriber-only sections, the free part of the article is
+    // what is left of it, not whatever Readability finds elsewhere on the
+    // page, such as a sidebar of stock prices.
+    if (removedSections > 0) keepOnlyFreePart(document, removed.containers);
+    let article = new Readability(document).parse();
+    let textContent = cleanText(article?.textContent ?? "");
+    let { wordCount, readingMinutes } = textStats(textContent);
+    if (removedSections > 0 && wordCount < MIN_ARTICLE_WORDS) {
+      // A caption and share buttons are not a free part worth keeping.
+      article = article && { ...article, content: "", textContent: "", excerpt: null };
+      textContent = "";
+      ({ wordCount, readingMinutes } = textStats(""));
+    }
+
+    const siteName =
+      short(article?.siteName ?? metaSite, 200) ?? new URL(input.url).hostname.replace(/^www\./, "");
+    const rawTitle =
+      short(article?.title, 500) ??
+      short(metaTitle, 500) ??
+      short(pageTitle, 500) ??
+      short(input.fallbackTitle, 500) ??
+      new URL(input.url).hostname;
+    const title = stripSiteName(rawTitle, siteName);
+    const contentHtml = article?.content ? sanitizeArticleHtml(withoutLeadingTitle(article.content, title)) : null;
+
+    const preview = checkPreview({
+      contentSource: input.contentSource,
+      httpStatus: input.httpStatus,
+      paywall,
+      removedSections,
+      passwordField,
+      paywallMarker,
+      pageTitle: pageTitle || title,
+      foundArticle: Boolean(contentHtml && textContent),
+      wordCount,
+    });
+
+    return {
+      title,
+      author: cleanAuthor(article?.byline ?? metaAuthor),
+      siteName,
+      publishedAt: parseDate(article?.publishedTime ?? metaPublished),
+      lang: short(article?.lang ?? htmlLang, 35),
+      excerpt: short(article?.excerpt ?? metaDescription, 1000),
+      contentHtml,
+      textContent,
+      wordCount,
+      readingMinutes,
+      previewOnly: preview !== null,
+      previewKind: preview?.kind ?? null,
+      previewReason: preview?.reason ?? null,
+      canonicalHref,
+    };
+  } finally {
+    dom.window.close();
+  }
+}
