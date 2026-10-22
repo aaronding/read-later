@@ -17,7 +17,7 @@ export function formatDuration(ms: number | null): string {
 
 export function SummaryBody({ summary }: { summary: Summary }) {
   return (
-    <div lang={summary.language ?? undefined}>
+    <div className="summary-body" lang={summary.language ?? undefined}>
       <p className="tldr">{summary.tldr}</p>
       {summary.keyPoints && summary.keyPoints.length > 0 && (
         <ul>

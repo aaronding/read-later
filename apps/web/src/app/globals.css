@@ -1,48 +1,23 @@
-/* Read Later: one stylesheet, light and dark themes, mobile first. */
+/*
+ * Read Later: one stylesheet, mobile first.
+ *
+ * The colors (--bg, --text, --accent and the rest), --shadow and the reading
+ * font (--font-read) depend on the reader's appearance choices. They are
+ * defined in src/lib/appearance.ts, which the root layout puts in the page.
+ * The app itself uses the device's own font (--font-ui); articles and
+ * summaries use the reading font.
+ */
 
 :root {
-  color-scheme: light dark;
-  --bg: #fbfaf7;
-  --surface: #ffffff;
-  --surface-2: #f3f1ec;
-  --text: #1d1f1e;
-  --muted: #5f6660;
-  --border: #e4e1da;
-  --accent: #1f6f5c;
-  --accent-hover: #185a4a;
-  --accent-contrast: #ffffff;
-  --accent-soft: #e5f0ec;
-  --danger: #b42318;
-  --danger-soft: #fdecea;
-  --warn-text: #7a4a00;
-  --warn-soft: #fff4e0;
-  --focus: #2b7fff;
   --radius: 12px;
-  --shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.04);
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans",
     "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
-  --font-read: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "Noto Serif CJK SC", serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  accent-color: var(--accent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #16171a;
-    --surface: #1f2024;
-    --surface-2: #26282d;
-    --text: #e8e6e1;
-    --muted: #a2a39f;
-    --border: #34363c;
-    --accent: #5cc2a4;
-    --accent-hover: #7dd3b9;
-    --accent-contrast: #0d1f1a;
-    --accent-soft: #1f3530;
-    --danger: #ff8a80;
-    --danger-soft: #3a1f1d;
-    --warn-text: #f5c46b;
-    --warn-soft: #3a2c12;
-    --shadow: none;
-  }
+::selection {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 *,
@@ -219,8 +194,27 @@ label.checkbox input {
   border-radius: 6px;
 }
 
+/* While reading, the header scrolls away with the page. */
+.shell:has(.reader) .topbar {
+  position: static;
+}
+
 .topbar .search {
   flex: 0 1 280px;
+}
+
+/* Shows "Aa" in the reading font, so the button previews the choice. */
+.appearance-button {
+  min-width: 40px;
+  padding-inline: 0.6em;
+  font-family: var(--font-read);
+  font-size: 1.05rem;
+}
+/* Without popovers (Safari before 17) the button can't open the menu; Settings has the same choices. */
+@supports not selector(:popover-open) {
+  .appearance-button {
+    display: none;
+  }
 }
 
 .tabs {
@@ -496,15 +490,18 @@ label.checkbox input {
 
 /* ---------- Reader ---------- */
 
+/* About 70 characters a line at the article's text size. */
 .reader {
-  max-width: 42rem;
+  max-width: 40rem;
   margin: 0 auto;
 }
 .reader-header h1 {
   font-family: var(--font-read);
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
-  margin-top: 8px;
+  font-size: clamp(1.7rem, 1.2rem + 2vw, 2.4rem);
+  line-height: 1.2;
+  margin: 10px 0 0;
   overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 .reader-toolbar {
   display: flex;
@@ -527,17 +524,26 @@ label.checkbox input {
   gap: 8px;
   flex-wrap: wrap;
 }
-.summary .tldr {
-  font-size: 1.1rem;
-  font-weight: 550;
-  margin: 0 0 8px;
+/* Summaries read in the reading font, wherever they are shown in full. */
+.summary-body {
+  font-family: var(--font-read);
+  font-size: 1.0625rem;
+  line-height: 1.6;
 }
-.summary ul {
+.summary-body .tldr {
+  font-size: 1.15em;
+  font-weight: 500;
+  line-height: 1.45;
+  margin: 0 0 10px;
+  text-wrap: pretty;
+}
+.summary-body ul {
   margin: 0;
   padding-left: 1.2em;
 }
-.summary li {
+.summary-body li {
   margin: 4px 0;
+  text-wrap: pretty;
 }
 .summary-footer {
   display: flex;
@@ -557,9 +563,15 @@ label.checkbox input {
 
 .prose {
   font-family: var(--font-read);
-  font-size: 1.15rem;
-  line-height: 1.75;
+  font-size: 1.125rem;
+  line-height: 1.7;
   overflow-wrap: break-word;
+  hanging-punctuation: first;
+}
+@media (min-width: 640px) {
+  .prose {
+    font-size: 1.1875rem;
+  }
 }
 .prose:lang(zh),
 .prose:lang(ja),
@@ -576,39 +588,75 @@ label.checkbox input {
 .prose table {
   margin: 0 0 1.1em;
 }
+.prose p,
+.prose li {
+  text-wrap: pretty;
+}
+.prose ul,
+.prose ol {
+  padding-left: 1.4em;
+}
+.prose li {
+  margin: 0.3em 0;
+}
 .prose h1,
 .prose h2,
 .prose h3,
 .prose h4 {
-  font-family: var(--font-ui);
-  margin: 1.6em 0 0.6em;
+  line-height: 1.3;
+  margin: 1.7em 0 0.6em;
+  text-wrap: balance;
+}
+.prose h1 {
+  font-size: 1.5em;
+}
+.prose h2 {
+  font-size: 1.3em;
+}
+.prose h3 {
+  font-size: 1.12em;
+}
+.prose h4 {
+  font-size: 1em;
+}
+.prose a {
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+.prose a:hover {
+  text-decoration-color: currentColor;
 }
 .prose img,
 .prose video,
 .prose picture {
   max-width: 100%;
   height: auto;
-  border-radius: 6px;
+  border-radius: 8px;
 }
 .prose figure {
   margin-left: 0;
   margin-right: 0;
 }
+.prose figure img {
+  display: block;
+  margin: 0 auto;
+}
 .prose figcaption {
   font-family: var(--font-ui);
   font-size: 0.85rem;
+  line-height: 1.5;
   color: var(--muted);
-  margin-top: 6px;
+  margin-top: 8px;
 }
 .prose blockquote {
-  border-left: 3px solid var(--border);
+  border-left: 3px solid color-mix(in srgb, var(--accent) 45%, var(--bg));
   padding-left: 1em;
   margin-left: 0;
-  color: var(--muted);
 }
 .prose pre {
   font-family: var(--font-mono);
   font-size: 0.85rem;
+  line-height: 1.5;
   background: var(--surface-2);
   padding: 12px;
   border-radius: 8px;
@@ -616,7 +664,12 @@ label.checkbox input {
 }
 .prose code {
   font-family: var(--font-mono);
-  font-size: 0.9em;
+  font-size: 0.85em;
+}
+.prose :not(pre) > code {
+  background: var(--surface-2);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
 }
 .prose table {
   display: block;
@@ -624,15 +677,22 @@ label.checkbox input {
   border-collapse: collapse;
   font-family: var(--font-ui);
   font-size: 0.9rem;
+  line-height: 1.5;
 }
 .prose th,
 .prose td {
   border: 1px solid var(--border);
   padding: 6px 8px;
+  text-align: left;
+}
+.prose th {
+  background: var(--surface-2);
 }
 .prose hr {
   border: none;
   border-top: 1px solid var(--border);
+  width: 40%;
+  margin: 2em auto;
 }
 
 /* ---------- Compare ---------- */
@@ -652,6 +712,9 @@ label.checkbox input {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
+}
+.compare-card .summary-body {
+  font-size: 1rem;
 }
 .stats {
   display: grid;
@@ -747,6 +810,177 @@ kbd {
 details summary {
   cursor: pointer;
   font-weight: 600;
+}
+
+/* ---------- Appearance ---------- */
+
+.appearance {
+  display: grid;
+  gap: 18px;
+}
+.appearance-group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.appearance-group legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.segmented {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+.segmented label {
+  position: relative;
+}
+.segmented span {
+  display: block;
+  padding: 5px 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.segmented span:hover {
+  color: var(--text);
+}
+.segmented input:checked + span {
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-weight: 600;
+}
+.segmented input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 5.5rem));
+  gap: 10px;
+}
+.swatch-option {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 1px solid color-mix(in srgb, var(--text) 20%, transparent);
+  border-radius: 10px;
+  font-family: var(--font-read);
+  font-size: 1.1rem;
+}
+.swatch-accent {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.swatch-option input:checked + .swatch {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+}
+.swatch-option input:checked ~ .swatch-label {
+  color: var(--text);
+  font-weight: 600;
+}
+.swatch-option input:focus-visible + .swatch {
+  outline: 2px solid var(--focus);
+  outline-offset: 5px;
+}
+
+.font-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: 8px;
+}
+.font-option {
+  position: relative;
+  cursor: pointer;
+}
+.font-option span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 1.05rem;
+  line-height: 1.2;
+  text-align: center;
+}
+.font-option span:hover {
+  background: var(--surface-2);
+}
+.font-option input:checked + span {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+  background: var(--accent-soft);
+}
+.font-option input:focus-visible + span {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* The header's menu: a panel under the "Aa" button, or a sheet at the bottom on phones. */
+.appearance-menu {
+  display: none;
+  position: fixed;
+  inset: 60px 16px auto auto;
+  margin: 0;
+  width: min(380px, calc(100vw - 32px));
+  max-height: calc(100dvh - 76px);
+  overflow-y: auto;
+  padding: 14px 16px 18px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+.appearance-menu:popover-open {
+  display: block;
+}
+.appearance-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.appearance-menu-header h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+@media (max-width: 640px) {
+  .appearance-menu {
+    inset: auto 0 0;
+    width: 100%;
+    max-height: 85dvh;
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
 }
 
 /* ---------- Sign in ---------- */

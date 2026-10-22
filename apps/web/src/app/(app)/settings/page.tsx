@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { deleteFolderAction, revokeTokenAction, updateSettingsAction } from "@/app/actions";
+import { AppearancePicker } from "@/components/appearance-picker";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AndroidGuide, ChromeGuide, ShortcutGuide } from "@/components/connect-guides";
 import { LocalDate } from "@/components/local-date";
@@ -11,6 +12,7 @@ import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
+import { getSavedAppearance } from "@/lib/saved-appearance";
 import { getSettings } from "@/lib/settings";
 import { listApiTokens } from "@/lib/tokens";
 
@@ -19,10 +21,11 @@ export const metadata: Metadata = { title: "Settings" };
 export default async function SettingsPage() {
   const user = await requireUser("/settings");
   const db = getDb();
-  const [settings, tokens, folders] = await Promise.all([
+  const [settings, tokens, folders, appearance] = await Promise.all([
     getSettings(db, user.id),
     listApiTokens(db, user.id),
     listFolders(db, user.id),
+    getSavedAppearance(),
   ]);
   const serverUrl = appUrl();
 
@@ -31,6 +34,15 @@ export default async function SettingsPage() {
       <div className="page-title">
         <h1>Settings</h1>
       </div>
+
+      <section className="card" aria-labelledby="appearance-heading">
+        <h2 id="appearance-heading">Appearance</h2>
+        <p className="muted">
+          Colors and a font for reading. System follows your device’s light or dark mode. The choice is kept in this
+          browser, and the <strong>Aa</strong> button at the top of every page changes it while you read.
+        </p>
+        <AppearancePicker saved={appearance} />
+      </section>
 
       <section className="card" aria-labelledby="summaries-heading">
         <h2 id="summaries-heading">Summaries</h2>
