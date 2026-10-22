@@ -1,8 +1,13 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="packages/brand/logo/mark-dark.svg">
+  <img src="packages/brand/logo/mark.svg" alt="" width="64">
+</picture>
+
 # Read Later
 
 A personal read-later app in the spirit of Pocket. Save an article while you browse; the app keeps the original link, a clean copy of the article, and a short summary written by Claude in the article's own language.
 
-"Read Later" is a working name. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the browser extension included.
+"Read Later" is a working name. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the browser extension included. The logo, in [`packages/brand/logo`](packages/brand/logo), doesn't spell out the name, so it can stay.
 
 This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Safari and Android, and reading and comparing summaries in the web app. The later stages (an invite-only beta, a public launch, native apps) are described in [BRIEF.md](BRIEF.md); nothing here rules them out.
 
@@ -13,7 +18,7 @@ This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Saf
 | `apps/web` | The Next.js app: pages, sign-in, the save API, background jobs, the worker process |
 | `apps/extension` | The browser extension for Chrome and Firefox (Manifest V3, plain TypeScript) |
 | `apps/cron-worker` | A tiny Cloudflare Worker that runs leftover jobs every 5 minutes |
-| `packages/brand` | The display name |
+| `packages/brand` | The display name, and the logo every icon is drawn from |
 | `docs/` | Setup guides, the Shortcut and extension guides, the server guide, and [decisions](docs/decisions.md) |
 | `Dockerfile`, `docker-compose.yml` | The one-server setup |
 | `.github/workflows/backup.yml` | The nightly database backup to Cloudflare R2 |
@@ -78,6 +83,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 | `pnpm db:generate` | Creates a new migration after changing `apps/web/src/db/schema.ts` |
 | `pnpm worker` | Runs the background worker loop (only needed on a server) |
 | `pnpm extension:build` | Builds the extension for Chrome into `apps/extension/dist` and for Firefox into `apps/extension/dist-firefox` |
+| `pnpm icons` | Redraws the app and extension icons from the logo in `packages/brand/logo` |
 
 ### Tests
 

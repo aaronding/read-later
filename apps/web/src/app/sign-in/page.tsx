@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { redirect } from "next/navigation";
+import { Logo } from "@/components/logo";
 import { SignInButton } from "@/components/sign-in-button";
 import { APP_NAME } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
@@ -17,7 +17,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   return (
     <main className="centered">
       <div className="card sign-in">
-        <Image src="/icons/icon-192.png" alt="" width={56} height={56} priority />
+        <Logo size={56} />
         <h1>{APP_NAME}</h1>
         <p className="muted">Save articles to read later, with a clean copy and an AI summary.</p>
         {error && (

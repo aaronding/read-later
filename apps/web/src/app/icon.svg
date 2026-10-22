@@ -1,1 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1f6f5c"/><path d="M21.5 13.5h21v37l-10.5-8-10.5 8z" fill="#fbfaf7"/><rect x="25.7" y="21.6" width="12.6" height="2.2" rx="1.1" fill="#1f6f5c"/><rect x="25.7" y="26.3" width="8.2" height="2.2" rx="1.1" fill="#1f6f5c"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- mark.svg without its lines of text, redrawn on a 32 px grid, a little bolder,
+       so the 16 and 32 px icons and the favicon stay sharp. As the favicon it takes
+       mark-dark.svg's colors when the browser is in dark mode; the PNGs are drawn
+       in the light ones. -->
+  <style>
+    .tile { fill: #1f6f5c }
+    .back { fill: #c8e2d8 }
+    .front { fill: #fbfaf7 }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #123d33 }
+      .back { fill: #47a487 }
+      .front { fill: #5cc2a4 }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7"/>
+  <path class="back" d="M18 16H28L23 21L28 26H18Z"/>
+  <path class="front" d="M8 0H18V26L8 16Z"/>
+</svg>

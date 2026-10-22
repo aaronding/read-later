@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- mark.svg for dark themes: a deep green tile, and the ribbon in the app's
+       dark-mode accent. -->
+  <rect width="512" height="512" rx="112" fill="#123d33"/>
+  <path d="M264 260H416L342 334L416 408H264Z" fill="#47a487"/>
+  <path d="M116 0H264V408L116 260Z" fill="#5cc2a4"/>
+  <g fill="#2f8a70">
+    <rect x="146" y="44" width="88" height="14" rx="7"/>
+    <rect x="146" y="80" width="88" height="14" rx="7"/>
+    <rect x="146" y="116" width="88" height="14" rx="7"/>
+    <rect x="146" y="152" width="88" height="14" rx="7"/>
+    <rect x="146" y="188" width="60" height="14" rx="7"/>
+  </g>
+  <rect x="286" y="326" width="44" height="16" rx="8" fill="#123d33"/>
+</svg>
