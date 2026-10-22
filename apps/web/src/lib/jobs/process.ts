@@ -3,13 +3,15 @@ import { hostname } from "node:os";
 import { envInt } from "@/config/env";
 import { getDb, type Db } from "@/db";
 import type { Job, JobType } from "@/db/schema";
-import { JobError } from "./errors";
+import { englishText } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
+import { JobError, type JobFailure } from "./errors";
 import { processArticle, processArticleFailed, summarize, summarizeFailed } from "./handlers";
 import { claimJobs, completeJob, failJob, pruneFinishedJobs } from "./queue";
 
 interface Handler {
   run(db: Db, job: Job): Promise<void>;
-  failed(db: Db, job: Job, message: string, willRetry: boolean, stopReason: string | null): Promise<void>;
+  failed(db: Db, job: Job, failure: JobFailure): Promise<void>;
 }
 
 const HANDLERS: Record<JobType, Handler> = {
@@ -38,20 +40,25 @@ async function runJob(db: Db, job: Job, stats: ProcessStats): Promise<void> {
   const handler = HANDLERS[job.type];
   try {
     // A job whose worker died repeatedly comes back here with no attempts left.
-    if (job.attempts > job.maxAttempts) throw new JobError("Gave up after too many attempts.", false);
+    if (job.attempts > job.maxAttempts) throw new JobError(errorMessage("job.tooManyAttempts"), false);
     await handler.run(db, job);
     await completeJob(db, job);
     stats.succeeded++;
   } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    // Unknown errors (a database hiccup, a bug) are retried; JobError says.
-    const retryable = error instanceof JobError ? error.retryable : true;
-    const stopReason = error instanceof JobError ? error.stopReason : null;
-    if (!(error instanceof JobError)) console.error(`Job ${job.id} (${job.type}) failed:`, error);
+    // Unknown errors (a database hiccup, a bug) are retried, with their own
+    // text; JobError says.
+    const known = error instanceof JobError ? error : null;
+    const message =
+      known?.storedMessage ??
+      errorMessage("job.unexpected", { detail: error instanceof Error ? error.message : String(error) });
+    const retryable = known ? known.retryable : true;
+    const stopReason = known ? known.stopReason : null;
+    if (!known) console.error(`Job ${job.id} (${job.type}) failed:`, error);
     try {
-      const willRetry = await failJob(db, job, message, retryable);
+      const text = await englishText(message);
+      const willRetry = await failJob(db, job, text, retryable);
       if (willRetry === null) return; // another worker owns this job now
-      await handler.failed(db, job, message, willRetry, stopReason);
+      await handler.failed(db, job, { message, text, willRetry, stopReason });
       if (willRetry) stats.retrying++;
       else stats.failed++;
     } catch (recordError) {

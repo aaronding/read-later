@@ -1,6 +1,6 @@
 # The Firefox extension
 
-The same extension as the [Chrome one](chrome-extension.md), built for Firefox. The toolbar button and **Alt+Shift+S** (on a Mac, Option+Shift+S) save the page you're reading with its full text, and right-clicking a link offers **Save link to Read Later**. The badge, the options and the permissions work as the Chrome guide describes.
+The same extension as the [Chrome one](chrome-extension.md), built for Firefox. The toolbar button and **Alt+Shift+S** (on a Mac, Option+Shift+S) save the page you're reading with its full text, and right-clicking a link offers **Save link to Read Later**. The badge, the options, the permissions and the extension's languages work as the Chrome guide describes.
 
 It needs Firefox 140 or later. Firefox for Android isn't tested.
 

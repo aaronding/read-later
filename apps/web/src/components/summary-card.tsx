@@ -1,18 +1,35 @@
 import Link from "next/link";
+import { useFormatter, useTranslations, type createFormatter, type createTranslator } from "next-intl";
 import { resummarizeAction } from "@/app/actions";
 import { MODEL_INFO, SUMMARY_MODELS, modelLabel } from "@/config/models";
 import type { Summary } from "@/db/schema";
+import type { Messages } from "@/i18n/messages";
 import { SubmitButton } from "./submit-button";
 
-export function formatCost(cost: number | null): string {
-  if (cost === null) return "cost unknown";
-  if (cost < 0.01) return `$${cost.toFixed(4)}`;
-  return `$${cost.toFixed(3)}`;
+/** A translator for the Summary namespace, from getTranslations("Summary") or useTranslations("Summary"). */
+export type SummaryTranslator = ReturnType<typeof createTranslator<Messages, "Summary">>;
+/** A formatter in the app's language, from getFormatter() or useFormatter(). */
+export type Formatter = ReturnType<typeof createFormatter>;
+
+/** An estimated cost in US dollars, in the app's language. */
+export function formatCost(cost: number | null, t: SummaryTranslator, format: Formatter): string {
+  if (cost === null) return t("costUnknown");
+  const digits = cost < 0.01 ? 4 : 3;
+  return format.number(cost, {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
 }
 
-export function formatDuration(ms: number | null): string {
+export function formatDuration(ms: number | null, t: SummaryTranslator, format: Formatter): string {
   if (ms === null) return "–";
-  return ms < 10_000 ? `${(ms / 1000).toFixed(1)} s` : `${Math.round(ms / 1000)} s`;
+  // One decimal under ten seconds, kept even when it is zero ("2.0 s").
+  const digits = ms < 10_000 ? 1 : 0;
+  return t("duration", {
+    seconds: format.number(ms / 1000, { minimumFractionDigits: digits, maximumFractionDigits: digits }),
+  });
 }
 
 export function SummaryBody({ summary }: { summary: Summary }) {
@@ -40,31 +57,37 @@ export function SummaryCard({
   /** Extra content under the summary, such as suggested tags. */
   children?: React.ReactNode;
 }) {
+  const t = useTranslations("Summary");
+  const tCommon = useTranslations("Common");
+  const format = useFormatter();
   return (
     <section className="card summary" aria-labelledby="summary-heading">
       <h2 id="summary-heading">
-        <span>Summary</span>
+        <span>{t("heading")}</span>
         <span>{modelLabel(summary.model)}</span>
       </h2>
       <SummaryBody summary={summary} />
       {summary.partial && (
         <p className="notice warn small">
           {summary.totalChars && summary.inputChars && summary.inputChars < summary.totalChars
-            ? `This summary covers only the first ${Math.round((summary.inputChars / summary.totalChars) * 100)}% of a very long article.`
-            : "This summary covers only the part of the article that was saved."}
+            ? t("partialShare", { share: summary.inputChars / summary.totalChars })
+            : t("partialSaved")}
         </p>
       )}
       {children}
       <div className="summary-footer">
         <span>
-          {formatCost(summary.costUsd)} · {formatDuration(summary.durationMs)}
-          {summary.servedModel && summary.servedModel !== summary.model ? ` · answered by ${summary.servedModel}` : ""}
+          {formatCost(summary.costUsd, t, format)} · {formatDuration(summary.durationMs, t, format)}
+          {summary.servedModel && summary.servedModel !== summary.model
+            ? ` · ${t("answeredBy", { model: summary.servedModel })}`
+            : ""}
         </span>
-        <Link href={`/articles/${articleId}/compare`}>Compare models</Link>
-        <form action={resummarizeAction} className="inline-form">
+        <Link href={`/articles/${articleId}/compare`}>{tCommon("compareModels")}</Link>
+        {/* Keyed by the model so the picker shows the new summary's, once it is written. */}
+        <form key={summary.model} action={resummarizeAction} className="inline-form">
           <input type="hidden" name="id" value={articleId} />
           <label htmlFor="resummarize-model" className="visually-hidden">
-            Model
+            {t("modelLabel")}
           </label>
           <select id="resummarize-model" name="model" defaultValue={summary.model} style={{ width: "auto", minHeight: 32, padding: "0.2em 0.5em" }}>
             {SUMMARY_MODELS.map((model) => (
@@ -73,8 +96,8 @@ export function SummaryCard({
               </option>
             ))}
           </select>{" "}
-          <SubmitButton className="button small" pendingText="Queued…">
-            Re-summarize
+          <SubmitButton className="button small" pendingText={tCommon("queued")}>
+            {t("resummarize")}
           </SubmitButton>
         </form>
       </div>

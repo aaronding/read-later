@@ -1,0 +1,12 @@
+{
+  "Summary": {
+    "heading": "摘要",
+    "costUnknown": "費用未知",
+    "duration": "{seconds} 秒",
+    "answeredBy": "由 {model} 回答",
+    "partialShare": "這份摘要僅涵蓋這篇長文的前 {share, number, percent}。",
+    "partialSaved": "這份摘要僅涵蓋文章中已儲存的部分。",
+    "modelLabel": "模型",
+    "resummarize": "重新產生摘要"
+  }
+}

@@ -2,16 +2,23 @@ import { and, eq, inArray } from "drizzle-orm";
 import { envInt } from "@/config/env";
 import type { Db } from "@/db";
 import { articles, type Article, type SaveSource } from "@/db/schema";
+import type { StoredMessage } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
 import { enqueueJob, hasQueuedJob } from "@/lib/jobs/queue";
 import { getSettings } from "@/lib/settings";
 import { findCanonicalHref, normalizeUrl, parseHttpUrl, trustedCanonicalUrl } from "@/lib/urls";
 
+/** For programs, such as the browser extension, in the save API's replies. */
+export type SaveErrorCode = "invalid_url" | "too_large" | "server_error";
+
 export class SaveError extends Error {
   constructor(
-    message: string,
+    readonly code: SaveErrorCode,
+    /** For people, as a message in the Errors namespace. */
+    readonly storedMessage: StoredMessage,
     readonly status: number,
   ) {
-    super(message);
+    super(storedMessage.key);
     this.name = "SaveError";
   }
 }
@@ -48,11 +55,11 @@ async function queueProcessing(db: Db, article: Pick<Article, "id" | "userId">):
  */
 export async function saveArticle(db: Db, request: SaveRequest): Promise<SaveResult> {
   const parsed = parseHttpUrl(request.url);
-  if (!parsed) throw new SaveError("url must be an absolute http or https URL.", 400);
+  if (!parsed) throw new SaveError("invalid_url", errorMessage("save.invalidUrl", { field: "url" }), 400);
   const url = request.url.trim();
   const html = request.html?.trim() ? request.html : null;
   if (html && Buffer.byteLength(html, "utf8") > maxHtmlBytes()) {
-    throw new SaveError("The page's HTML is too large to save.", 413);
+    throw new SaveError("too_large", errorMessage("save.htmlTooLarge"), 413);
   }
   const title = request.title?.trim().slice(0, 500) || null;
 
@@ -91,7 +98,7 @@ export async function saveArticle(db: Db, request: SaveRequest): Promise<SaveRes
     }
     // Saved at the same moment by another request.
     existing = await findExisting();
-    if (!existing) throw new SaveError("Could not save the article. Please try again.", 500);
+    if (!existing) throw new SaveError("server_error", errorMessage("save.failed"), 500);
   }
 
   // Already saved: back to the top of the Inbox.
@@ -99,7 +106,16 @@ export async function saveArticle(db: Db, request: SaveRequest): Promise<SaveRes
   if (html && needsContent) {
     await db
       .update(articles)
-      .set({ savedAt: new Date(), archivedAt: null, submittedHtml: html, submittedTitle: title ?? existing.submittedTitle, status: "pending", error: null, saveSource: request.source })
+      .set({
+        savedAt: new Date(),
+        archivedAt: null,
+        submittedHtml: html,
+        submittedTitle: title ?? existing.submittedTitle,
+        status: "pending",
+        error: null,
+        errorMessage: null,
+        saveSource: request.source,
+      })
       .where(eq(articles.id, existing.id));
     const queued = await queueProcessing(db, existing);
     return { articleId: existing.id, outcome: "replaced", queued };
@@ -108,7 +124,11 @@ export async function saveArticle(db: Db, request: SaveRequest): Promise<SaveRes
   const retry = existing.status === "failed";
   await db
     .update(articles)
-    .set({ savedAt: new Date(), archivedAt: null, ...(retry ? { status: "pending" as const, error: null } : {}) })
+    .set({
+      savedAt: new Date(),
+      archivedAt: null,
+      ...(retry ? { status: "pending" as const, error: null, errorMessage: null } : {}),
+    })
     .where(eq(articles.id, existing.id));
   const queued = retry ? await queueProcessing(db, existing) : false;
   return { articleId: existing.id, outcome: "resaved", queued };

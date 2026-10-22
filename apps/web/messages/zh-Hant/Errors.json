@@ -1,0 +1,57 @@
+{
+  "Errors": {
+    "pageTooLarge": "網頁太大，無法儲存。",
+    "job": {
+      "tooManyAttempts": "嘗試次數過多，已放棄。",
+      "unexpected": "發生未預期的錯誤：{detail}"
+    },
+    "download": {
+      "invalidUrl": "網址無效：{url}",
+      "httpOnly": "只能下載 http 和 https 連結。",
+      "credentialsInUrl": "不會下載含有使用者名稱或密碼的連結。",
+      "noAddress": "找不到 {host} 的位址。",
+      "privateHost": "{host} 指向私人位址或保留位址。",
+      "privateAddress": "{host} 是私人位址或保留位址。",
+      "failed": "無法下載這個網頁：{detail}",
+      "interrupted": "下載中斷：{detail}",
+      "timeout": "網站回應逾時。",
+      "tooManyRedirects": "網頁重新導向次數過多。",
+      "notFound": "找不到網頁 (HTTP {status})。",
+      "unavailable": "網站目前無法提供這個網頁 (HTTP {status})。",
+      "refused": "網站拒絕了下載要求 (HTTP {status})。",
+      "notWebPage": "這個連結不是網頁 ({type})。目前只能儲存網頁。"
+    },
+    "preview": {
+      "loginRequired": "網站要求先登入才能顯示這個網頁 (HTTP {status})。",
+      "subscriptionRequired": "網站要求先訂閱才能顯示這個網頁 (HTTP {status})。",
+      "downloadRefused": "網站拒絕了伺服器的下載要求 (HTTP {status})。網站可能要求登入，也可能會拒絕不是來自瀏覽器的下載。",
+      "subscriberOnly": "網站將這篇文章標示為訂閱者專屬，因此只儲存了免費的部分。",
+      "subscriberOnlyNothingFree": "網站將這篇文章標示為訂閱者專屬，而且免費的部分太少，無法保留。",
+      "noArticle": "在這個網頁上找不到文章。",
+      "loginPage": "這看起來是登入頁面，而不是文章。",
+      "teaser": "這個網頁只顯示付費牆和文章的開頭。",
+      "tooShort": "只能從這個網頁讀取到很短的文字。"
+    },
+    "summary": {
+      "noText": "沒有可用來產生摘要的文章內容。",
+      "unknownModel": "未知的摘要模型：{model}",
+      "timeout": "{claude} 回應逾時。",
+      "apiKeyRejected": "{claude} API 不接受這個 API 金鑰。請檢查 {variable}，重新啟動應用程式 (在 {vercel} 上則重新部署)，然後重新產生摘要。",
+      "apiKeyRejectedWithDetail": "{claude} API 不接受這個 API 金鑰 ({detail})。請檢查 {variable}，重新啟動應用程式 (在 {vercel} 上則重新部署)，然後重新產生摘要。",
+      "apiError": "{claude} API 錯誤：{detail}",
+      "apiErrorStatus": "{claude} API 錯誤 {status}。",
+      "apiErrorStatusWithDetail": "{claude} API 錯誤 {status}：{detail}",
+      "declined": "{claude} 拒絕為這篇文章產生摘要。",
+      "declinedCategory": "{claude} 拒絕為這篇文章產生摘要 ({category, select, cyber {網路安全} bio {生物安全} frontier_llm {前沿大型語言模型} reasoning_extraction {推理過程擷取} general_harms {一般危害} other {{category}}})。",
+      "cutOff": "摘要在完成前就被截斷了。",
+      "tooLong": "文章太長，這個模型無法處理。",
+      "empty": "{claude} 沒有傳回摘要。",
+      "badFormat": "{claude} 傳回的摘要格式不符合預期。"
+    },
+    "save": {
+      "invalidUrl": "{field} 必須是以 http 或 https 開頭的絕對 URL。",
+      "htmlTooLarge": "網頁的 HTML 太大，無法儲存。",
+      "failed": "無法儲存文章，請再試一次。"
+    }
+  }
+}

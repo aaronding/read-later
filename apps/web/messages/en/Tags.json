@@ -1,0 +1,9 @@
+{
+  "Tags": {
+    "label": "Tags",
+    "remove": "Remove the tag {name}",
+    "addSuggested": "Add the suggested tag {name}",
+    "addLabel": "Add a tag",
+    "addPlaceholder": "Add tag"
+  }
+}

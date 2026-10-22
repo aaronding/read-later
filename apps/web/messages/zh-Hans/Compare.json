@@ -1,0 +1,28 @@
+{
+  "Compare": {
+    "title": "比较摘要",
+    "backToArticle": "← 返回文章",
+    "wordCount": "{count, plural, other {# 字}}",
+    "wordCountUnknown": "字数未知",
+    "totalCost": "{count, plural, other {# 份摘要共计 {cost}}}",
+    "noText": "还没有可供生成摘要的文章正文。",
+    "footnote": "费用根据词元数和公开价格估算。在“设置”中开启“比较模式”，即可在每次保存时运行全部 {count, number} 个模型。",
+    "shown": "当前显示",
+    "notRunYet": "尚未运行。",
+    "summarizeWith": "用 {model} 生成摘要",
+    "showThisOne": "显示此摘要",
+    "runAgain": "重新运行",
+    "stats": {
+      "cost": "费用",
+      "time": "耗时",
+      "tokens": "词元",
+      "effort": "推理强度",
+      "answeredBy": "回答模型",
+      "note": "备注"
+    },
+    "tokenCounts": "输入 {input} · 输出 {output}",
+    "effortLevel": "{effort, select, low {低} medium {中} high {高} xhigh {超高} max {最高} other {{effort}}}",
+    "fallbackModel": "{model}（备用模型）",
+    "partial": "仅涵盖部分文章内容"
+  }
+}

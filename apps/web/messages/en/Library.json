@@ -1,0 +1,26 @@
+{
+  "Library": {
+    "sectionsLabel": "Sections",
+    "searchView": "{view, select, inbox {Search Inbox} favorites {Search Favorites} archive {Search Archive} other {Search}}",
+    "searchPlaceholder": "{view, select, inbox {Search Inbox} favorites {Search Favorites} archive {Search Archive} other {Search}}",
+    "pasteLinkToSave": "Paste a link to save",
+    "notices": {
+      "resaved": "Already saved; moved to the top.",
+      "saved": "Saved. The summary will appear in a moment.",
+      "sharedNoLink": "No link was found in what you shared."
+    },
+    "filterSummary": "{filters, select, q {“{query}”} f {in {folder}} t {tagged #{tag}} qf {“{query}”, in {folder}} qt {“{query}”, tagged #{tag}} ft {in {folder}, tagged #{tag}} qft {“{query}”, in {folder}, tagged #{tag}} other {}} · <clear>Clear</clear>",
+    "filtersLabel": "Folders and tags",
+    "empty": {
+      "inbox": "Nothing saved yet. Paste a link above, or save from the {chrome} extension or the {safari} Shortcut.",
+      "favorites": "No favorites yet. Tap {favorite} on an article to keep it here.",
+      "archive": "Nothing archived yet.",
+      "noMatch": "No articles match."
+    },
+    "pager": {
+      "label": "Pages",
+      "newer": "Newer",
+      "older": "Older"
+    }
+  }
+}

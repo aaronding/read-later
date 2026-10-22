@@ -1,0 +1,48 @@
+{
+  "Guides": {
+    "chrome": {
+      "build": "On your computer, in the project folder, run <kbd>pnpm extension:build</kbd>. It creates <code>apps/extension/dist</code>.",
+      "load": "In {chrome}, open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click <strong>Load unpacked</strong> and choose the <code>apps/extension/dist</code> folder.",
+      "connect": "Open the extension’s <strong>Options</strong>. Enter the server URL <code>{url}</code> and an access token from above.",
+      "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t."
+    },
+    "shortcut": {
+      "intro": "You build two Shortcuts by hand, once; they then sync to your {iphone}, {ipad} and {mac} through {icloud}. The first sends the whole page from {safari}, so paywalled articles you can read are saved in full. The second, for other apps such as {chrome} on {iphone}, sends only the link.",
+      "before": {
+        "heading": "Before you start",
+        "scriptsOnIos": "<strong>{iphone} and {ipad}:</strong> Settings → Apps → Shortcuts → Advanced → turn on <strong>Allow Running Scripts</strong> (on {ios} 17 and earlier: Settings → Shortcuts → Advanced).",
+        "scriptsOnMac": "<strong>{mac}:</strong> in the Shortcuts app, Shortcuts → Settings → Advanced → turn on <strong>Allow Running Scripts</strong>. If {safari} still refuses to run the script, open {safari} → Settings → Advanced → turn on <strong>Show features for web developers</strong>, then in {safari}’s new <strong>Developer</strong> settings tab turn on <strong>Allow JavaScript from Apple Events</strong>, and restart {safari}.",
+        "token": "Create an access token above for this device and keep it at hand."
+      },
+      "page": {
+        "name": "Save to {app}",
+        "heading": "Shortcut 1: “{name}” ({safari})",
+        "create": "In the Shortcuts app, tap <strong>+</strong> to make a new shortcut and name it “{name}”.",
+        "shareSheet": "Open the shortcut’s details (the ⓘ button, or the name menu → Details) and turn on <strong>Show in Share Sheet</strong>. In the “Receive … from Share Sheet” line at the top, tap the input types and leave only <strong>Safari web pages</strong> selected.",
+        "script": "Add the action <strong>Run JavaScript on Web Page</strong> (on a {mac}: <strong>Run JavaScript on Active Safari Tab</strong>). On {iphone} and {ipad} it uses the Shortcut Input as the page. Replace its script with this:",
+        "copyScript": "Copy script",
+        "request": "Add <strong>Get Contents of URL</strong>. Set the URL to <code>{url}</code>, then tap <strong>Show More</strong>:",
+        "method": "Method: <strong>POST</strong>",
+        "headers": "Headers: add <code>Authorization</code> with the value <code>Bearer </code> followed by your token, and <code>Content-Type</code> with the value <code>application/json</code>",
+        "body": "Request Body: <strong>File</strong>, and choose the <strong>JavaScript Result</strong> variable",
+        "message": "Add <strong>Get Dictionary Value</strong>: get the value for the key <code>message</code> in <strong>Contents of URL</strong>.",
+        "notification": "Add <strong>Show Notification</strong> and put the <strong>Dictionary Value</strong> in it. It will say “{saved}”.",
+        "tryIt": "Try it: in {safari}, open an article, tap Share and choose the shortcut. The first time, allow it to run JavaScript on the site (choose <strong>Always Allow</strong>)."
+      },
+      "link": {
+        "name": "Save link to {app}",
+        "heading": "Shortcut 2: “{name}” (other apps)",
+        "create": "Make a new shortcut, turn on <strong>Show in Share Sheet</strong>, and leave only <strong>URLs</strong> and <strong>Text</strong> as input types.",
+        "input": "Add <strong>Get URLs from Input</strong> (from the Shortcut Input), then <strong>Get Item from List</strong> (First Item).",
+        "request": "Add <strong>Get Contents of URL</strong> with the URL <code>{url}</code>. Under Show More: Method <strong>POST</strong>; header <code>Authorization</code> = <code>Bearer </code> + your token; Request Body <strong>JSON</strong> with two Text fields: <code>url</code> set to the <strong>Item from List</strong> variable, and <code>source</code> set to <code>shortcut</code>.",
+        "notification": "Add <strong>Get Dictionary Value</strong> for <code>message</code> and <strong>Show Notification</strong>, as in Shortcut 1.",
+        "note": "Links saved this way are downloaded by the server. Pages behind a login or paywall then show as “{previewOnly}”; open them in {safari} and use Shortcut 1 to keep the full copy."
+      }
+    },
+    "android": {
+      "open": "Open this site in {chrome} on the phone and sign in.",
+      "install": "Open {chrome}’s ⋮ menu and choose <strong>Add to Home screen</strong> → <strong>Install</strong> (or <strong>Install app</strong>).",
+      "share": "In any app, tap Share and choose <strong>{app}</strong>. The link is saved and the Inbox opens."
+    }
+  }
+}

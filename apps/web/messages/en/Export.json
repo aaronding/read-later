@@ -1,0 +1,20 @@
+{
+  "Export": {
+    "signInFirst": "Sign in first.",
+    "title": "{app} export",
+    "exported": "Exported {date} · {count, plural, one {# article} other {# articles}}",
+    "url": "URL: {url}",
+    "published": "published {date}",
+    "saved": "saved {date}",
+    "read": "read {date}",
+    "unread": "unread",
+    "archived": "archived",
+    "inInbox": "in Inbox",
+    "favorite": "★ favorite",
+    "folder": "Folder: {name}",
+    "tags": "Tags: {tags}",
+    "previewOnly": "Preview only: {reason}",
+    "summary": "Summary ({model})",
+    "article": "Article"
+  }
+}

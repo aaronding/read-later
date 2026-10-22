@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useId, useState, useSyncExternalStore } from "react";
 import { saveAppearanceAction } from "@/app/actions";
 import {
@@ -10,9 +11,10 @@ import {
   themeColors,
   toAppearance,
   type Appearance,
+  type DarkPalette,
+  type LightPalette,
   type Palette,
   type ReadingFont,
-  type ThemeMode,
 } from "@/lib/appearance";
 
 // The appearance lives on <html>, where the root layout's inline script puts
@@ -63,6 +65,7 @@ function Swatches<Name extends string>({
   value: Name;
   onChange: (value: Name) => void;
 }) {
+  const t = useTranslations("Appearance.palettes");
   return (
     <fieldset className="appearance-group">
       <legend>{legend}</legend>
@@ -74,7 +77,7 @@ function Swatches<Name extends string>({
               Aa
               <span className="swatch-accent" style={{ background: palette.accent }} />
             </span>
-            <span className="swatch-label">{palette.label}</span>
+            <span className="swatch-label">{t(key as LightPalette | DarkPalette)}</span>
           </label>
         ))}
       </div>
@@ -84,6 +87,8 @@ function Swatches<Name extends string>({
 
 /** The theme (System, Light or Dark), the colors for light and for dark, and the reading font. */
 export function AppearancePicker({ saved }: { saved: Appearance }) {
+  const t = useTranslations("Appearance");
+  const tCommon = useTranslations("Common");
   const id = useId();
   const appearance = JSON.parse(useSyncExternalStore(subscribe, shownAppearance, () => JSON.stringify(saved))) as Appearance;
   const [failed, setFailed] = useState(false);
@@ -101,9 +106,9 @@ export function AppearancePicker({ saved }: { saved: Appearance }) {
   return (
     <div className="appearance">
       <fieldset className="appearance-group">
-        <legend>Theme</legend>
+        <legend>{t("theme")}</legend>
         <div className="segmented">
-          {(Object.entries(THEME_MODES) as [ThemeMode, string][]).map(([mode, label]) => (
+          {THEME_MODES.map((mode) => (
             <label key={mode}>
               <input
                 type="radio"
@@ -113,15 +118,15 @@ export function AppearancePicker({ saved }: { saved: Appearance }) {
                 checked={appearance.theme === mode}
                 onChange={() => change({ theme: mode })}
               />
-              <span>{label}</span>
+              <span>{t(`themes.${mode}`)}</span>
             </label>
           ))}
         </div>
       </fieldset>
-      <Swatches legend="Light colors" name={`${id}-light`} palettes={LIGHT_PALETTES} value={appearance.light} onChange={(light) => change({ light })} />
-      <Swatches legend="Dark colors" name={`${id}-dark`} palettes={DARK_PALETTES} value={appearance.dark} onChange={(dark) => change({ dark })} />
+      <Swatches legend={t("lightColors")} name={`${id}-light`} palettes={LIGHT_PALETTES} value={appearance.light} onChange={(light) => change({ light })} />
+      <Swatches legend={t("darkColors")} name={`${id}-dark`} palettes={DARK_PALETTES} value={appearance.dark} onChange={(dark) => change({ dark })} />
       <fieldset className="appearance-group">
-        <legend>Font for articles and summaries</legend>
+        <legend>{t("font")}</legend>
         <div className="font-options">
           {(Object.entries(READING_FONTS) as [ReadingFont, (typeof READING_FONTS)[ReadingFont]][]).map(([key, font]) => (
             <label key={key} className="font-option">
@@ -133,7 +138,7 @@ export function AppearancePicker({ saved }: { saved: Appearance }) {
                 checked={appearance.font === key}
                 onChange={() => change({ font: key })}
               />
-              <span style={{ fontFamily: font.family }}>{font.label}</span>
+              <span style={{ fontFamily: font.family }}>{t(`fonts.${key}`)}</span>
             </label>
           ))}
         </div>
@@ -141,9 +146,9 @@ export function AppearancePicker({ saved }: { saved: Appearance }) {
       <p className="status error" role="status">
         {failed && (
           <>
-            Couldn’t save this to your account, so it lasts only until the page is reloaded.
+            {t("saveFailed")}
             <button type="button" className="button small" onClick={() => save(appearance)}>
-              Try again
+              {tCommon("tryAgain")}
             </button>
           </>
         )}

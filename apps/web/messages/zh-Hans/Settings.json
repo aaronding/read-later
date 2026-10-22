@@ -1,0 +1,51 @@
+{
+  "Settings": {
+    "languageHeading": "语言",
+    "languageLabel": "界面语言",
+    "languageAutomatic": "自动（跟随浏览器语言）",
+    "languageHelp": "无论此处选择哪种语言，摘要始终使用每篇文章本身的语言撰写。",
+    "summaries": {
+      "heading": "摘要",
+      "defaultModel": "默认模型",
+      "comparisonMode": "<strong>比较模式：</strong>每次新保存文章时，都用全部 {count, number} 个模型生成摘要，以便在每篇文章的“比较摘要”页面中进行比较。费用约为平时的 {count, number} 倍。"
+    },
+    "tokens": {
+      "heading": "访问令牌",
+      "intro": "{chrome} 扩展程序和 {apple} 快捷指令通过令牌将内容保存到你的账号。请为每个设备单独创建一个令牌，这样撤销其中一个时不会影响其他设备。",
+      "details": "<code>{prefix}…</code> · 创建于 <created></created> · 上次使用：<lastUsed></lastUsed>",
+      "detailsNeverUsed": "<code>{prefix}…</code> · 创建于 <created></created> · 从未使用",
+      "revoke": "撤销",
+      "revokeConfirm": "撤销“{name}”？所有使用它的设备都将无法继续保存。",
+      "nameLabel": "令牌名称",
+      "namePlaceholder": "名称，例如：笔记本电脑上的 {chrome}",
+      "create": "创建令牌",
+      "creating": "正在创建…",
+      "newToken": "<strong>已为“{name}”创建新令牌。</strong>请立即复制，它不会再次显示。",
+      "copyToken": "复制令牌"
+    },
+    "copy": "复制",
+    "copied": "已复制",
+    "guides": {
+      "chromeHeading": "从 {chrome} 保存",
+      "shortcutHeading": "从 {safari} 浏览器保存（{iphone}、{ipad} 和 {mac}）",
+      "shortcutSummary": "{apple} 快捷指令的分步说明",
+      "androidHeading": "从 {android} 保存"
+    },
+    "folders": {
+      "heading": "文件夹",
+      "empty": "还没有文件夹。可以在文章底部选择或新建文件夹。",
+      "articleCount": "· {count, plural, other {# 篇文章}}",
+      "deleteConfirm": "删除文件夹“{name}”？其中的文章仍保留在资料库中。"
+    },
+    "export": {
+      "heading": "导出",
+      "intro": "你保存的全部内容，包括文章正文和所有摘要。",
+      "download": "下载 {format}"
+    },
+    "account": {
+      "heading": "账号",
+      "signedInAs": "当前登录账号：<strong>{email}</strong>"
+    },
+    "appearanceIntro": "阅读时使用的配色和字体。选择“{system}”时，会与设备的浅色或深色模式保持一致。你的选择会保存到账号中，因此在你登录的每个设备上都会生效；阅读时，也可以用每个页面顶部的 <strong>Aa</strong> 按钮随时更改。"
+  }
+}

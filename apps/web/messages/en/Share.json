@@ -1,0 +1,9 @@
+{
+  "Share": {
+    "title": "Save this link?",
+    "fromAnotherSite": "Another website asked to save this link to your library.",
+    "saveIt": "Save it",
+    "noLink": "There is no link to save.",
+    "goToInbox": "No, go to the Inbox"
+  }
+}

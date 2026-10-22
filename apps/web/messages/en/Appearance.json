@@ -1,0 +1,36 @@
+{
+  "Appearance": {
+    "title": "Appearance",
+    "done": "Done",
+    "theme": "Theme",
+    "themes": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "lightColors": "Light colors",
+    "darkColors": "Dark colors",
+    "palettes": {
+      "paper": "Paper",
+      "white": "White",
+      "sepia": "Sepia",
+      "sage": "Sage",
+      "mist": "Mist",
+      "graphite": "Graphite",
+      "black": "Black",
+      "slate": "Slate",
+      "midnight": "Midnight",
+      "dusk": "Dusk"
+    },
+    "font": "Font for articles and summaries",
+    "fonts": {
+      "classic": "Classic",
+      "literata": "Literata",
+      "source-serif": "Source Serif",
+      "merriweather": "Merriweather",
+      "sans": "Sans",
+      "atkinson": "Atkinson"
+    },
+    "saveFailed": "Couldn’t save this to your account, so it lasts only until the page is reloaded."
+  }
+}

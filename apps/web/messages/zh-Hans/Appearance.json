@@ -1,0 +1,36 @@
+{
+  "Appearance": {
+    "title": "外观",
+    "done": "完成",
+    "theme": "主题",
+    "themes": {
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "lightColors": "浅色配色",
+    "darkColors": "深色配色",
+    "palettes": {
+      "paper": "纸张",
+      "white": "纯白",
+      "sepia": "棕褐",
+      "sage": "灰绿",
+      "mist": "薄雾",
+      "graphite": "石墨",
+      "black": "纯黑",
+      "slate": "石板",
+      "midnight": "午夜",
+      "dusk": "暮色"
+    },
+    "font": "文章和摘要的字体",
+    "fonts": {
+      "classic": "经典",
+      "literata": "Literata",
+      "source-serif": "Source Serif",
+      "merriweather": "Merriweather",
+      "sans": "无衬线",
+      "atkinson": "Atkinson"
+    },
+    "saveFailed": "无法将此设置保存到你的账号，重新加载页面后就会失效。"
+  }
+}

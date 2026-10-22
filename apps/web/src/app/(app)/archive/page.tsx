@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { LibraryPage } from "@/components/library-page";
 
-export const metadata: Metadata = { title: "Archive" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Common");
+  return { title: t("archive") };
+}
 
 export default function Page({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   return <LibraryPage view="archive" searchParams={searchParams} />;

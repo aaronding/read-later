@@ -5,6 +5,9 @@
 // truncated or show a login form as "Preview only", so the owner can save the
 // full copy from their own signed-in browser instead.
 
+import type { StoredMessage } from "@/i18n/stored-message";
+import { errorMessage, type ErrorKey } from "@/lib/error-message";
+
 type JsonLdNode = Record<string, unknown>;
 
 /** All JSON-LD objects on the page, with arrays and @graph flattened. */
@@ -145,10 +148,10 @@ export const MIN_ARTICLE_WORDS = 100;
 
 // What our own download was told instead of the page. A 403 is not always a
 // login: some sites turn away any download that doesn't come from a browser.
-const REFUSED_DOWNLOAD: Record<number, string> = {
-  401: "The site asked for a login before showing this page (HTTP 401).",
-  402: "The site asked for a subscription before showing this page (HTTP 402).",
-  403: "The site refused the server's download (HTTP 403). It may want a login, or it may turn away downloads that don't come from a browser.",
+const REFUSED_DOWNLOAD: Record<number, ErrorKey> = {
+  401: "preview.loginRequired",
+  402: "preview.subscriptionRequired",
+  403: "preview.downloadRefused",
 };
 
 export interface PreviewCheck {
@@ -172,35 +175,37 @@ export type PreviewKind = "login" | "no_article" | "subscriber_only" | "teaser" 
 
 export interface PreviewVerdict {
   kind: PreviewKind;
-  reason: string;
+  /** Why, as a message in the Errors namespace. */
+  reason: StoredMessage;
 }
 
 /** Why the saved copy is only a preview, or null when it looks complete. */
 export function checkPreview(check: PreviewCheck): PreviewVerdict | null {
   if (check.contentSource === "server" && check.httpStatus && check.httpStatus in REFUSED_DOWNLOAD) {
-    return { kind: "login", reason: REFUSED_DOWNLOAD[check.httpStatus]! };
+    return {
+      kind: "login",
+      reason: errorMessage(REFUSED_DOWNLOAD[check.httpStatus]!, { status: String(check.httpStatus) }),
+    };
   }
   // Publishers keep this markup even for subscribers, so it only counts for
   // our own (signed-out) downloads.
   if (check.contentSource === "server" && (check.paywall.notFree || check.removedSections > 0)) {
     return {
       kind: "subscriber_only",
-      reason: check.foundArticle
-        ? "The site marks this article as subscriber-only, so only the free part was saved."
-        : "The site marks this article as subscriber-only, and too little of it is free to keep.",
+      reason: errorMessage(check.foundArticle ? "preview.subscriberOnly" : "preview.subscriberOnlyNothingFree"),
     };
   }
   if (!check.foundArticle) {
-    return { kind: "no_article", reason: "No article could be found on this page." };
+    return { kind: "no_article", reason: errorMessage("preview.noArticle") };
   }
   if ((check.passwordField || LOGIN_TITLE.test(check.pageTitle)) && check.wordCount < LOGIN_PAGE_MAX_WORDS) {
-    return { kind: "login", reason: "This looks like a login page rather than the article." };
+    return { kind: "login", reason: errorMessage("preview.loginPage") };
   }
   if (check.paywallMarker && check.wordCount < TEASER_MAX_WORDS) {
-    return { kind: "teaser", reason: "The page shows a paywall and only the start of the article." };
+    return { kind: "teaser", reason: errorMessage("preview.teaser") };
   }
   if (check.wordCount < MIN_ARTICLE_WORDS) {
-    return { kind: "too_short", reason: "Only a very short text could be read from this page." };
+    return { kind: "too_short", reason: errorMessage("preview.tooShort") };
   }
   return null;
 }

@@ -1,0 +1,14 @@
+{
+  "Reader": {
+    "titleFallback": "文章",
+    "openOriginal": "打开原文 ↗",
+    "favoriteOn": "★ 已收藏",
+    "favoriteOff": "☆ 收藏",
+    "markUnread": "标记为未读",
+    "previewNotice": "<strong>仅预览。</strong>{reason}要保存完整文章，请在浏览器中打开它（如果网站要求登录，请先登录），然后用浏览器扩展程序或 {safari} 快捷指令重新保存。",
+    "noSummary": "没有摘要：文章正文内容太少。<compare>比较模型</compare>",
+    "noReadableCopy": "此网页没有可供阅读的副本。请<link>打开原文</link>。",
+    "openTheOriginal": "<link>打开原文</link>。",
+    "deleteConfirm": "删除这篇文章及其摘要？"
+  }
+}

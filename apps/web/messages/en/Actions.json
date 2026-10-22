@@ -1,0 +1,12 @@
+{
+  "Actions": {
+    "saveUrl": {
+      "notAWebAddress": "That doesn’t look like a web address (http or https).",
+      "saved": "Saved to {app}.",
+      "alreadySaved": "Already saved; moved to the top."
+    },
+    "createToken": {
+      "nameRequired": "Give the token a name, such as “{chrome} on my laptop”."
+    }
+  }
+}

@@ -1,35 +1,47 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it } from "vitest";
+import { englishText } from "@/i18n/stored-message";
 import { describeApiError, isRetryableApiError } from "./summarize";
 
 const headers = new Headers();
 const body = (type: string, message: string) => ({ type: "error", error: { type, message }, request_id: "req_1" });
 
+// describeApiError's message, in English.
+const inEnglish = (error: InstanceType<typeof Anthropic.APIError>) => englishText(describeApiError(error));
+
 describe("describeApiError", () => {
-  it("keeps the API's own message, not the raw JSON", () => {
+  it("keeps the API's own message, not the raw JSON", async () => {
     const error = Anthropic.APIError.generate(400, body("invalid_request_error", "max_tokens: too large"), undefined, headers);
-    expect(describeApiError(error)).toBe("Claude API error 400: max_tokens: too large");
+    expect(describeApiError(error)).toEqual({
+      key: "summary.apiErrorStatusWithDetail",
+      values: { claude: "Claude", status: "400", detail: "max_tokens: too large" },
+    });
+    expect(await inEnglish(error)).toBe("Claude API error 400: max_tokens: too large");
   });
 
-  it("says what to do about a refused key", () => {
+  it("says what to do about a refused key", async () => {
     const error = Anthropic.APIError.generate(401, body("authentication_error", "invalid x-api-key"), undefined, headers);
-    expect(describeApiError(error)).toMatch(/^The Claude API didn't accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
+    expect(describeApiError(error)).toMatchObject({
+      key: "summary.apiKeyRejectedWithDetail",
+      values: { detail: "invalid x-api-key", variable: "ANTHROPIC_API_KEY" },
+    });
+    expect(await inEnglish(error)).toMatch(/^The Claude API didn’t accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
   });
 
-  it("leaves out a body that isn't the API's JSON, such as a proxy's HTML page", () => {
+  it("leaves out a body that isn't the API's JSON, such as a proxy's HTML page", async () => {
     const error = Anthropic.APIError.generate(502, undefined, "<html><body>Bad gateway</body></html>", headers);
-    expect(describeApiError(error)).toBe("Claude API error 502.");
+    expect(await inEnglish(error)).toBe("Claude API error 502.");
   });
 
-  it("describes connection failures and errors in the middle of a stream", () => {
-    expect(describeApiError(new Anthropic.APIConnectionError({ message: "socket hang up" }))).toBe("Claude API error: socket hang up");
+  it("describes connection failures and errors in the middle of a stream", async () => {
+    expect(await inEnglish(new Anthropic.APIConnectionError({ message: "socket hang up" }))).toBe("Claude API error: socket hang up");
     const midStream = new Anthropic.APIError(undefined, body("overloaded_error", "Overloaded"), undefined, headers, "overloaded_error");
-    expect(describeApiError(midStream)).toBe("Claude API error: Overloaded");
+    expect(await inEnglish(midStream)).toBe("Claude API error: Overloaded");
   });
 
-  it("keeps a long message short", () => {
+  it("keeps a long message short", async () => {
     const error = Anthropic.APIError.generate(400, body("invalid_request_error", "x".repeat(5_000)), undefined, headers);
-    expect(describeApiError(error).length).toBeLessThan(400);
+    expect((await inEnglish(error)).length).toBeLessThan(400);
   });
 });
 

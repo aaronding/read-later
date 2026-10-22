@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { deleteFolderAction, revokeTokenAction, updateSettingsAction } from "@/app/actions";
+import { getTranslations } from "next-intl/server";
+import { deleteFolderAction, revokeTokenAction, updateLocaleAction, updateSettingsAction } from "@/app/actions";
 import { AppearancePicker } from "@/components/appearance-picker";
 import { ConfirmButton } from "@/components/confirm-button";
 import { AndroidGuide, ChromeGuide, ShortcutGuide } from "@/components/connect-guides";
@@ -10,13 +11,17 @@ import { TokenForm } from "@/components/token-form";
 import { appUrl } from "@/config/env";
 import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
+import { HTML_LANG, LOCALES, LOCALE_NAMES } from "@/i18n/locales";
 import { requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getSavedAppearance } from "@/lib/saved-appearance";
 import { getSettings } from "@/lib/settings";
 import { listApiTokens } from "@/lib/tokens";
 
-export const metadata: Metadata = { title: "Settings" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Common");
+  return { title: t("settings") };
+}
 
 export default async function SettingsPage() {
   const user = await requireUser("/settings");
@@ -28,28 +33,58 @@ export default async function SettingsPage() {
     getSavedAppearance(),
   ]);
   const serverUrl = appUrl();
+  const [t, tCommon, tAppearance] = await Promise.all([
+    getTranslations("Settings"),
+    getTranslations("Common"),
+    getTranslations("Appearance"),
+  ]);
 
   return (
     <div className="settings">
       <div className="page-title">
-        <h1>Settings</h1>
+        <h1>{tCommon("settings")}</h1>
       </div>
 
+      <section className="card" aria-labelledby="language-heading">
+        <h2 id="language-heading">{t("languageHeading")}</h2>
+        {/* Keyed by the saved choice so the form remounts showing it after a
+            save; React resets it to the choice it first showed otherwise. */}
+        <form key={settings.locale ?? "auto"} action={updateLocaleAction}>
+          <div className="field">
+            <label htmlFor="locale">{t("languageLabel")}</label>
+            <select id="locale" name="locale" defaultValue={settings.locale ?? "auto"}>
+              <option value="auto">{t("languageAutomatic")}</option>
+              {LOCALES.map((locale) => (
+                <option key={locale} value={locale} lang={HTML_LANG[locale]}>
+                  {LOCALE_NAMES[locale]}
+                </option>
+              ))}
+            </select>
+            <p className="muted small">{t("languageHelp")}</p>
+          </div>
+          <SubmitButton className="button primary" pendingText={tCommon("saving")}>
+            {tCommon("save")}
+          </SubmitButton>
+        </form>
+      </section>
+
       <section className="card" aria-labelledby="appearance-heading">
-        <h2 id="appearance-heading">Appearance</h2>
+        <h2 id="appearance-heading">{tAppearance("title")}</h2>
         <p className="muted">
-          Colors and a font for reading. System follows your device’s light or dark mode. The choice is saved to your
-          account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page
-          changes it while you read.
+          {t.rich("appearanceIntro", {
+            system: tAppearance("themes.system"),
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
         </p>
         <AppearancePicker saved={appearance} />
       </section>
 
       <section className="card" aria-labelledby="summaries-heading">
-        <h2 id="summaries-heading">Summaries</h2>
-        <form action={updateSettingsAction}>
+        <h2 id="summaries-heading">{t("summaries.heading")}</h2>
+        {/* Keyed by the saved settings, as the language form is. */}
+        <form key={`${settings.defaultModel}:${settings.comparisonMode}`} action={updateSettingsAction}>
           <div className="field">
-            <label htmlFor="defaultModel">Default model</label>
+            <label htmlFor="defaultModel">{t("summaries.defaultModel")}</label>
             <select id="defaultModel" name="defaultModel" defaultValue={settings.defaultModel}>
               {SUMMARY_MODELS.map((model) => (
                 <option key={model} value={model}>
@@ -62,44 +97,46 @@ export default async function SettingsPage() {
             <label className="checkbox" style={{ fontWeight: 400 }}>
               <input type="checkbox" name="comparisonMode" defaultChecked={settings.comparisonMode} />
               <span>
-                <strong>Comparison mode:</strong> summarize every new save with all three models, to compare them on
-                each article’s Compare page. Costs about three times as much.
+                {t.rich("summaries.comparisonMode", {
+                  count: SUMMARY_MODELS.length,
+                  strong: (chunks) => <strong>{chunks}</strong>,
+                })}
               </span>
             </label>
           </div>
-          <SubmitButton className="button primary" pendingText="Saving…">
-            Save
+          <SubmitButton className="button primary" pendingText={tCommon("saving")}>
+            {tCommon("save")}
           </SubmitButton>
         </form>
       </section>
 
       <section className="card" aria-labelledby="tokens-heading">
-        <h2 id="tokens-heading">Access tokens</h2>
-        <p className="muted">
-          The Chrome extension and the Apple Shortcuts use a token to save to your account. Make one per device, so you
-          can revoke one without touching the others.
-        </p>
+        <h2 id="tokens-heading">{t("tokens.heading")}</h2>
+        <p className="muted">{t("tokens.intro", { chrome: "Chrome", apple: "Apple" })}</p>
         <TokenForm />
         {tokens.map((token) => (
           <div key={token.id} className="token-row">
             <div>
               <strong>{token.name}</strong>
               <div className="muted small">
-                <code>{token.tokenPrefix}…</code> · created <LocalDate value={token.createdAt} />
-                {token.lastUsedAt ? (
-                  <>
-                    {" "}
-                    · last used <LocalDate value={token.lastUsedAt} />
-                  </>
-                ) : (
-                  " · never used"
-                )}
+                {token.lastUsedAt
+                  ? t.rich("tokens.details", {
+                      prefix: token.tokenPrefix,
+                      code: (chunks) => <code>{chunks}</code>,
+                      created: () => <LocalDate value={token.createdAt} />,
+                      lastUsed: () => <LocalDate value={token.lastUsedAt!} />,
+                    })
+                  : t.rich("tokens.detailsNeverUsed", {
+                      prefix: token.tokenPrefix,
+                      code: (chunks) => <code>{chunks}</code>,
+                      created: () => <LocalDate value={token.createdAt} />,
+                    })}
               </div>
             </div>
             <form action={revokeTokenAction}>
               <input type="hidden" name="tokenId" value={token.id} />
-              <ConfirmButton className="button small danger" message={`Revoke “${token.name}”? Anything using it stops working.`}>
-                Revoke
+              <ConfirmButton className="button small danger" message={t("tokens.revokeConfirm", { name: token.name })}>
+                {t("tokens.revoke")}
               </ConfirmButton>
             </form>
           </div>
@@ -107,37 +144,40 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card" aria-labelledby="chrome-heading">
-        <h2 id="chrome-heading">Save from Chrome</h2>
+        <h2 id="chrome-heading">{t("guides.chromeHeading", { chrome: "Chrome" })}</h2>
         <ChromeGuide serverUrl={serverUrl} />
       </section>
 
       <section className="card" aria-labelledby="shortcut-heading">
-        <h2 id="shortcut-heading">Save from Safari (iPhone, iPad and Mac)</h2>
+        <h2 id="shortcut-heading">
+          {t("guides.shortcutHeading", { safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac" })}
+        </h2>
         <details>
-          <summary>Step-by-step instructions for the Apple Shortcuts</summary>
+          <summary>{t("guides.shortcutSummary", { apple: "Apple" })}</summary>
           <ShortcutGuide saveUrl={`${serverUrl}/api/save`} />
         </details>
       </section>
 
       <section className="card" aria-labelledby="android-heading">
-        <h2 id="android-heading">Save from Android</h2>
+        <h2 id="android-heading">{t("guides.androidHeading", { android: "Android" })}</h2>
         <AndroidGuide />
       </section>
 
       <section className="card" aria-labelledby="folders-heading">
-        <h2 id="folders-heading">Folders</h2>
+        <h2 id="folders-heading">{t("folders.heading")}</h2>
         {folders.length === 0 ? (
-          <p className="muted">No folders yet. Choose or create one at the bottom of an article.</p>
+          <p className="muted">{t("folders.empty")}</p>
         ) : (
           folders.map((folder) => (
             <div key={folder.id} className="token-row">
               <span>
-                <strong>{folder.name}</strong> <span className="muted small">· {folder.count} article{folder.count === 1 ? "" : "s"}</span>
+                <strong>{folder.name}</strong>{" "}
+                <span className="muted small">{t("folders.articleCount", { count: folder.count })}</span>
               </span>
               <form action={deleteFolderAction}>
                 <input type="hidden" name="folderId" value={folder.id} />
-                <ConfirmButton className="button small" message={`Delete the folder “${folder.name}”? Its articles stay in your library.`}>
-                  Delete
+                <ConfirmButton className="button small" message={t("folders.deleteConfirm", { name: folder.name })}>
+                  {tCommon("delete")}
                 </ConfirmButton>
               </form>
             </div>
@@ -146,23 +186,21 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card" aria-labelledby="export-heading">
-        <h2 id="export-heading">Export</h2>
-        <p className="muted">Everything you saved, with the article text and every summary.</p>
+        <h2 id="export-heading">{t("export.heading")}</h2>
+        <p className="muted">{t("export.intro")}</p>
         <div className="card-actions">
           <a className="button" href="/api/export?format=json" download>
-            Download JSON
+            {t("export.download", { format: "JSON" })}
           </a>
           <a className="button" href="/api/export?format=markdown" download>
-            Download Markdown
+            {t("export.download", { format: "Markdown" })}
           </a>
         </div>
       </section>
 
       <section className="card" aria-labelledby="account-heading">
-        <h2 id="account-heading">Account</h2>
-        <p>
-          Signed in as <strong>{user.email}</strong>.
-        </p>
+        <h2 id="account-heading">{t("account.heading")}</h2>
+        <p>{t.rich("account.signedInAs", { email: user.email, strong: (chunks) => <strong>{chunks}</strong> })}</p>
         <SignOutButton />
       </section>
     </div>

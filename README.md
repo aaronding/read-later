@@ -29,6 +29,7 @@ This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Saf
 2. **Background jobs.** Jobs live in a Postgres table and are claimed with `FOR UPDATE SKIP LOCKED` by one function, `processJobs()`. A job downloads the page if only a URL was sent (http and https only, private addresses blocked, with time and size limits), extracts the article with Mozilla Readability, sanitizes it with DOMPurify, applies the paywall rules, then queues a summary for each model wanted. Failures are retried with backoff.
 3. **Who runs the jobs.** On Vercel, `processJobs()` runs right after each save through Next.js `after()`, and the Cloudflare Worker calls `/api/jobs/run` every 5 minutes as a safety net. On a server, a worker process runs it in a loop.
 4. **Summaries.** Each summary is one Claude API call that returns structured JSON: a one-sentence TL;DR, 3 to 5 key points and 1 to 3 suggested tags, all in the article's language. Every row stores its tokens, estimated cost and time, so the three models (Opus 5.5, Sonnet 5.5, Haiku 5.5) can be compared side by side.
+5. **Languages.** The app is in English, French, Simplified Chinese and Traditional Chinese (with Taiwan's usage), chosen in **Settings → Language** or, until then, from the browser. Summaries stay in each article's own language. See [Translations](#translations).
 
 ## Local development (Windows, macOS or Linux)
 
@@ -87,7 +88,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 
 ### Tests
 
-`pnpm test` runs the unit tests (URL normalization, address blocking, paywall rules, extraction against saved sample pages, the job queue) and an integration test of save → job → summary with Claude mocked. They use [PGlite](https://pglite.dev), an in-memory Postgres, so they need no database.
+`pnpm test` runs the unit tests (URL normalization, address blocking, paywall rules, extraction against saved sample pages, the job queue, the translations' completeness) and an integration test of save → job → summary with Claude mocked. They use [PGlite](https://pglite.dev), an in-memory Postgres, so they need no database.
 
 One extra test proves that concurrent workers never take the same job, and it needs a real Postgres. It runs only when `TEST_DATABASE_URL` is set. **It drops and recreates every table in that database**, so point it at an empty throwaway database, never at your real one:
 
@@ -97,6 +98,12 @@ TEST_DATABASE_URL=postgres://postgres@localhost:5432/readlater_test pnpm --filte
 # Windows PowerShell
 $env:TEST_DATABASE_URL="postgres://postgres@localhost:5432/readlater_test"; pnpm --filter web test
 ```
+
+### Translations
+
+The app's text is in `apps/web/messages/<language>/`, one JSON file per part of the app (`Library.json`, `Settings.json` and so on), in [ICU message format](https://next-intl.dev/docs/usage/messages). English is the source. To change or add text, edit the English file, then the same key in `fr`, `zh-Hans` and `zh-Hant`: `pnpm test` fails until every language has every message, with the same `{values}` and `<tags>`, and `pnpm typecheck` checks the keys and values the code uses. Write apostrophes as ’, since a plain ' is special in these messages. The extension has its own texts, in `apps/extension/_locales/<language>/messages.json`, in the browsers' format; they follow the browser's language.
+
+Traditional Chinese follows Taiwan's vocabulary (設定, 登入, 帳號, 資料夾), not a conversion of the Simplified text. The French and Chinese texts were written with Claude from a shared glossary; a native speaker's read is still worth having before the public launch.
 
 ## Putting it online (the free setup)
 

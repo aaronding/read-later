@@ -1,0 +1,10 @@
+{
+  "Status": {
+    "saveFailed": "無法儲存這個網頁。",
+    "saveFailedWithError": "無法儲存這個網頁：{error}",
+    "retryingSoon": "即將重試 ({error})",
+    "summarizing": "正在產生摘要…",
+    "summaryFailed": "摘要產生失敗。",
+    "summaryFailedWithError": "摘要產生失敗：{error}"
+  }
+}

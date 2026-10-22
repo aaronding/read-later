@@ -1,0 +1,12 @@
+{
+  "Summary": {
+    "heading": "Summary",
+    "costUnknown": "cost unknown",
+    "duration": "{seconds} s",
+    "answeredBy": "answered by {model}",
+    "partialShare": "This summary covers only the first {share, number, percent} of a very long article.",
+    "partialSaved": "This summary covers only the part of the article that was saved.",
+    "modelLabel": "Model",
+    "resummarize": "Re-summarize"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "Triage": {
+    "remaining": "{remaining, plural, one {# unread} other {# unread}}",
+    "allCaughtUp": "All caught up: no unread articles in your Inbox. <inbox>Back to the Inbox</inbox>",
+    "readNow": "Read now",
+    "later": "Later",
+    "laterHint": "{later} keeps the article in your Inbox and moves it to the back of this queue."
+  }
+}

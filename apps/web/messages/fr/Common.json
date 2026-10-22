@@ -1,0 +1,26 @@
+{
+  "Common": {
+    "tagline": "Enregistrez des articles à lire plus tard, avec une copie épurée et un résumé par IA.",
+    "inbox": "Boîte de réception",
+    "favorites": "Favoris",
+    "archive": "Archives",
+    "triage": "Triage",
+    "settings": "Paramètres",
+    "archiveAction": "Archiver",
+    "moveToInbox": "Remettre dans la boîte de réception",
+    "favorite": "Ajouter aux favoris",
+    "unfavorite": "Retirer des favoris",
+    "favoriteBadge": "★ Favori",
+    "previewOnly": "Aperçu seulement",
+    "minRead": "{minutes, number} min de lecture",
+    "savedOn": "Enregistré le <date></date>",
+    "compareModels": "Comparer les modèles",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "delete": "Supprimer",
+    "retry": "Réessayer",
+    "retrying": "Nouvelle tentative…",
+    "tryAgain": "Réessayer",
+    "queued": "En file d’attente…"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "Library": {
+    "sectionsLabel": "Sections",
+    "searchView": "{view, select, inbox {Rechercher dans la boîte de réception} favorites {Rechercher dans les favoris} archive {Rechercher dans les archives} other {Rechercher}}",
+    "searchPlaceholder": "{view, select, inbox {Rechercher…} favorites {Rechercher…} archive {Rechercher…} other {Rechercher…}}",
+    "pasteLinkToSave": "Collez un lien à enregistrer",
+    "notices": {
+      "resaved": "Déjà enregistré, remonté en haut de la liste.",
+      "saved": "Enregistré. Le résumé apparaîtra dans un instant.",
+      "sharedNoLink": "Aucun lien n’a été trouvé dans ce que vous avez partagé."
+    },
+    "filterSummary": "{filters, select, q {« {query} »} f {dans {folder}} t {avec l’étiquette #{tag}} qf {« {query} », dans {folder}} qt {« {query} », avec l’étiquette #{tag}} ft {dans {folder}, avec l’étiquette #{tag}} qft {« {query} », dans {folder}, avec l’étiquette #{tag}} other {}} · <clear>Effacer</clear>",
+    "filtersLabel": "Dossiers et étiquettes",
+    "empty": {
+      "inbox": "Aucun article enregistré pour l’instant. Collez un lien ci-dessus, ou enregistrez une page avec l’extension {chrome} ou le raccourci {safari}.",
+      "favorites": "Aucun favori pour l’instant. Touchez « {favorite} » sur un article pour le retrouver ici.",
+      "archive": "Aucun article archivé pour l’instant.",
+      "noMatch": "Aucun article ne correspond."
+    },
+    "pager": {
+      "label": "Pages",
+      "newer": "Plus récents",
+      "older": "Plus anciens"
+    }
+  }
+}

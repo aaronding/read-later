@@ -1,0 +1,126 @@
+{
+  "locale": {
+    "message": "zh-Hans"
+  },
+  "extensionDescription": {
+    "message": "将正在阅读的网页或链接保存到 {app}。"
+  },
+  "actionTitle": {
+    "message": "保存到 {app}"
+  },
+  "commandDescription": {
+    "message": "保存此网页"
+  },
+  "contextMenuTitle": {
+    "message": "将链接保存到 {app}"
+  },
+  "badgeTitle": {
+    "message": "{app}：$MESSAGE$",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "onlyWebPages": {
+    "message": "只能保存网页（http 或 https）。"
+  },
+  "onlyWebLinks": {
+    "message": "只能保存 http 和 https 链接。"
+  },
+  "notConfigured": {
+    "message": "请打开扩展程序的“选项”，然后输入服务器网址和访问令牌。"
+  },
+  "saved": {
+    "message": "已保存到 {app}"
+  },
+  "savedLinkOnly": {
+    "message": "已保存到 {app}（仅链接：网页太大，无法发送）"
+  },
+  "alreadySaved": {
+    "message": "{app} 中已有此文章，已移到最前面"
+  },
+  "alreadySavedLinkOnly": {
+    "message": "{app} 中已有此文章，已移到最前面（仅链接：网页太大，无法发送）"
+  },
+  "serverMessageLinkOnly": {
+    "message": "$MESSAGE$（仅链接：网页太大，无法发送）",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "connected": {
+    "message": "已连接到 {app}。现在可以保存网页了。"
+  },
+  "unreachable": {
+    "message": "无法连接到 $SERVER$：$ERROR$",
+    "placeholders": {
+      "server": { "content": "$1" },
+      "error": { "content": "$2" }
+    }
+  },
+  "notTheApp": {
+    "message": "$SERVER$ 返回的响应并非来自 {app}。请检查服务器网址。",
+    "placeholders": {
+      "server": { "content": "$1" }
+    }
+  },
+  "serverAnswered": {
+    "message": "服务器返回了 $STATUS$",
+    "placeholders": {
+      "status": { "content": "$1" }
+    }
+  },
+  "errorUnauthorized": {
+    "message": "访问令牌缺失或无效。请在“设置”中创建一个。"
+  },
+  "errorTooLarge": {
+    "message": "网页太大，无法保存。"
+  },
+  "errorBadRequest": {
+    "message": "请发送类似 {\"url\": \"https://...\"} 的 JSON，可附带 \"html\" 和 \"title\"。"
+  },
+  "errorInvalidUrl": {
+    "message": "url 必须是以 http 或 https 开头的绝对 URL。"
+  },
+  "errorServer": {
+    "message": "保存时出了点问题，请重试。"
+  },
+  "optionsTitle": {
+    "message": "{app} 选项"
+  },
+  "serverUrlLabel": {
+    "message": "服务器网址"
+  },
+  "serverUrlHint": {
+    "message": "你的 {app} Web 应用的网址。"
+  },
+  "tokenLabel": {
+    "message": "访问令牌"
+  },
+  "tokenHint": {
+    "message": "请在 Web 应用的“设置”→“访问令牌”中创建。令牌仅存储在此浏览器中。"
+  },
+  "saveAndCheck": {
+    "message": "保存并检查"
+  },
+  "enterServerUrl": {
+    "message": "请输入服务器的网址，例如 https://read.example.com。"
+  },
+  "enterToken": {
+    "message": "请粘贴应用“设置”页面中的访问令牌（以 rl_ 开头）。"
+  },
+  "checking": {
+    "message": "已保存。正在检查连接…"
+  },
+  "usage": {
+    "message": "使用工具栏按钮或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>（Mac：<kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>）保存网页。右键点击链接即可只保存链接。$SHORTCUTS$",
+    "placeholders": {
+      "shortcuts": { "content": "$1" }
+    }
+  },
+  "shortcutsChrome": {
+    "message": "可以在 <code>chrome://extensions/shortcuts</code> 中更改快捷键。"
+  },
+  "shortcutsFirefox": {
+    "message": "可以在 <code>about:addons</code> 中更改快捷键：从齿轮菜单中选择“管理扩展快捷键”。"
+  }
+}

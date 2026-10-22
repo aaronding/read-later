@@ -1,0 +1,10 @@
+{
+  "Api": {
+    "unauthorized": "访问令牌缺失或无效。请在“设置”中创建一个。",
+    "connected": "已连接到 {app}",
+    "saved": "已保存到 {app}",
+    "alreadySaved": "{app} 中已有此文章，已移到最前面",
+    "badRequest": "请发送类似 {example} 的 JSON，可附带 {html} 和 {title}。",
+    "serverError": "保存时出了点问题，请重试。"
+  }
+}

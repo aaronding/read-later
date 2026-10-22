@@ -1,0 +1,57 @@
+{
+  "Errors": {
+    "pageTooLarge": "La page est trop volumineuse pour être enregistrée.",
+    "job": {
+      "tooManyAttempts": "Abandon après un trop grand nombre de tentatives.",
+      "unexpected": "Une erreur inattendue s’est produite : {detail}"
+    },
+    "download": {
+      "invalidUrl": "URL non valide : {url}",
+      "httpOnly": "Seuls les liens http et https peuvent être téléchargés.",
+      "credentialsInUrl": "Les liens contenant un nom d’utilisateur ou un mot de passe ne sont pas téléchargés.",
+      "noAddress": "Aucune adresse trouvée pour {host}.",
+      "privateHost": "{host} pointe vers une adresse privée ou réservée.",
+      "privateAddress": "{host} est une adresse privée ou réservée.",
+      "failed": "Impossible de télécharger la page : {detail}",
+      "interrupted": "Téléchargement interrompu : {detail}",
+      "timeout": "Le site a mis trop de temps à répondre.",
+      "tooManyRedirects": "La page effectue trop de redirections.",
+      "notFound": "Page introuvable (HTTP {status}).",
+      "unavailable": "Le site n’a pas pu fournir la page pour le moment (HTTP {status}).",
+      "refused": "Le site a refusé le téléchargement (HTTP {status}).",
+      "notWebPage": "Ce lien ne mène pas à une page web ({type}). Pour l’instant, seules les pages web peuvent être enregistrées."
+    },
+    "preview": {
+      "loginRequired": "Le site a demandé une connexion avant d’afficher cette page (HTTP {status}).",
+      "subscriptionRequired": "Le site a demandé un abonnement avant d’afficher cette page (HTTP {status}).",
+      "downloadRefused": "Le site a refusé le téléchargement par le serveur (HTTP {status}). Il exige peut-être une connexion, ou refuse les téléchargements qui ne proviennent pas d’un navigateur.",
+      "subscriberOnly": "Le site indique que cet article est réservé aux abonnés : seule la partie gratuite a été enregistrée.",
+      "subscriberOnlyNothingFree": "Le site indique que cet article est réservé aux abonnés, et sa partie gratuite est trop courte pour être conservée.",
+      "noArticle": "Aucun article n’a été trouvé sur cette page.",
+      "loginPage": "Cette page ressemble à une page de connexion plutôt qu’à l’article.",
+      "teaser": "La page n’affiche que le début de l’article, le reste étant réservé aux abonnés.",
+      "tooShort": "Seul un texte très court a pu être lu sur cette page."
+    },
+    "summary": {
+      "noText": "Aucun texte d’article à résumer.",
+      "unknownModel": "Modèle de résumé inconnu : {model}",
+      "timeout": "{claude} a mis trop de temps à répondre.",
+      "apiKeyRejected": "L’API {claude} a refusé la clé d’API. Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez le résumé.",
+      "apiKeyRejectedWithDetail": "L’API {claude} a refusé la clé d’API ({detail}). Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez le résumé.",
+      "apiError": "Erreur de l’API {claude} : {detail}",
+      "apiErrorStatus": "Erreur {status} de l’API {claude}.",
+      "apiErrorStatusWithDetail": "Erreur {status} de l’API {claude} : {detail}",
+      "declined": "{claude} a refusé de résumer cet article.",
+      "declinedCategory": "{claude} a refusé de résumer cet article ({category, select, cyber {cybersécurité} bio {biosécurité} frontier_llm {IA de pointe} reasoning_extraction {extraction du raisonnement} general_harms {préjudices généraux} other {{category}}}).",
+      "cutOff": "Le résumé a été interrompu avant d’être terminé.",
+      "tooLong": "L’article est trop long pour ce modèle.",
+      "empty": "{claude} n’a renvoyé aucun résumé.",
+      "badFormat": "Le résumé de {claude} n’était pas au format attendu."
+    },
+    "save": {
+      "invalidUrl": "Le champ {field} doit contenir une URL http ou https absolue.",
+      "htmlTooLarge": "Le HTML de la page est trop volumineux pour être enregistré.",
+      "failed": "Impossible d’enregistrer l’article. Réessayez."
+    }
+  }
+}

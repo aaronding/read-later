@@ -1,0 +1,28 @@
+{
+  "Compare": {
+    "title": "Compare summaries",
+    "backToArticle": "← Back to the article",
+    "wordCount": "{count, plural, one {# word} other {# words}}",
+    "wordCountUnknown": "? words",
+    "totalCost": "{count, plural, one {# summary costs {cost}} other {# summaries cost {cost} together}}",
+    "noText": "There is no article text to summarize yet.",
+    "footnote": "Costs are estimates from token counts and published prices. Turn on comparison mode in Settings to run all {count, number} models on every save.",
+    "shown": "Shown",
+    "notRunYet": "Not run yet.",
+    "summarizeWith": "Summarize with {model}",
+    "showThisOne": "Show this one",
+    "runAgain": "Run again",
+    "stats": {
+      "cost": "Cost",
+      "time": "Time",
+      "tokens": "Tokens",
+      "effort": "Effort",
+      "answeredBy": "Answered by",
+      "note": "Note"
+    },
+    "tokenCounts": "{input} in · {output} out",
+    "effortLevel": "{effort, select, low {low} medium {medium} high {high} xhigh {xhigh} max {max} other {{effort}}}",
+    "fallbackModel": "{model} (fallback)",
+    "partial": "Covers part of the article"
+  }
+}

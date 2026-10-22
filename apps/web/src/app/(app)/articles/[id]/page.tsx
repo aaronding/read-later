@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { archiveAction, deleteAction, favoriteAction, readAction } from "@/app/actions";
 import { ArticleStatus, isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
@@ -12,6 +13,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { SummaryCard } from "@/components/summary-card";
 import { SuggestedTags } from "@/components/suggested-tags";
 import { getDb } from "@/db";
+import { storedMessageText } from "@/i18n/stored-message";
 import { requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
@@ -20,8 +22,8 @@ type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const user = await requireUser();
-  const found = await getArticle(getDb(), user.id, (await params).id);
-  return { title: found?.article.title ?? "Article" };
+  const [found, t] = await Promise.all([getArticle(getDb(), user.id, (await params).id), getTranslations("Reader")]);
+  return { title: found?.article.title ?? t("titleFallback") };
 }
 
 export default async function ReaderPage({ params }: Props) {
@@ -37,6 +39,11 @@ export default async function ReaderPage({ params }: Props) {
   const busy = isBusy(article.status, chosen?.status ?? null) || found.summaries.some((row) => isBusy("ready", row.status));
   // Longer than any summary takes: something went wrong, so offer Retry.
   const stale = Boolean(chosen && isBusy("ready", chosen.status) && Date.now() - chosen.updatedAt.getTime() > 10 * 60_000);
+  const [t, tCommon, tErrors] = await Promise.all([
+    getTranslations("Reader"),
+    getTranslations("Common"),
+    getTranslations("Errors"),
+  ]);
 
   return (
     <article className="reader">
@@ -52,29 +59,29 @@ export default async function ReaderPage({ params }: Props) {
               <LocalDate value={article.publishedAt} />
             </span>
           )}
-          {article.readingMinutes ? <span>{article.readingMinutes} min read</span> : null}
-          {article.previewOnly && <span className="badge warn">Preview only</span>}
+          {article.readingMinutes ? <span>{tCommon("minRead", { minutes: article.readingMinutes })}</span> : null}
+          {article.previewOnly && <span className="badge warn">{tCommon("previewOnly")}</span>}
         </div>
         <h1 lang={article.lang ?? undefined}>{article.title || article.url}</h1>
         <div className="reader-toolbar">
           <a className="button" href={article.url} target="_blank" rel="noopener noreferrer">
-            Open original ↗
+            {t("openOriginal")}
           </a>
           <form action={archiveAction} className="inline-form">
             <input type="hidden" name="id" value={article.id} />
             <input type="hidden" name="archived" value={article.archivedAt ? "false" : "true"} />
-            <SubmitButton>{article.archivedAt ? "Move to Inbox" : "Archive"}</SubmitButton>
+            <SubmitButton>{article.archivedAt ? tCommon("moveToInbox") : tCommon("archiveAction")}</SubmitButton>
           </form>
           <form action={favoriteAction} className="inline-form">
             <input type="hidden" name="id" value={article.id} />
             <input type="hidden" name="favorite" value={article.favorite ? "false" : "true"} />
-            <SubmitButton>{article.favorite ? "★ Favorite" : "☆ Favorite"}</SubmitButton>
+            <SubmitButton>{article.favorite ? t("favoriteOn") : t("favoriteOff")}</SubmitButton>
           </form>
           {article.readAt && (
             <form action={readAction} className="inline-form">
               <input type="hidden" name="id" value={article.id} />
               <input type="hidden" name="read" value="false" />
-              <SubmitButton className="button ghost">Mark unread</SubmitButton>
+              <SubmitButton className="button ghost">{t("markUnread")}</SubmitButton>
             </form>
           )}
         </div>
@@ -82,8 +89,11 @@ export default async function ReaderPage({ params }: Props) {
 
       {article.previewOnly && (
         <div className="notice warn">
-          <strong>Preview only.</strong> {article.previewReason} To keep the full article, open it in your browser (signed
-          in to the site, if it needs that) and save it again with the Chrome extension or the Safari Shortcut.
+          {t.rich("previewNotice", {
+            strong: (chunks) => <strong>{chunks}</strong>,
+            reason: storedMessageText(tErrors, article.previewReasonMessage, article.previewReason) ?? "",
+            safari: "Safari",
+          })}
         </div>
       )}
 
@@ -91,8 +101,10 @@ export default async function ReaderPage({ params }: Props) {
         id={article.id}
         status={article.status}
         error={article.error}
+        errorMessage={article.errorMessage}
         summaryStatus={chosen?.status ?? null}
         summaryError={chosen?.error ?? null}
+        summaryErrorMessage={chosen?.errorMessage ?? null}
         hasSummary={Boolean(ready)}
         stale={stale}
       />
@@ -104,8 +116,11 @@ export default async function ReaderPage({ params }: Props) {
       ) : (
         article.status === "ready" && (
           <p className="muted small">
-            {found.summaries.length === 0 && "No summary: there isn’t enough article text. "}
-            <Link href={`/articles/${article.id}/compare`}>Compare models</Link>
+            {found.summaries.length === 0
+              ? t.rich("noSummary", {
+                  compare: (chunks) => <Link href={`/articles/${article.id}/compare`}>{chunks}</Link>,
+                })
+              : <Link href={`/articles/${article.id}/compare`}>{tCommon("compareModels")}</Link>}
           </p>
         )
       )}
@@ -120,11 +135,14 @@ export default async function ReaderPage({ params }: Props) {
       ) : (
         article.status === "ready" && (
           <p className="muted">
-            {article.excerpt ?? "There is no readable copy of this page."}{" "}
-            <a href={article.url} target="_blank" rel="noopener noreferrer">
-              Open the original
-            </a>
-            .
+            {article.excerpt && <>{article.excerpt} </>}
+            {t.rich(article.excerpt ? "openTheOriginal" : "noReadableCopy", {
+              link: (chunks) => (
+                <a href={article.url} target="_blank" rel="noopener noreferrer">
+                  {chunks}
+                </a>
+              ),
+            })}
           </p>
         )
       )}
@@ -133,13 +151,14 @@ export default async function ReaderPage({ params }: Props) {
 
       <footer className="reader-toolbar" style={{ marginTop: 16 }}>
         <span className="muted small">
-          Saved <LocalDate value={article.savedAt} /> · <a href={article.url}>{new URL(article.url).hostname}</a>
+          {tCommon.rich("savedOn", { date: () => <LocalDate value={article.savedAt} /> })} ·{" "}
+          <a href={article.url}>{new URL(article.url).hostname}</a>
         </span>
         <form action={deleteAction} className="inline-form" style={{ marginLeft: "auto" }}>
           <input type="hidden" name="id" value={article.id} />
           <input type="hidden" name="redirectTo" value="/inbox" />
-          <ConfirmButton className="button danger" message="Delete this article and its summaries?">
-            Delete
+          <ConfirmButton className="button danger" message={t("deleteConfirm")}>
+            {tCommon("delete")}
           </ConfirmButton>
         </form>
       </footer>

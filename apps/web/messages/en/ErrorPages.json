@@ -1,0 +1,13 @@
+{
+  "ErrorPages": {
+    "error": {
+      "title": "Something went wrong",
+      "text": "It may be a temporary problem. Try again, or reload the page."
+    },
+    "notFound": {
+      "title": "Not found",
+      "text": "This page or article doesn’t exist, or it was deleted.",
+      "goToInbox": "Go to the Inbox"
+    }
+  }
+}

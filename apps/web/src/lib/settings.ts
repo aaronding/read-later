@@ -3,10 +3,13 @@ import type { Db } from "@/db";
 import { userAppearance, userSettings } from "@/db/schema";
 import { SUMMARY_MODELS, initialDefaultModel, isSummaryModel, type SummaryModel } from "@/config/models";
 import { toAppearance, type Appearance } from "./appearance";
+import { isLocale, type AppLocale } from "@/i18n/locales";
 
 export interface Settings {
   defaultModel: SummaryModel;
   comparisonMode: boolean;
+  /** The interface language, or null to follow the browser. */
+  locale: AppLocale | null;
 }
 
 export async function getSettings(db: Db, userId: string): Promise<Settings> {
@@ -14,14 +17,16 @@ export async function getSettings(db: Db, userId: string): Promise<Settings> {
   return {
     defaultModel: row && isSummaryModel(row.defaultModel) ? row.defaultModel : initialDefaultModel(),
     comparisonMode: row?.comparisonMode ?? false,
+    locale: isLocale(row?.locale) ? row.locale : null,
   };
 }
 
-export async function updateSettings(db: Db, userId: string, settings: Settings): Promise<void> {
-  await db
-    .insert(userSettings)
-    .values({ userId, ...settings })
-    .onConflictDoUpdate({ target: userSettings.userId, set: settings });
+/**
+ * Changes some settings and keeps the others. A setting never chosen stays
+ * empty, so choosing a language doesn't fix the default model.
+ */
+export async function updateSettings(db: Db, userId: string, changes: Partial<Settings>): Promise<void> {
+  await db.insert(userSettings).values({ userId, ...changes }).onConflictDoUpdate({ target: userSettings.userId, set: changes });
 }
 
 /** The user's appearance, or the default until they choose one. */

@@ -1,0 +1,10 @@
+{
+  "Status": {
+    "saveFailed": "Couldn’t save this page.",
+    "saveFailedWithError": "Couldn’t save this page: {error}",
+    "retryingSoon": "Trying again soon ({error})",
+    "summarizing": "Summarizing…",
+    "summaryFailed": "The summary failed.",
+    "summaryFailedWithError": "The summary failed: {error}"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "Status": {
+    "saveFailed": "无法保存此网页。",
+    "saveFailedWithError": "无法保存此网页：{error}",
+    "retryingSoon": "即将重试（{error}）",
+    "summarizing": "正在生成摘要…",
+    "summaryFailed": "摘要生成失败。",
+    "summaryFailedWithError": "摘要生成失败：{error}"
+  }
+}

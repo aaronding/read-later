@@ -13,6 +13,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { StoredMessage } from "@/i18n/stored-message";
 
 const tsvector = customType<{ data: string }>({
   dataType() {
@@ -102,14 +103,16 @@ export const userSettings = pgTable("user_settings", {
   userId: text("user_id")
     .primaryKey()
     .references(() => users.id, { onDelete: "cascade" }),
-  defaultModel: text("default_model").notNull(),
+  // Null until chosen in Settings: then DEFAULT_SUMMARY_MODEL applies.
+  defaultModel: text("default_model"),
   comparisonMode: boolean("comparison_mode").notNull().default(false),
+  // The interface language (en, fr, zh-Hans, zh-Hant), or null to follow the browser.
+  locale: text("locale"),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
 
-// How articles look for this user (see lib/appearance.ts). Kept apart from
-// user_settings, whose row also fixes the default summary model.
+// How articles look for this user (see lib/appearance.ts).
 export const userAppearance = pgTable("user_appearance", {
   userId: text("user_id")
     .primaryKey()
@@ -171,7 +174,11 @@ export const articles = pgTable(
     normalizedUrl: text("normalized_url").notNull(),
     // Download and extraction state. Summaries have their own status.
     status: text("status").$type<ArticleStatus>().notNull().default("pending"),
+    // Why saving failed, in English (for logs and rows from before
+    // error_message); error_message is the same as a message key and its
+    // values, translated when shown.
     error: text("error"),
+    errorMessage: jsonb("error_message").$type<StoredMessage>(),
     saveSource: text("save_source").$type<SaveSource>().notNull().default("api"),
     // Where the stored copy came from: the user's browser or our own download.
     contentSource: text("content_source").$type<ContentSource>(),
@@ -191,6 +198,7 @@ export const articles = pgTable(
     readingMinutes: integer("reading_minutes"),
     previewOnly: boolean("preview_only").notNull().default(false),
     previewReason: text("preview_reason"),
+    previewReasonMessage: jsonb("preview_reason_message").$type<StoredMessage>(),
 
     // The model whose summary is shown. Set from the default model at save
     // time and changed by "Re-summarize with...".
@@ -247,7 +255,9 @@ export const summaries = pgTable(
     inputChars: integer("input_chars"),
     totalChars: integer("total_chars"),
     stopReason: text("stop_reason"),
+    // As on articles: English text, and the same as a message key and values.
     error: text("error"),
+    errorMessage: jsonb("error_message").$type<StoredMessage>(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

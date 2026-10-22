@@ -3,12 +3,24 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { inflateRawSync } from "node:zlib";
 import { afterAll, describe, expect, it } from "vitest";
+import { DEFAULT_LOCALE, readCatalogues } from "../locales.mjs";
 import { FIREFOX_ID, manifest } from "../manifest.mjs";
 import { zipDirectory } from "../zip.mjs";
 
 const info = { name: "Read Later", shortName: "Read Later", version: "0.1.0" };
 
 describe("manifest", () => {
+  it("keeps the product's name and takes the rest of its text from the catalogues", () => {
+    const english = readCatalogues()[DEFAULT_LOCALE];
+    for (const target of ["chrome", "firefox"] as const) {
+      const built = manifest(target, info);
+      expect(built.default_locale).toBe("en");
+      expect([built.name, built.short_name]).toEqual(["Read Later", "Read Later"]);
+      const names = [built.description, built.action.default_title, built.commands._execute_action.description];
+      for (const name of names) expect(english).toHaveProperty(name.match(/^__MSG_(\w+)__$/)![1]!);
+    }
+  });
+
   it("runs the background script as a service worker in Chrome", () => {
     const chrome = manifest("chrome", info);
     expect(chrome.background).toEqual({ service_worker: "background.js", type: "module" });

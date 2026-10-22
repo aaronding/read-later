@@ -4,6 +4,8 @@ import https from "node:https";
 import { isIP, type LookupFunction } from "node:net";
 import zlib from "node:zlib";
 import type { Readable } from "node:stream";
+import type { StoredMessage } from "@/i18n/stored-message";
+import { errorMessage } from "@/lib/error-message";
 import { isBlockedAddress } from "./address-policy";
 
 export type FetchErrorCode =
@@ -18,11 +20,12 @@ export type FetchErrorCode =
 export class FetchError extends Error {
   constructor(
     readonly code: FetchErrorCode,
-    message: string,
+    /** What went wrong, as a message in the Errors namespace. */
+    readonly storedMessage: StoredMessage,
     /** Worth trying again later (timeouts, network trouble). */
     readonly retryable: boolean,
   ) {
-    super(message);
+    super(storedMessage.key);
     this.name = "FetchError";
   }
 }
@@ -56,13 +59,13 @@ function checkUrl(raw: string): URL {
   try {
     url = new URL(raw);
   } catch {
-    throw new FetchError("bad_url", `Not a valid URL: ${raw}`, false);
+    throw new FetchError("bad_url", errorMessage("download.invalidUrl", { url: raw }), false);
   }
   if (url.protocol !== "http:" && url.protocol !== "https:") {
-    throw new FetchError("bad_url", "Only http and https links can be downloaded.", false);
+    throw new FetchError("bad_url", errorMessage("download.httpOnly"), false);
   }
   if (url.username || url.password) {
-    throw new FetchError("bad_url", "Links with a username or password are not downloaded.", false);
+    throw new FetchError("bad_url", errorMessage("download.credentialsInUrl"), false);
   }
   return url;
 }
@@ -78,12 +81,12 @@ function guardedLookup(baseLookup: typeof dns.lookup, isBlocked: (address: strin
       if (error) return callback(error, "", 0);
       const list = addresses as dns.LookupAddress[];
       if (list.length === 0) {
-        return callback(new FetchError("network", `No address found for ${hostname}.`, true), "", 0);
+        return callback(new FetchError("network", errorMessage("download.noAddress", { host: hostname }), true), "", 0);
       }
       const blocked = list.find((entry) => isBlocked(entry.address));
       if (blocked) {
         return callback(
-          new FetchError("blocked_address", `${hostname} points to a private or reserved address.`, false),
+          new FetchError("blocked_address", errorMessage("download.privateHost", { host: hostname }), false),
           "",
           0,
         );
@@ -122,7 +125,7 @@ function requestOnce(url: URL, options: SafeFetchOptions, signal: AbortSignal): 
   // IP literals skip DNS, so they are checked here.
   const host = url.hostname.replace(/^\[|\]$/g, "");
   if (isIP(host) && isBlocked(host)) {
-    throw new FetchError("blocked_address", `${host} is a private or reserved address.`, false);
+    throw new FetchError("blocked_address", errorMessage("download.privateAddress", { host }), false);
   }
   const client = url.protocol === "https:" ? https : http;
   return new Promise((resolve, reject) => {
@@ -148,7 +151,7 @@ function requestOnce(url: URL, options: SafeFetchOptions, signal: AbortSignal): 
     request.on("error", (error) => {
       if (error instanceof FetchError) return reject(error);
       if (signal.aborted) return reject(signal.reason);
-      reject(new FetchError("network", `Could not download the page: ${error.message}`, true));
+      reject(new FetchError("network", errorMessage("download.failed", { detail: error.message }), true));
     });
     request.end();
   });
@@ -158,7 +161,7 @@ function readBody(hop: Hop, maxBytes: number, signal: AbortSignal): Promise<Buff
   const declared = Number(hop.response.headers["content-length"]);
   if (Number.isFinite(declared) && declared > maxBytes) {
     hop.request.destroy();
-    return Promise.reject(new FetchError("too_large", "The page is too large to save.", false));
+    return Promise.reject(new FetchError("too_large", errorMessage("pageTooLarge"), false));
   }
   return new Promise((resolve, reject) => {
     const stream = decodedStream(hop.response);
@@ -173,12 +176,16 @@ function readBody(hop: Hop, maxBytes: number, signal: AbortSignal): Promise<Buff
     stream.on("data", (chunk: Buffer) => {
       total += chunk.length;
       // Counted after decompression, so a small compressed bomb is stopped too.
-      if (total > maxBytes) return fail(new FetchError("too_large", "The page is too large to save.", false));
+      if (total > maxBytes) return fail(new FetchError("too_large", errorMessage("pageTooLarge"), false));
       chunks.push(chunk);
     });
     stream.on("end", () => resolve(Buffer.concat(chunks)));
     stream.on("error", (error) =>
-      fail(error instanceof FetchError ? error : new FetchError("network", `Download interrupted: ${error.message}`, true)),
+      fail(
+        error instanceof FetchError
+          ? error
+          : new FetchError("network", errorMessage("download.interrupted", { detail: error.message }), true),
+      ),
     );
   });
 }
@@ -194,7 +201,7 @@ export async function safeFetch(rawUrl: string, options: SafeFetchOptions): Prom
   const maxRedirects = options.maxRedirects ?? 5;
   const controller = new AbortController();
   const timer = setTimeout(
-    () => controller.abort(new FetchError("timeout", "The site took too long to respond.", true)),
+    () => controller.abort(new FetchError("timeout", errorMessage("download.timeout"), true)),
     options.timeoutMs,
   );
   const redirects: string[] = [];
@@ -208,7 +215,7 @@ export async function safeFetch(rawUrl: string, options: SafeFetchOptions): Prom
         hop.response.resume();
         hop.request.destroy();
         if (redirects.length >= maxRedirects) {
-          throw new FetchError("too_many_redirects", "The page redirects too many times.", false);
+          throw new FetchError("too_many_redirects", errorMessage("download.tooManyRedirects"), false);
         }
         url = checkUrl(new URL(location, url).href);
         redirects.push(url.href);
@@ -227,7 +234,7 @@ export async function safeFetch(rawUrl: string, options: SafeFetchOptions): Prom
   } catch (error) {
     if (error instanceof FetchError) throw error;
     if (controller.signal.aborted && controller.signal.reason instanceof FetchError) throw controller.signal.reason;
-    throw new FetchError("network", `Could not download the page: ${(error as Error).message}`, true);
+    throw new FetchError("network", errorMessage("download.failed", { detail: (error as Error).message }), true);
   } finally {
     clearTimeout(timer);
   }

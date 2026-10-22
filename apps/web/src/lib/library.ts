@@ -2,6 +2,7 @@ import { and, asc, desc, eq, isNotNull, isNull, or, sql, type SQL } from "drizzl
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, jobs, summaries, type Article, type Summary } from "@/db/schema";
+import type { StoredMessage } from "@/i18n/stored-message";
 import { requestSummary } from "@/lib/jobs/handlers";
 import { enqueueJob, hasLiveJob, hasQueuedJob } from "@/lib/jobs/queue";
 
@@ -21,11 +22,13 @@ export interface ArticleListItem {
   favorite: boolean;
   status: Article["status"];
   error: string | null;
+  errorMessage: StoredMessage | null;
   previewOnly: boolean;
   folderName: string | null;
   tldr: string | null;
   summaryStatus: Summary["status"] | null;
   summaryError: string | null;
+  summaryErrorMessage: StoredMessage | null;
 }
 
 const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
@@ -73,6 +76,10 @@ const shownSummaryStatus = sql<Summary["status"] | null>`(
 
 const shownSummaryError = sql<string | null>`(
   SELECT s.error FROM summaries s
+  WHERE s.article_id = "articles"."id" AND s.model = "articles"."summary_model")`;
+
+const shownSummaryErrorMessage = sql<StoredMessage | null>`(
+  SELECT s.error_message FROM summaries s
   WHERE s.article_id = "articles"."id" AND s.model = "articles"."summary_model")`;
 
 export const PAGE_SIZE = 50;
@@ -124,11 +131,13 @@ export async function listArticles(
       favorite: articles.favorite,
       status: articles.status,
       error: articles.error,
+      errorMessage: articles.errorMessage,
       previewOnly: articles.previewOnly,
       folderName,
       tldr: shownTldr,
       summaryStatus: shownSummaryStatus,
       summaryError: shownSummaryError,
+      summaryErrorMessage: shownSummaryErrorMessage,
     })
     .from(articles)
     .where(and(...filters))
@@ -223,7 +232,7 @@ export async function retryArticle(db: Db, userId: string, id: string) {
   if (!found) return;
   const { article } = found;
   if (article.status === "failed" || (!article.contentHtml && article.status !== "processing")) {
-    await db.update(articles).set({ status: "pending", error: null }).where(own(userId, id));
+    await db.update(articles).set({ status: "pending", error: null, errorMessage: null }).where(own(userId, id));
     if (!(await hasQueuedJob(db, id, "process_article"))) {
       await enqueueJob(db, { userId, articleId: id, type: "process_article" });
     }

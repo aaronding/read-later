@@ -1,5 +1,6 @@
 import { JSDOM } from "jsdom";
 import { describe, expect, it } from "vitest";
+import { englishText } from "@/i18n/stored-message";
 import {
   findPaywallMarkup,
   hasPaywallMarker,
@@ -74,33 +75,42 @@ describe("checkPreview", () => {
     expect(checkPreview(complete)).toBeNull();
   });
 
-  it("flags login, subscription and refused responses on our own downloads", () => {
-    expect(checkPreview({ ...complete, httpStatus: 401 })).toMatchObject({ kind: "login", reason: expect.stringMatching(/login .*HTTP 401/) });
-    expect(checkPreview({ ...complete, httpStatus: 402 })?.reason).toMatch(/subscription .*HTTP 402/);
+  it("flags login, subscription and refused responses on our own downloads", async () => {
+    expect(checkPreview({ ...complete, httpStatus: 401 })).toEqual({
+      kind: "login",
+      reason: { key: "preview.loginRequired", values: { status: "401" } },
+    });
+    expect(checkPreview({ ...complete, httpStatus: 402 })?.reason).toEqual({
+      key: "preview.subscriptionRequired",
+      values: { status: "402" },
+    });
     // A 403 may be a site turning away downloads that aren't from a browser, not a login.
-    expect(checkPreview({ ...complete, httpStatus: 403 })?.reason).toMatch(/refused the server's download \(HTTP 403\).*browser/);
+    const refused = checkPreview({ ...complete, httpStatus: 403 })!.reason;
+    expect(refused).toEqual({ key: "preview.downloadRefused", values: { status: "403" } });
+    expect(await englishText(refused)).toMatch(/refused the server’s download \(HTTP 403\).*browser/);
     expect(checkPreview({ ...complete, httpStatus: 403, contentSource: "client" })).toBeNull();
   });
 
   it("flags subscriber-only markup on our own downloads, not on the owner's browser copy", () => {
     const marked = { ...complete, paywall: { notFree: true, selectors: [] } };
-    expect(checkPreview(marked)?.reason).toMatch(/subscriber-only/);
+    expect(checkPreview(marked)?.reason).toEqual({ key: "preview.subscriberOnly" });
     expect(checkPreview({ ...marked, contentSource: "client" })).toBeNull();
   });
 
   it("flags short pages with a password field or a sign-in title", () => {
-    expect(checkPreview({ ...complete, passwordField: true, wordCount: 120 })?.reason).toMatch(/login page/);
-    expect(checkPreview({ ...complete, pageTitle: "Log in | Example", wordCount: 150 })?.reason).toMatch(/login page/);
-    expect(checkPreview({ ...complete, pageTitle: "请登录", wordCount: 150 })?.reason).toMatch(/login page/);
+    const loginPage = { key: "preview.loginPage" };
+    expect(checkPreview({ ...complete, passwordField: true, wordCount: 120 })?.reason).toEqual(loginPage);
+    expect(checkPreview({ ...complete, pageTitle: "Log in | Example", wordCount: 150 })?.reason).toEqual(loginPage);
+    expect(checkPreview({ ...complete, pageTitle: "请登录", wordCount: 150 })?.reason).toEqual(loginPage);
     // A long article that merely has a login box in the header is fine.
     expect(checkPreview({ ...complete, passwordField: true, wordCount: 1500 })).toBeNull();
   });
 
   it("flags short teasers next to a paywall, and very short texts", () => {
-    expect(checkPreview({ ...complete, contentSource: "client", paywallMarker: true, wordCount: 250 })?.reason).toMatch(
-      /paywall/,
-    );
-    expect(checkPreview({ ...complete, wordCount: 40 })?.reason).toMatch(/very short/);
+    expect(checkPreview({ ...complete, contentSource: "client", paywallMarker: true, wordCount: 250 })?.reason).toEqual({
+      key: "preview.teaser",
+    });
+    expect(checkPreview({ ...complete, wordCount: 40 })?.reason).toEqual({ key: "preview.tooShort" });
   });
 
   it("says which previews are worth summarizing", () => {
@@ -114,7 +124,7 @@ describe("checkPreview", () => {
   });
 
   it("flags pages where no article was found", () => {
-    expect(checkPreview({ ...complete, foundArticle: false })?.reason).toMatch(/No article/);
+    expect(checkPreview({ ...complete, foundArticle: false })?.reason).toEqual({ key: "preview.noArticle" });
   });
 });
 

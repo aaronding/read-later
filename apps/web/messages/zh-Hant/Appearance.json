@@ -1,0 +1,36 @@
+{
+  "Appearance": {
+    "title": "外觀",
+    "done": "完成",
+    "theme": "主題",
+    "themes": {
+      "system": "跟隨系統",
+      "light": "淺色",
+      "dark": "深色"
+    },
+    "lightColors": "淺色配色",
+    "darkColors": "深色配色",
+    "palettes": {
+      "paper": "紙張",
+      "white": "純白",
+      "sepia": "棕褐",
+      "sage": "灰綠",
+      "mist": "薄霧",
+      "graphite": "石墨",
+      "black": "純黑",
+      "slate": "石板",
+      "midnight": "午夜",
+      "dusk": "暮色"
+    },
+    "font": "文章和摘要的字型",
+    "fonts": {
+      "classic": "經典",
+      "literata": "Literata",
+      "source-serif": "Source Serif",
+      "merriweather": "Merriweather",
+      "sans": "無襯線",
+      "atkinson": "Atkinson"
+    },
+    "saveFailed": "無法將這項設定儲存到你的帳號，重新載入頁面後就會失效。"
+  }
+}

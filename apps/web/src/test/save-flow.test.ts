@@ -9,6 +9,8 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { GET, OPTIONS, POST } from "@/app/api/save/route";
 import type { Db } from "@/db";
 import { articles, jobs, summaries } from "@/db/schema";
+import type { AppLocale } from "@/i18n/locales";
+import { englishText } from "@/i18n/stored-message";
 import { processJobs } from "@/lib/jobs/process";
 import { processArticle, requestSummary } from "@/lib/jobs/handlers";
 import { claimJobs } from "@/lib/jobs/queue";
@@ -25,6 +27,35 @@ import { createTestDb, createTestUser } from "./db";
 vi.mock("@/lib/net/safe-fetch", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/net/safe-fetch")>();
   return { ...actual, safeFetch: vi.fn() };
+});
+
+// Some French replies of the save API, whatever messages/fr holds, to tell
+// which language a reply is in.
+const FRENCH = vi.hoisted(() => ({
+  Api: {
+    unauthorized: "Jeton d’accès manquant ou non valide.",
+    connected: "Connecté à {app}",
+    saved: "Enregistré dans {app}",
+    badRequest: "Envoyez du JSON comme {example}.",
+  },
+  invalidUrl: "{field} doit être une URL http ou https absolue.",
+}));
+
+vi.mock("@/i18n/messages", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/i18n/messages")>();
+  return {
+    ...actual,
+    async loadMessages(locale: AppLocale) {
+      const messages = await actual.loadMessages(locale);
+      if (locale !== "fr") return messages;
+      const { Api, Errors } = messages;
+      return {
+        ...messages,
+        Api: { ...Api, ...FRENCH.Api },
+        Errors: { ...Errors, save: { ...Errors.save, invalidUrl: FRENCH.invalidUrl } },
+      } as typeof messages;
+    },
+  };
 });
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -111,10 +142,10 @@ let db: Db;
 let close: () => Promise<void>;
 let token: string;
 
-function saveRequest(body: unknown, authorization = `Bearer ${token}`): Request {
+function saveRequest(body: unknown, authorization = `Bearer ${token}`, headers: Record<string, string> = {}): Request {
   return new Request("http://localhost/api/save", {
     method: "POST",
-    headers: { authorization, "content-type": "application/json" },
+    headers: { authorization, "content-type": "application/json", ...headers },
     body: typeof body === "string" ? body : JSON.stringify(body),
   });
 }
@@ -328,8 +359,13 @@ describe("duplicates and previews", () => {
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, source: "shortcut" }))).json();
     await processJobs({ db });
     const preview = await articleById(id);
-    expect(preview).toMatchObject({ status: "ready", previewOnly: true, contentSource: "server" });
-    expect(preview.previewReason).toMatch(/login/);
+    expect(preview).toMatchObject({
+      status: "ready",
+      previewOnly: true,
+      contentSource: "server",
+      previewReason: "This looks like a login page rather than the article.",
+      previewReasonMessage: { key: "preview.loginPage" },
+    });
     expect(requests).toHaveLength(0); // too little text to summarize
 
     // The owner saves the full page from their signed-in browser.
@@ -337,7 +373,7 @@ describe("duplicates and previews", () => {
     expect(replaced).toMatchObject({ id, outcome: "replaced" });
     await processJobs({ db });
     const full = await articleById(id);
-    expect(full).toMatchObject({ previewOnly: false, previewReason: null, contentSource: "client" });
+    expect(full).toMatchObject({ previewOnly: false, previewReason: null, previewReasonMessage: null, contentSource: "client" });
     expect((await summariesFor(id))[0]?.status).toBe("ready");
   });
 
@@ -436,7 +472,11 @@ describe("failures", () => {
       const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
       const stats = await processJobs({ db });
       expect(stats.retrying).toBe(1);
-      expect((await summariesFor(id))[0]).toMatchObject({ status: "pending", error: "Claude took too long to answer." });
+      expect((await summariesFor(id))[0]).toMatchObject({
+        status: "pending",
+        error: "Claude took too long to answer.",
+        errorMessage: { key: "summary.timeout", values: { claude: "Claude" } },
+      });
     } finally {
       delete process.env.SUMMARY_TIMEOUT_MS;
     }
@@ -456,8 +496,12 @@ describe("failures", () => {
     const stats = await processJobs({ db });
     expect(stats).toMatchObject({ succeeded: 1, failed: 1, retrying: 0 });
     const [summary] = await summariesFor(id);
-    expect(summary).toMatchObject({ status: "failed", stopReason: "refusal" });
-    expect(summary!.error).toMatch(/declined.*cyber/);
+    expect(summary).toMatchObject({
+      status: "failed",
+      stopReason: "refusal",
+      error: "Claude declined to summarize this article (cyber).",
+      errorMessage: { key: "summary.declinedCategory", values: { claude: "Claude", category: "cyber" } },
+    });
   });
 
   it("says what to do when the Claude API refuses the key, without retrying", async () => {
@@ -473,8 +517,17 @@ describe("failures", () => {
     expect(stats).toMatchObject({ succeeded: 1, failed: 1, retrying: 0 });
     const [summary] = await summariesFor(id);
     expect(summary).toMatchObject({ status: "failed" });
-    expect(summary!.error).toMatch(/didn't accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
+    expect(summary!.error).toMatch(/didn’t accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
     expect(summary!.error).not.toContain("{");
+    expect(summary!.errorMessage).toMatchObject({ key: "summary.apiKeyRejectedWithDetail" });
+    expect(await englishText(summary!.errorMessage!)).toBe(summary!.error);
+
+    // Retry runs it again and clears the old error until the new run says otherwise.
+    reply = defaultReply;
+    await retryArticle(db, "user-1", id);
+    expect((await summariesFor(id))[0]).toMatchObject({ status: "pending", error: null, errorMessage: null });
+    await processJobs({ db });
+    expect((await summariesFor(id))[0]).toMatchObject({ status: "ready", error: null, errorMessage: null });
   });
 
   it("retries a connection failure later, with backoff", async () => {
@@ -507,7 +560,11 @@ describe("failures", () => {
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
     const stats = await processJobs({ db });
     expect(stats).toMatchObject({ failed: 1, retrying: 0 });
-    expect(await articleById(id)).toMatchObject({ status: "failed", error: "The page is too large to save." });
+    expect(await articleById(id)).toMatchObject({
+      status: "failed",
+      error: "The page is too large to save.",
+      errorMessage: { key: "pageTooLarge" },
+    });
   });
 
   it("fails a page that cannot be downloaded, and lets a re-save retry it", async () => {
@@ -521,18 +578,77 @@ describe("failures", () => {
     });
     const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
     await processJobs({ db });
-    expect(await articleById(id)).toMatchObject({ status: "failed", error: "The page was not found (HTTP 404)." });
+    // English text for the logs and older code, and the message to translate when shown.
+    const failed = await articleById(id);
+    expect(failed).toMatchObject({
+      status: "failed",
+      error: "The page was not found (HTTP 404).",
+      errorMessage: { key: "download.notFound", values: { status: "404" } },
+    });
+    expect(await englishText(failed.errorMessage!)).toBe(failed.error);
+    const [job] = await db.select().from(jobs).where(eq(jobs.articleId, id));
+    expect(job!.lastError).toBe("The page was not found (HTTP 404).");
 
-    const again = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
-    expect(again).toMatchObject({ id, outcome: "replaced" });
+    const again = await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }));
+    expect(await again.json()).toMatchObject({ id, outcome: "replaced" });
+    expect(await articleById(id)).toMatchObject({ status: "pending", error: null, errorMessage: null });
     await processJobs({ db });
-    expect(await articleById(id)).toMatchObject({ status: "ready", error: null });
+    expect(await articleById(id)).toMatchObject({ status: "ready", error: null, errorMessage: null });
+  });
+
+  it("clears a failed download's error when it is retried or re-saved without HTML", async () => {
+    vi.mocked(safeFetch).mockResolvedValue({
+      url: ARTICLE_URL,
+      status: 200,
+      headers: {},
+      contentType: "application/pdf",
+      body: Buffer.from("%PDF"),
+      redirects: [],
+    });
+    const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({
+      status: "failed",
+      error: "This link is not a web page (application/pdf). Only web pages can be saved for now.",
+      errorMessage: { key: "download.notWebPage", values: { type: "application/pdf" } },
+    });
+
+    await retryArticle(db, "user-1", id);
+    expect(await articleById(id)).toMatchObject({ status: "pending", error: null, errorMessage: null });
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ status: "failed", errorMessage: { key: "download.notWebPage" } });
+
+    await POST(saveRequest({ url: ARTICLE_URL }));
+    expect(await articleById(id)).toMatchObject({ status: "pending", error: null, errorMessage: null });
+  });
+
+  it("keeps the text of an unexpected error, and retries it", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      vi.mocked(safeFetch).mockRejectedValue(new Error("Connection terminated unexpectedly"));
+      const { id } = await (await POST(saveRequest({ url: ARTICLE_URL }))).json();
+      const stats = await processJobs({ db });
+      expect(stats).toMatchObject({ retrying: 1, failed: 0 });
+      expect(await articleById(id)).toMatchObject({
+        status: "pending",
+        error: "Something unexpected went wrong: Connection terminated unexpectedly",
+        errorMessage: { key: "job.unexpected", values: { detail: "Connection terminated unexpectedly" } },
+      });
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 });
 
 describe("authentication and input", () => {
   it("rejects missing, unknown and revoked tokens", async () => {
-    expect((await POST(saveRequest({ url: ARTICLE_URL }, ""))).status).toBe(401);
+    const missing = await POST(saveRequest({ url: ARTICLE_URL }, ""));
+    expect(missing.status).toBe(401);
+    expect(await missing.json()).toEqual({
+      ok: false,
+      code: "unauthorized",
+      error: "Missing or invalid access token. Create one in Settings.",
+    });
     expect((await POST(saveRequest({ url: ARTICLE_URL }, "Bearer rl_nope"))).status).toBe(401);
     const old = await createApiToken(db, "user-1", "Old");
     expect((await POST(saveRequest({ url: ARTICLE_URL }, `Bearer ${old.token}`))).status).toBe(201);
@@ -552,18 +668,70 @@ describe("authentication and input", () => {
   });
 
   it("rejects bad bodies and non-http URLs", async () => {
-    expect((await POST(saveRequest("not json"))).status).toBe(400);
-    expect((await POST(saveRequest({ html: "<p>no url</p>" }))).status).toBe(400);
+    const notJson = await POST(saveRequest("not json"));
+    expect(notJson.status).toBe(400);
+    expect(await notJson.json()).toEqual({
+      ok: false,
+      code: "bad_request",
+      error: 'Send JSON like {"url": "https://..."}, optionally with "html" and "title".',
+    });
+    expect(await (await POST(saveRequest({ html: "<p>no url</p>" }))).json()).toMatchObject({ code: "bad_request" });
     const ftp = await POST(saveRequest({ url: "ftp://example.com/file" }));
     expect(ftp.status).toBe(400);
-    expect((await ftp.json()).error).toMatch(/http or https/);
+    expect(await ftp.json()).toEqual({ ok: false, code: "invalid_url", error: "url must be an absolute http or https URL." });
+  });
+
+  it("answers in the token owner's language, else the request's", async () => {
+    const french = { "accept-language": "fr-CA,fr;q=0.9" };
+    // No saved language: the request's languages.
+    const saved = await (await POST(saveRequest({ url: ARTICLE_URL }, undefined, french))).json();
+    expect(saved).toMatchObject({ ok: true, status: "saved", outcome: "created", message: "Enregistré dans Read Later" });
+
+    // A saved language wins over the request's.
+    await updateSettings(db, "user-1", { locale: "fr" });
+    const english = { "accept-language": "en-US,en;q=0.9" };
+    const second = await (await POST(saveRequest({ url: `${ARTICLE_URL}/2` }, undefined, english))).json();
+    expect(second).toMatchObject({ ok: true, outcome: "created", message: "Enregistré dans Read Later" });
+    const ftp = await (await POST(saveRequest({ url: "ftp://example.com/file" }, undefined, english))).json();
+    expect(ftp).toEqual({ ok: false, code: "invalid_url", error: "url doit être une URL http ou https absolue." });
+    const notJson = await (await POST(saveRequest("not json", undefined, english))).json();
+    expect(notJson).toEqual({ ok: false, code: "bad_request", error: 'Envoyez du JSON comme {"url": "https://..."}.' });
+    const check = await GET(new Request("http://localhost/api/save", { headers: { authorization: `Bearer ${token}` } }));
+    expect(await check.json()).toEqual({ ok: true, message: "Connecté à Read Later", app: "Read Later" });
+
+    // Without a valid token, only the request's languages count.
+    const refused = await POST(saveRequest({ url: ARTICLE_URL }, "Bearer rl_nope", french));
+    expect(refused.status).toBe(401);
+    expect(await refused.json()).toEqual({ ok: false, code: "unauthorized", error: "Jeton d’accès manquant ou non valide." });
+    const refusedEnglish = await (await POST(saveRequest({ url: ARTICLE_URL }, "Bearer rl_nope", english))).json();
+    expect(refusedEnglish.error).toBe("Missing or invalid access token. Create one in Settings.");
+  });
+
+  it("answers an unexpected failure with a code", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      // Postgres refuses NUL characters in text.
+      const response = await POST(saveRequest({ url: ARTICLE_URL, html: "<p>\u0000</p>" }));
+      expect(response.status).toBe(500);
+      expect(await response.json()).toEqual({
+        ok: false,
+        code: "server_error",
+        error: "Something went wrong while saving. Please try again.",
+      });
+    } finally {
+      consoleError.mockRestore();
+    }
   });
 
   it("lets the extension check its token", async () => {
     const check = (authorization: string) =>
       GET(new Request("http://localhost/api/save", { headers: { authorization } }));
-    expect((await check(`Bearer ${token}`)).status).toBe(200);
-    expect((await check("Bearer rl_nope")).status).toBe(401);
+    const ok = await check(`Bearer ${token}`);
+    expect(ok.status).toBe(200);
+    expect(await ok.json()).toEqual({ ok: true, message: "Connected to Read Later", app: "Read Later" });
+    const refused = await check("Bearer rl_nope");
+    expect(refused.status).toBe(401);
+    expect(await refused.json()).toMatchObject({ ok: false, code: "unauthorized" });
   });
 
   it("refuses bodies over the limit, even without a Content-Length", async () => {
@@ -583,7 +751,9 @@ describe("authentication and input", () => {
         duplex: "half",
       } as RequestInit);
       expect(request.headers.get("content-length")).toBeNull();
-      expect((await POST(request)).status).toBe(413);
+      const response = await POST(request);
+      expect(response.status).toBe(413);
+      expect(await response.json()).toEqual({ ok: false, code: "too_large", error: "The page is too large to save." });
     } finally {
       delete process.env.SAVE_MAX_HTML_BYTES;
     }

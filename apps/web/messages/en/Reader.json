@@ -1,0 +1,14 @@
+{
+  "Reader": {
+    "titleFallback": "Article",
+    "openOriginal": "Open original ↗",
+    "favoriteOn": "★ Favorite",
+    "favoriteOff": "☆ Favorite",
+    "markUnread": "Mark unread",
+    "previewNotice": "<strong>Preview only.</strong> {reason} To keep the full article, open it in your browser (signed in to the site, if it needs that) and save it again with the browser extension or the {safari} Shortcut.",
+    "noSummary": "No summary: there isn’t enough article text. <compare>Compare models</compare>",
+    "noReadableCopy": "There is no readable copy of this page. <link>Open the original</link>.",
+    "openTheOriginal": "<link>Open the original</link>.",
+    "deleteConfirm": "Delete this article and its summaries?"
+  }
+}

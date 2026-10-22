@@ -1,0 +1,57 @@
+{
+  "Errors": {
+    "pageTooLarge": "The page is too large to save.",
+    "job": {
+      "tooManyAttempts": "Gave up after too many attempts.",
+      "unexpected": "Something unexpected went wrong: {detail}"
+    },
+    "download": {
+      "invalidUrl": "Not a valid URL: {url}",
+      "httpOnly": "Only http and https links can be downloaded.",
+      "credentialsInUrl": "Links with a username or password are not downloaded.",
+      "noAddress": "No address found for {host}.",
+      "privateHost": "{host} points to a private or reserved address.",
+      "privateAddress": "{host} is a private or reserved address.",
+      "failed": "Could not download the page: {detail}",
+      "interrupted": "Download interrupted: {detail}",
+      "timeout": "The site took too long to respond.",
+      "tooManyRedirects": "The page redirects too many times.",
+      "notFound": "The page was not found (HTTP {status}).",
+      "unavailable": "The site could not serve the page right now (HTTP {status}).",
+      "refused": "The site refused the download (HTTP {status}).",
+      "notWebPage": "This link is not a web page ({type}). Only web pages can be saved for now."
+    },
+    "preview": {
+      "loginRequired": "The site asked for a login before showing this page (HTTP {status}).",
+      "subscriptionRequired": "The site asked for a subscription before showing this page (HTTP {status}).",
+      "downloadRefused": "The site refused the server’s download (HTTP {status}). It may want a login, or it may turn away downloads that don’t come from a browser.",
+      "subscriberOnly": "The site marks this article as subscriber-only, so only the free part was saved.",
+      "subscriberOnlyNothingFree": "The site marks this article as subscriber-only, and too little of it is free to keep.",
+      "noArticle": "No article could be found on this page.",
+      "loginPage": "This looks like a login page rather than the article.",
+      "teaser": "The page shows a paywall and only the start of the article.",
+      "tooShort": "Only a very short text could be read from this page."
+    },
+    "summary": {
+      "noText": "There is no article text to summarize.",
+      "unknownModel": "Unknown summary model: {model}",
+      "timeout": "{claude} took too long to answer.",
+      "apiKeyRejected": "The {claude} API didn’t accept the API key. Check {variable}, restart the app (redeploy it on {vercel}), then try the summary again.",
+      "apiKeyRejectedWithDetail": "The {claude} API didn’t accept the API key ({detail}). Check {variable}, restart the app (redeploy it on {vercel}), then try the summary again.",
+      "apiError": "{claude} API error: {detail}",
+      "apiErrorStatus": "{claude} API error {status}.",
+      "apiErrorStatusWithDetail": "{claude} API error {status}: {detail}",
+      "declined": "{claude} declined to summarize this article.",
+      "declinedCategory": "{claude} declined to summarize this article ({category, select, cyber {cyber} bio {bio} frontier_llm {frontier llm} reasoning_extraction {reasoning extraction} general_harms {general harms} other {{category}}}).",
+      "cutOff": "The summary was cut off before it was finished.",
+      "tooLong": "The article is too long for this model.",
+      "empty": "{claude} returned no summary.",
+      "badFormat": "{claude}’s summary was not in the expected format."
+    },
+    "save": {
+      "invalidUrl": "{field} must be an absolute http or https URL.",
+      "htmlTooLarge": "The page’s HTML is too large to save.",
+      "failed": "Could not save the article. Please try again."
+    }
+  }
+}

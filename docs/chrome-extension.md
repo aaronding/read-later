@@ -8,6 +8,8 @@ The extension saves the page you're reading to your Read Later library, includin
 
 It isn't published in the Chrome Web Store (that's planned for stage 3), so you install it from the repository with "Load unpacked". It works the same in Chrome and in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox extension](firefox-extension.md).
 
+Its text is in the browser's language when that is English, French, Simplified Chinese or Traditional Chinese, and in English otherwise. It doesn't follow the language chosen in the web app's Settings: an extension can only use the browser's. This guide quotes the English texts.
+
 ## Install
 
 1. **Build it.** In the repository folder:

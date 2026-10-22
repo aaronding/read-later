@@ -47,7 +47,7 @@ In the steps below, replace `https://read.example.com` with your app's address (
      - **Request Body**: choose **File**, then choose the **JavaScript Result** variable.
 6. Add the action **Get Dictionary Value**: get the **Value** for the key `message` in **Contents of URL**.
 7. Add the action **Show Notification** and put the **Dictionary Value** variable in it.
-8. Try it: open an article in Safari, tap **Share** (on a Mac, the Share button in the toolbar), and choose **Save to Read Later**. The first time, Shortcuts asks whether the shortcut may run JavaScript on that site. Choose **Always Allow**. The notification says **Saved to Read Later**.
+8. Try it: open an article in Safari, tap **Share** (on a Mac, the Share button in the toolbar), and choose **Save to Read Later**. The first time, Shortcuts asks whether the shortcut may run JavaScript on that site. Choose **Always Allow**. The notification says **Saved to Read Later**, in the language chosen in the app's Settings (or, until one is chosen, the device's language).
 
 ## Shortcut 2: "Save link to Read Later" (other apps)
 
