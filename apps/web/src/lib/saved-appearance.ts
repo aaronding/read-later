@@ -1,9 +1,12 @@
 import "server-only";
-import { cookies } from "next/headers";
 import { cache } from "react";
-import { APPEARANCE_COOKIE, parseAppearance, type Appearance } from "./appearance";
+import { getDb } from "@/db";
+import { DEFAULT_APPEARANCE, type Appearance } from "./appearance";
+import { getCurrentUser } from "./auth";
+import { getAppearance } from "./settings";
 
-/** The appearance saved in this browser's cookie, or the default. */
+/** The signed-in user's appearance; signed out, the default. Looked up once per request. */
 export const getSavedAppearance = cache(async (): Promise<Appearance> => {
-  return parseAppearance((await cookies()).get(APPEARANCE_COOKIE)?.value);
+  const user = await getCurrentUser();
+  return user ? getAppearance(getDb(), user.id) : DEFAULT_APPEARANCE;
 });

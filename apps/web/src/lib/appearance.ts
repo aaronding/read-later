@@ -3,7 +3,7 @@ import { contrastRatio, mixColors } from "./color";
 // How articles look: the theme (System, Light or Dark), the colors for light
 // and for dark, so that System switches between two palettes the reader
 // likes, and the font for articles and summaries. The rest of the app keeps
-// the device's own font. The choice is kept per browser, in a cookie (see
+// the device's own font. The choice is kept in the reader's account (see
 // docs/decisions.md).
 
 export const THEME_MODES = { system: "System", light: "Light", dark: "Dark" } as const;
@@ -67,26 +67,23 @@ export interface Appearance {
 
 export const DEFAULT_APPEARANCE: Appearance = { theme: "system", light: "paper", dark: "graphite", font: "classic" };
 
-/** The cookie that keeps the appearance, as `theme.light.dark.font`, such as `system.sepia.black.literata`. */
-export const APPEARANCE_COOKIE = "appearance";
-
-function isKey<T extends object>(record: T, key: string | undefined): key is Extract<keyof T, string> {
-  return key !== undefined && Object.hasOwn(record, key);
+function isKey<T extends object>(record: T, key: unknown): key is Extract<keyof T, string> {
+  return typeof key === "string" && Object.hasOwn(record, key);
 }
 
-/** Reads the cookie's value. Anything unknown, or missing, falls back to the default. */
-export function parseAppearance(value: string | null | undefined): Appearance {
-  const [theme, light, dark, font] = (value ?? "").split(".");
+/**
+ * An appearance from values that were stored or sent, so may be anything.
+ * Each one that is unknown or missing falls back to the default, so a choice
+ * that no longer exists doesn't undo the others.
+ */
+export function toAppearance(values: Partial<Record<keyof Appearance, unknown>> | null | undefined): Appearance {
+  const { theme, light, dark, font } = values ?? {};
   return {
     theme: isKey(THEME_MODES, theme) ? theme : DEFAULT_APPEARANCE.theme,
     light: isKey(LIGHT_PALETTES, light) ? light : DEFAULT_APPEARANCE.light,
     dark: isKey(DARK_PALETTES, dark) ? dark : DEFAULT_APPEARANCE.dark,
     font: isKey(READING_FONTS, font) ? font : DEFAULT_APPEARANCE.font,
   };
-}
-
-export function formatAppearance({ theme, light, dark, font }: Appearance): string {
-  return `${theme}.${light}.${dark}.${font}`;
 }
 
 /** The page color, for the browser's own bars, when the device is in light mode and in dark mode. */

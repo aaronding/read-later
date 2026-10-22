@@ -38,8 +38,9 @@ export default async function SettingsPage() {
       <section className="card" aria-labelledby="appearance-heading">
         <h2 id="appearance-heading">Appearance</h2>
         <p className="muted">
-          Colors and a font for reading. System follows your device’s light or dark mode. The choice is kept in this
-          browser, and the <strong>Aa</strong> button at the top of every page changes it while you read.
+          Colors and a font for reading. System follows your device’s light or dark mode. The choice is saved to your
+          account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page
+          changes it while you read.
         </p>
         <AppearancePicker saved={appearance} />
       </section>

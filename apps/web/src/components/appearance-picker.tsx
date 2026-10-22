@@ -1,15 +1,14 @@
 "use client";
 
-import { useId, useSyncExternalStore } from "react";
+import { useId, useState, useSyncExternalStore } from "react";
+import { saveAppearanceAction } from "@/app/actions";
 import {
-  APPEARANCE_COOKIE,
   DARK_PALETTES,
   LIGHT_PALETTES,
   READING_FONTS,
   THEME_MODES,
-  formatAppearance,
-  parseAppearance,
   themeColors,
+  toAppearance,
   type Appearance,
   type Palette,
   type ReadingFont,
@@ -17,11 +16,10 @@ import {
 } from "@/lib/appearance";
 
 // The appearance lives on <html>, where the root layout's inline script puts
-// it, and in a cookie for the next visit. Every picker reads it from <html>,
-// so the one in the header and the one in Settings stay in step.
+// it from the account. Every picker reads it from there, so the one in the
+// header and the one in Settings stay in step.
 
 const CHANGED = "appearancechange";
-const ONE_YEAR = 60 * 60 * 24 * 365;
 
 function subscribe(onChange: () => void) {
   window.addEventListener(CHANGED, onChange);
@@ -29,20 +27,27 @@ function subscribe(onChange: () => void) {
 }
 
 function shownAppearance(): string {
-  const { theme, light, dark, font } = document.documentElement.dataset;
-  return formatAppearance(parseAppearance(`${theme}.${light}.${dark}.${font}`));
+  return JSON.stringify(toAppearance(document.documentElement.dataset));
 }
 
-/** Changes the page at once, with no request, and remembers the choice in this browser. */
-function saveAppearance(appearance: Appearance) {
+/** Changes the page at once, before the choice is saved. */
+function showAppearance(appearance: Appearance) {
   Object.assign(document.documentElement.dataset, appearance);
   const colors = themeColors(appearance);
   for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
     meta.content = meta.media.includes("dark") ? colors.dark : colors.light;
   }
-  const secure = location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `${APPEARANCE_COOKIE}=${formatAppearance(appearance)}; Path=/; Max-Age=${ONE_YEAR}; SameSite=Lax${secure}`;
   window.dispatchEvent(new Event(CHANGED));
+}
+
+// One save at a time, in the order they were made, so that clicking through
+// the choices quickly leaves the last one saved.
+let saving: Promise<void> = Promise.resolve();
+
+function saveInOrder(appearance: Appearance): Promise<void> {
+  const save = saving.catch(() => {}).then(() => saveAppearanceAction(appearance));
+  saving = save;
+  return save;
 }
 
 function Swatches<Name extends string>({
@@ -80,8 +85,19 @@ function Swatches<Name extends string>({
 /** The theme (System, Light or Dark), the colors for light and for dark, and the reading font. */
 export function AppearancePicker({ saved }: { saved: Appearance }) {
   const id = useId();
-  const appearance = parseAppearance(useSyncExternalStore(subscribe, shownAppearance, () => formatAppearance(saved)));
-  const change = (update: Partial<Appearance>) => saveAppearance({ ...appearance, ...update });
+  const appearance = JSON.parse(useSyncExternalStore(subscribe, shownAppearance, () => JSON.stringify(saved))) as Appearance;
+  const [failed, setFailed] = useState(false);
+  function save(choice: Appearance) {
+    saveInOrder(choice).then(
+      () => setFailed(false),
+      () => setFailed(true),
+    );
+  }
+  function change(update: Partial<Appearance>) {
+    const next = { ...appearance, ...update };
+    showAppearance(next);
+    save(next);
+  }
   return (
     <div className="appearance">
       <fieldset className="appearance-group">
@@ -122,6 +138,16 @@ export function AppearancePicker({ saved }: { saved: Appearance }) {
           ))}
         </div>
       </fieldset>
+      <p className="status error" role="status">
+        {failed && (
+          <>
+            Couldn’t save this to your account, so it lasts only until the page is reloaded.
+            <button type="button" className="button small" onClick={() => save(appearance)}>
+              Try again
+            </button>
+          </>
+        )}
+      </p>
     </div>
   );
 }

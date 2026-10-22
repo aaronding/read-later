@@ -830,6 +830,12 @@ details summary {
   font-size: 0.9rem;
   font-weight: 600;
 }
+.appearance .status {
+  margin: 0;
+}
+.appearance .status:empty {
+  display: none;
+}
 
 .segmented {
   display: inline-flex;

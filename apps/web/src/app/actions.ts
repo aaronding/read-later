@@ -18,8 +18,9 @@ import {
   showSummaryFrom,
   triageLater,
 } from "@/lib/library";
+import { toAppearance, type Appearance } from "@/lib/appearance";
 import { SaveError, saveArticle } from "@/lib/save";
-import { updateSettings } from "@/lib/settings";
+import { saveAppearance, updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
@@ -150,6 +151,15 @@ export async function updateSettingsAction(formData: FormData) {
   if (!isSummaryModel(model)) throw new Error("Unknown model.");
   await updateSettings(getDb(), user.id, { defaultModel: model, comparisonMode: formData.get("comparisonMode") === "on" });
   refresh();
+}
+
+/**
+ * Saves the appearance chosen in a picker. The picker has already changed the
+ * page, so nothing is refreshed; the next page load reads the new choice.
+ */
+export async function saveAppearanceAction(choice: Appearance) {
+  const user = await requireUser();
+  await saveAppearance(getDb(), user.id, toAppearance(choice));
 }
 
 export interface CreateTokenState {

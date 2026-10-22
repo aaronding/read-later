@@ -8,42 +8,37 @@ import {
   READING_FONTS,
   appearanceCss,
   appearanceScript,
-  formatAppearance,
   paletteTokens,
-  parseAppearance,
   themeColors,
+  toAppearance,
   type Palette,
 } from "./appearance";
 import { contrastRatio } from "./color";
 
-describe("parseAppearance", () => {
-  it("reads each part of the cookie", () => {
-    expect(parseAppearance("dark.sepia.black.literata")).toEqual({
-      theme: "dark",
-      light: "sepia",
+describe("toAppearance", () => {
+  it("keeps known choices", () => {
+    const appearance = { theme: "dark", light: "sepia", dark: "black", font: "source-serif" } as const;
+    expect(toAppearance(appearance)).toEqual(appearance);
+  });
+
+  it("falls back to the default when there is nothing to read", () => {
+    expect(toAppearance(undefined)).toEqual(DEFAULT_APPEARANCE);
+    expect(toAppearance(null)).toEqual(DEFAULT_APPEARANCE);
+    expect(toAppearance({})).toEqual(DEFAULT_APPEARANCE);
+  });
+
+  it("replaces only the unknown choices, so one that was removed doesn't undo the others", () => {
+    expect(toAppearance({ theme: "light", light: "neon", dark: "black", font: 7 })).toEqual({
+      ...DEFAULT_APPEARANCE,
+      theme: "light",
       dark: "black",
-      font: "literata",
     });
   });
 
-  it("falls back to the default for a missing or unknown cookie", () => {
-    expect(parseAppearance(undefined)).toEqual(DEFAULT_APPEARANCE);
-    expect(parseAppearance("")).toEqual(DEFAULT_APPEARANCE);
-    expect(parseAppearance("nonsense")).toEqual(DEFAULT_APPEARANCE);
-  });
-
-  it("keeps the parts it knows when others are unknown or missing", () => {
-    expect(parseAppearance("light.neon.black")).toEqual({ ...DEFAULT_APPEARANCE, theme: "light", dark: "black" });
-  });
-
   it("doesn't take inherited property names for choices", () => {
-    expect(parseAppearance("constructor.toString.__proto__.valueOf")).toEqual(DEFAULT_APPEARANCE);
-  });
-
-  it("reads back what formatAppearance writes", () => {
-    const appearance = { theme: "system", light: "sage", dark: "midnight", font: "source-serif" } as const;
-    expect(formatAppearance(appearance)).toBe("system.sage.midnight.source-serif");
-    expect(parseAppearance(formatAppearance(appearance))).toEqual(appearance);
+    expect(toAppearance({ theme: "constructor", light: "toString", dark: "__proto__", font: "valueOf" })).toEqual(
+      DEFAULT_APPEARANCE,
+    );
   });
 });
 
