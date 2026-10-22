@@ -7,6 +7,7 @@
 
 import type { StoredMessage } from "@/i18n/stored-message";
 import { errorMessage, type ErrorKey } from "@/lib/error-message";
+import { cleanText, textStats } from "./text-stats";
 
 type JsonLdNode = Record<string, unknown>;
 
@@ -133,8 +134,93 @@ export function hasPaywallMarker(document: Document): boolean {
   return false;
 }
 
-export function hasPasswordField(document: Document): boolean {
-  return document.querySelector('input[type="password" i]') !== null;
+// Many sites carry a sign-in form on every page: in the header or a sidebar,
+// or hidden in a modal until someone clicks "Sign in". A password field makes
+// a page a login page only when it belongs to the article: when it is in what
+// Readability takes for the article, or beside the article's headline.
+
+const PASSWORD_MARK = "data-read-later-password";
+
+/**
+ * Marks the elements around each password field before Readability runs,
+ * since Readability drops the fields themselves. On a teaser longer than a
+ * few lines it drops their forms, and often the forms' parents, too; the
+ * headline check makes up for that.
+ */
+export function markPasswordFields(document: Document): void {
+  for (const field of document.querySelectorAll('input[type="password" i]')) {
+    const form = field.closest("form");
+    for (const element of [field.parentElement, form, form?.parentElement]) element?.setAttribute(PASSWORD_MARK, "");
+  }
+}
+
+/**
+ * True when Readability kept an element that held a password field. The
+ * marks can stay: sanitizeArticleHtml drops every data attribute.
+ */
+export function passwordMarksIn(article: Element): boolean {
+  return article.querySelector(`[${PASSWORD_MARK}]`) !== null;
+}
+
+const normalized = (text: string | null | undefined) => (text ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+
+// How sites hide a sign-in box until someone opens it: whole class names for
+// hiding, and any part of a class or id for popups ("newspack-ui__modal").
+const HIDING_CLASSES = new Set(["hide", "hidden", "d-none", "is-hidden", "invisible", "mfp-hide", "u-hidden"]);
+const POPUP_PARTS = new Set(["modal", "popup", "popover", "dropdown", "tooltip", "lightbox", "offcanvas", "flyout", "drawer"]);
+
+/** True when an element between the field and the container hides it or is a popup, going by the markup alone. */
+function hiddenWithin(field: Element, container: Element): boolean {
+  for (let node: Element | null = field; node && node !== container; node = node.parentElement) {
+    if (node.hasAttribute("hidden") || node.getAttribute("aria-hidden") === "true") return true;
+    if (/display\s*:\s*none|visibility\s*:\s*hidden/i.test(node.getAttribute("style") ?? "")) return true;
+    if (node.tagName === "DIALOG" && !node.hasAttribute("open")) return true;
+    const classes = [...node.classList].map((name) => name.toLowerCase());
+    if (classes.some((name) => HIDING_CLASSES.has(name))) return true;
+    if ([...classes, node.id.toLowerCase()].some((name) => name.split(/[-_]+/).some((part) => POPUP_PARTS.has(part)))) return true;
+  }
+  return false;
+}
+
+/**
+ * True when a visible password field sits beside the article's headline: the
+ * smallest part of the page holding both is shorter than a login page, and
+ * isn't the page's header or navigation. When the headline is in an article
+ * or main element, the field must be in it too: a site's own sign-in box sits
+ * outside it, in a top bar, a sidebar or a comment form, and on a short post
+ * still meets the headline in a small container. Otherwise it is hidden until
+ * opened. The headline is an h1 that makes up most of the page's title and
+ * isn't the site's name. This finds a wall when Readability removes its
+ * form, or takes something else on the page for the article.
+ */
+export function passwordFieldBesideHeadline(
+  document: Document,
+  { titles, siteName }: { titles: (string | null | undefined)[]; siteName: string | null },
+): boolean {
+  const wanted = titles.map(normalized).filter(Boolean);
+  const site = normalized(siteName);
+  const headlines = [...document.querySelectorAll("h1")].filter((heading) => {
+    const text = normalized(heading.textContent);
+    return text && text !== site && wanted.some((title) => title.includes(text) && text.length * 2 >= title.length);
+  });
+  if (!headlines.length) return false;
+  const words = new Map<Element, number>();
+  for (const field of document.querySelectorAll('input[type="password" i]')) {
+    for (const headline of headlines) {
+      const story = headline.closest("article, main, [role=main]");
+      if (story && !story.contains(field)) continue;
+      let shared: Element | null = field.parentElement;
+      while (shared && !shared.contains(headline)) shared = shared.parentElement;
+      if (!shared || shared.tagName === "BODY" || shared.tagName === "HTML") continue;
+      const chrome = shared.closest("header, nav, [role=banner], [role=navigation]");
+      if (chrome && !chrome.closest("article, main, [role=main]")) continue;
+      if (hiddenWithin(field, shared)) continue;
+      let count = words.get(shared);
+      if (count === undefined) words.set(shared, (count = textStats(cleanText(shared.textContent ?? "")).wordCount));
+      if (count < LOGIN_PAGE_MAX_WORDS) return true;
+    }
+  }
+  return false;
 }
 
 const LOGIN_TITLE =
@@ -159,7 +245,8 @@ export interface PreviewCheck {
   httpStatus?: number;
   paywall: PaywallMarkup;
   removedSections: number;
-  passwordField: boolean;
+  /** A password field belongs to the article, not only to the page around it (see passwordFieldBesideHeadline). */
+  passwordFieldInArticle: boolean;
   paywallMarker: boolean;
   pageTitle: string;
   /** Readability found article content. */
@@ -198,7 +285,7 @@ export function checkPreview(check: PreviewCheck): PreviewVerdict | null {
   if (!check.foundArticle) {
     return { kind: "no_article", reason: errorMessage("preview.noArticle") };
   }
-  if ((check.passwordField || LOGIN_TITLE.test(check.pageTitle)) && check.wordCount < LOGIN_PAGE_MAX_WORDS) {
+  if ((check.passwordFieldInArticle || LOGIN_TITLE.test(check.pageTitle)) && check.wordCount < LOGIN_PAGE_MAX_WORDS) {
     return { kind: "login", reason: errorMessage("preview.loginPage") };
   }
   if (check.paywallMarker && check.wordCount < TEASER_MAX_WORDS) {

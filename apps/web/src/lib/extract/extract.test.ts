@@ -139,6 +139,52 @@ describe("extractArticle: login pages and teasers", () => {
   });
 });
 
+describe("extractArticle: sign-in forms", () => {
+  it("keeps a short story whose page carries a sign-in box in the header and a hidden modal", () => {
+    const result = extractArticle({
+      html: html("short-story-login-box.html"),
+      url: "https://harbourside.example/story/4471",
+      contentSource: "server",
+      httpStatus: 200,
+    });
+    expect(result.textContent).toContain("a shelf of tools that card holders can borrow");
+    expect(result.wordCount).toBeLessThan(300);
+    expect(result.previewOnly).toBe(false);
+  });
+
+  it("flags a short teaser with a sign-in form inside the article", () => {
+    const result = extractArticle({
+      html: html("inline-login-teaser.html"),
+      url: "https://coastlineweekly.example/ferry",
+      contentSource: "client",
+    });
+    expect(result.textContent).toContain("winter timetable");
+    expect(result.previewKind).toBe("login");
+  });
+
+  // Readability removes the form and its wrapper once the teaser is long
+  // enough to keep on its first try.
+  const longer = (page: string) =>
+    page.replace(
+      "<p>The operator says",
+      "<p>Some of them now drive to the far end of the island to catch the earlier freight boat, which takes foot passengers only when there is room on deck and leaves without notice when the tide turns. Others have moved their working day an hour later, and a few have given up the mainland job altogether.</p>\n    <p>The operator says",
+    );
+
+  it("flags a longer teaser whose sign-in form Readability removes", () => {
+    const result = extractArticle({ html: longer(html("inline-login-teaser.html")), url: "https://coastlineweekly.example/ferry", contentSource: "client" });
+    expect(result.wordCount).toBeGreaterThan(100);
+    expect(result.previewKind).toBe("login");
+  });
+
+  it("flags the same teaser when its password field isn't in a form", () => {
+    const formless = longer(html("inline-login-teaser.html"))
+      .replace('<form action="/account/login" method="post">', '<div class="fields">')
+      .replace("</form>", "</div>");
+    const result = extractArticle({ html: formless, url: "https://coastlineweekly.example/ferry", contentSource: "client" });
+    expect(result.previewKind).toBe("login");
+  });
+});
+
 describe("extractArticle: a GBK-encoded Chinese page", () => {
   const page = decodeHtml(fixture("chinese-gbk.html"), "text/html");
   const result = extractArticle({ html: page, url: "https://chenbao.example/life/doujiang", contentSource: "server" });
