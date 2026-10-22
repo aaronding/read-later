@@ -13,6 +13,9 @@
   --font-ui: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Hiragino Sans",
     "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* The name beside the logo: the classic serif, whatever font the reader picks. */
+  --font-brand: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "Noto Serif CJK SC",
+    "Source Han Serif SC", serif;
   accent-color: var(--accent);
 }
 
@@ -185,13 +188,30 @@ label.checkbox input {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: var(--font-brand);
   font-weight: 650;
   color: var(--text);
   text-decoration: none;
   margin-right: auto;
 }
-.brand img {
-  border-radius: 6px;
+.logo {
+  display: inline-flex;
+}
+/* The dark logo wherever the dark colors apply, by the same rule as appearanceCss(). */
+.logo-dark,
+:root[data-theme="dark"] .logo-light {
+  display: none;
+}
+:root[data-theme="dark"] .logo-dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .logo-light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .logo-dark {
+    display: block;
+  }
 }
 
 /* While reading, the header scrolls away with the page. */
@@ -1005,6 +1025,9 @@ details summary {
 }
 .sign-in img {
   margin-bottom: 8px;
+}
+.sign-in h1 {
+  font-family: var(--font-brand);
 }
 .sign-in .button {
   width: 100%;

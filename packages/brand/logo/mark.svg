@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The logo: a bookmark ribbon hangs from the top edge, folds back at 45 degrees
+       and runs to the right, showing its pale green back and ending in a notch.
+       The lines of text on the long arm are the article, and the one line on the
+       folded arm is its gist. mark-dark.svg is the version for dark themes, and
+       mark-small.svg the plain ribbon for 16 and 32 px. -->
+  <rect width="512" height="512" rx="112" fill="#1f6f5c"/>
+  <path d="M264 260H416L342 334L416 408H264Z" fill="#c8e2d8"/>
+  <path d="M116 0H264V408L116 260Z" fill="#fbfaf7"/>
+  <g fill="#7fb5a2">
+    <rect x="146" y="44" width="88" height="14" rx="7"/>
+    <rect x="146" y="80" width="88" height="14" rx="7"/>
+    <rect x="146" y="116" width="88" height="14" rx="7"/>
+    <rect x="146" y="152" width="88" height="14" rx="7"/>
+    <rect x="146" y="188" width="60" height="14" rx="7"/>
+  </g>
+  <rect x="286" y="326" width="44" height="16" rx="8" fill="#1f6f5c"/>
+</svg>
