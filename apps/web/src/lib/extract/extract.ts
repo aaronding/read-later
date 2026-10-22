@@ -8,9 +8,11 @@ import {
   checkPreview,
   findPaywallMarkup,
   isJsonLdType,
-  hasPasswordField,
   hasPaywallMarker,
+  markPasswordFields,
   MIN_ARTICLE_WORDS,
+  passwordFieldBesideHeadline,
+  passwordMarksIn,
   readJsonLd,
   removeNonFreeSections,
   type PreviewKind,
@@ -168,10 +170,10 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
   const document = dom.window.document;
 
   try {
-    // Read everything Readability would remove (scripts, forms) first.
+    // Read, or mark, everything Readability would remove (scripts, forms) first.
     const canonicalHref = document.querySelector('link[rel~="canonical" i]')?.getAttribute("href") ?? null;
     const paywall = findPaywallMarkup(readJsonLd(document));
-    const passwordField = hasPasswordField(document);
+    markPasswordFields(document);
     const paywallMarker = hasPaywallMarker(document);
     const pageTitle = document.title?.trim() ?? "";
     const metaTitle = meta(document, "og:title", "twitter:title");
@@ -180,6 +182,7 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     const metaPublished = meta(document, "article:published_time", "og:published_time", "datePublished", "date");
     const metaDescription = meta(document, "description", "og:description");
     const htmlLang = document.documentElement.getAttribute("lang")?.trim() || null;
+    const besideHeadline = passwordFieldBesideHeadline(document, { titles: [metaTitle, pageTitle], siteName: metaSite });
 
     const removed =
       input.contentSource === "server" ? removeNonFreeSections(document, paywall.selectors) : { count: 0, containers: [] };
@@ -189,7 +192,14 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     // what is left of it, not whatever Readability finds elsewhere on the
     // page, such as a sidebar of stock prices.
     if (removedSections > 0) keepOnlyFreePart(document, removed.containers);
-    let article = new Readability(document).parse();
+    let keptPasswordField = false;
+    let article = new Readability(document, {
+      serializer: (content) => {
+        const element = content as Element;
+        keptPasswordField = passwordMarksIn(element);
+        return element.innerHTML;
+      },
+    }).parse();
     let textContent = cleanText(article?.textContent ?? "");
     let { wordCount, readingMinutes } = textStats(textContent);
     if (removedSections > 0 && wordCount < MIN_ARTICLE_WORDS) {
@@ -215,7 +225,7 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
       httpStatus: input.httpStatus,
       paywall,
       removedSections,
-      passwordField,
+      passwordFieldInArticle: keptPasswordField || besideHeadline,
       paywallMarker,
       pageTitle: pageTitle || title,
       foundArticle: Boolean(contentHtml && textContent),
