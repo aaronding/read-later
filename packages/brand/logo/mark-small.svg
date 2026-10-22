@@ -1,19 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- mark.svg without its lines of text, redrawn on a 32 px grid, a little bolder,
-       so the 16 and 32 px icons and the favicon stay sharp. As the favicon it takes
-       mark-dark.svg's colors when the browser is in dark mode; the PNGs are drawn
-       in the light ones. -->
+  <!-- mark.svg redrawn on a 32 px grid: the slips and the cord as plain 2 px lines
+       on whole pixels, without the carving or the notch, so the 16 and 32 px icons
+       and the favicon stay sharp. As the favicon it takes mark-dark.svg's colors
+       when the browser is in dark mode; the PNGs are drawn in the light ones. -->
   <style>
     .tile { fill: #1f6f5c }
-    .back { fill: #c8e2d8 }
-    .front { fill: #fbfaf7 }
+    .ink { stroke: #fbfaf7 }
     @media (prefers-color-scheme: dark) {
       .tile { fill: #123d33 }
-      .back { fill: #47a487 }
-      .front { fill: #5cc2a4 }
+      .ink { stroke: #5cc2a4 }
     }
   </style>
   <rect class="tile" width="32" height="32" rx="7"/>
-  <path class="back" d="M18 16H28L23 21L28 26H18Z"/>
-  <path class="front" d="M8 0H18V26L8 16Z"/>
+  <path class="ink" d="M9 10V23M13 6V26M17 11V22M21 7V24M6 17H22L26 19L22 21H7" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
