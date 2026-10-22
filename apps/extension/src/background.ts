@@ -1,5 +1,6 @@
-// The extension's service worker: the toolbar button and its keyboard
-// shortcut save the current page; the right-click menu saves a link.
+// The extension's background script (a service worker in Chrome, an event
+// page in Firefox): the toolbar button and its keyboard shortcut save the
+// current page; the right-click menu saves a link.
 import { sendSave, type Outcome, type SavePayload } from "./api.js";
 import { capturePage } from "./capture.js";
 import { loadSettings } from "./settings.js";
@@ -9,7 +10,8 @@ const MENU_ID = "save-link";
 const COLORS = { busy: "#6b7280", ok: "#1f6f5c", error: "#b42318" };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
-  chrome.contextMenus.create({ id: MENU_ID, title: `Save link to ${APP_NAME}`, contexts: ["link"] });
+  // Firefox for Android has no context menus; the toolbar action still works there.
+  chrome.contextMenus?.create({ id: MENU_ID, title: `Save link to ${APP_NAME}`, contexts: ["link"] });
   if (details.reason === "install") {
     const settings = await loadSettings();
     if (!settings.serverUrl || !settings.token) await chrome.runtime.openOptionsPage();
@@ -63,7 +65,7 @@ chrome.action.onClicked.addListener((tab) => {
   void savePage(tab);
 });
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus?.onClicked.addListener((info, tab) => {
   if (info.menuItemId !== MENU_ID || !info.linkUrl) return;
   if (!/^https?:/i.test(info.linkUrl)) {
     void showOutcome(tab?.id, { ok: false, message: "Only http and https links can be saved." });
