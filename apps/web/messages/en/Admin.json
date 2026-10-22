@@ -1,0 +1,21 @@
+{
+  "Admin": {
+    "usage": {
+      "title": "AI usage",
+      "intro": "What Claude did for each user and what it cost, from every answer it gave, usable or not. Weeks start on Monday, and every period is in UTC.",
+      "periodsLabel": "Period",
+      "period": "{period, select, week {By week} month {By month} year {By year} other {{period}}}",
+      "range": "{period, select, week {The last 12 weeks.} month {The last 12 months.} year {Every year.} other {}}",
+      "weekOf": "Week of {date}",
+      "user": "User",
+      "answers": "Answers",
+      "answersDetail": "{summaries, plural, one {# summary} other {# summaries}} · {translations, plural, one {# translation} other {# translations}}",
+      "tokens": "Tokens in / out",
+      "cost": "Cost",
+      "time": "Time",
+      "total": "Total",
+      "unpriced": "{count, plural, one {# answer} other {# answers}} without a known price",
+      "empty": "{period, select, week {No answers from Claude in the last 12 weeks.} month {No answers from Claude in the last 12 months.} other {No answers from Claude yet.}}"
+    }
+  }
+}

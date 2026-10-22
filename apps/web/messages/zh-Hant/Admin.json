@@ -1,0 +1,21 @@
+{
+  "Admin": {
+    "usage": {
+      "title": "AI 用量",
+      "intro": "依每位使用者列出 Claude 做了什麼、花了多少錢，資料來自它的每一次回答，不論能否使用。每週從星期一開始，所有時段都以 UTC 計算。",
+      "periodsLabel": "時段",
+      "period": "{period, select, week {依週} month {依月} year {依年} other {{period}}}",
+      "range": "{period, select, week {最近 12 週。} month {最近 12 個月。} year {所有年份。} other {}}",
+      "weekOf": "{date}當週",
+      "user": "使用者",
+      "answers": "回答",
+      "answersDetail": "摘要 {summaries, plural, other {# 次}} · 翻譯 {translations, plural, other {# 次}}",
+      "tokens": "輸入 / 輸出 Token",
+      "cost": "費用",
+      "time": "耗時",
+      "total": "合計",
+      "unpriced": "{count, plural, other {# 次回答}}沒有已知價格",
+      "empty": "{period, select, week {最近 12 週沒有 Claude 的回答。} month {最近 12 個月沒有 Claude 的回答。} other {還沒有 Claude 的回答。}}"
+    }
+  }
+}

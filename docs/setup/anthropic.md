@@ -15,7 +15,7 @@ Put it in Vercel's environment variables (and your local `.env`) as `ANTHROPIC_A
 
 ## 2. What it costs
 
-Prices are per million tokens (a token is roughly ¾ of an English word; Chinese and Japanese use more tokens per character). The app writes the estimated cost of each summary next to it.
+Prices are per million tokens (a token is roughly ¾ of an English word; Chinese and Japanese use more tokens per character). Admins (the emails in `ADMIN_EMAILS`) see the estimated cost of each summary next to it, and each user's total by week, month and year under **Usage**.
 
 | Model | Input | Output | One 2,000-word article, roughly |
 | --- | --- | --- | --- |
@@ -27,13 +27,13 @@ Comparison mode runs all three on every save, so it costs about as much as the t
 
 ## 3. Choosing the default model
 
-The default for new saves is Claude Opus 5.5. To pick your own:
+The default for new saves is Claude Opus 5.5. Comparison mode, Compare models and Re-summarize are for admins, so first put your own email in `ADMIN_EMAILS` (in Vercel and your `.env`). Then, to pick your own default:
 
 1. Turn on **Settings → Comparison mode** for a few days, or open an article and click **Compare models** to run the others on it.
 2. On each article's **Compare** page, read the three summaries side by side, with their cost and time.
 3. Choose the one you like in **Settings → Default model**, and turn comparison mode off.
 
-You can always re-run one article with another model with **Re-summarize** under its summary.
+As an admin you can always re-run one article with another model with **Re-summarize** under its summary. Everyone else gets summaries from their default model only.
 
 ## Good to know
 

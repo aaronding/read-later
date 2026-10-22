@@ -15,7 +15,7 @@ import { SuggestedTags } from "@/components/suggested-tags";
 import { SummaryTranslations } from "@/components/summary-translations";
 import { getDb } from "@/db";
 import { storedMessageText } from "@/i18n/stored-message";
-import { requireUser } from "@/lib/auth";
+import { isAdmin, requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
 import { listTranslations, translationRunsLeft } from "@/lib/translations";
@@ -31,6 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ReaderPage({ params }: Props) {
   const { id } = await params;
   const user = await requireUser(`/articles/${id}`);
+  const admin = isAdmin(user);
   const db = getDb();
   const [found, folders] = await Promise.all([getArticle(db, user.id, id), listFolders(db, user.id)]);
   if (!found) notFound();
@@ -125,19 +126,19 @@ export default async function ReaderPage({ params }: Props) {
         <SummaryCard
           articleId={article.id}
           summary={ready}
+          admin={admin}
           translations={<SummaryTranslations summary={ready} translations={translations} runsLeft={runsLeft} />}
         >
           <SuggestedTags articleId={article.id} userId={user.id} suggestions={ready.suggestedTags ?? []} />
         </SummaryCard>
       ) : (
         article.status === "ready" && (
-          <p className="muted small">
-            {found.summaries.length === 0
-              ? t.rich("noSummary", {
-                  compare: (chunks) => <Link href={`/articles/${article.id}/compare`}>{chunks}</Link>,
-                })
-              : <Link href={`/articles/${article.id}/compare`}>{tCommon("compareModels")}</Link>}
-          </p>
+          (found.summaries.length === 0 || admin) && (
+            <p className="muted small">
+              {found.summaries.length === 0 && t("noSummary")}{" "}
+              {admin && <Link href={`/articles/${article.id}/compare`}>{tCommon("compareModels")}</Link>}
+            </p>
+          )
         )
       )}
 

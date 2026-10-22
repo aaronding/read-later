@@ -21,6 +21,7 @@ Before this, set up [Neon](neon.md) (and run the migrations), the [Google OAuth 
    | `BETTER_AUTH_SECRET` | a random secret (see `.env.example`) |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from Google |
    | `ALLOWED_EMAILS` | your Gmail address |
+   | `ADMIN_EMAILS` | your Gmail address, to see costs, Compare and the AI usage report |
    | `ANTHROPIC_API_KEY` | from the Claude Console |
    | `JOBS_SECRET` | a random secret; the cron Worker uses the same one |
 

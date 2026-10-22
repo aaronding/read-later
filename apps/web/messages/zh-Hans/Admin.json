@@ -1,0 +1,21 @@
+{
+  "Admin": {
+    "usage": {
+      "title": "AI 用量",
+      "intro": "按用户列出 Claude 做了什么、花了多少钱，数据来自它的每一次回答，不论能否使用。每周从周一开始，所有时段都按 UTC 计算。",
+      "periodsLabel": "时段",
+      "period": "{period, select, week {按周} month {按月} year {按年} other {{period}}}",
+      "range": "{period, select, week {最近 12 周。} month {最近 12 个月。} year {所有年份。} other {}}",
+      "weekOf": "{date}当周",
+      "user": "用户",
+      "answers": "回答",
+      "answersDetail": "摘要 {summaries, plural, other {# 次}} · 翻译 {translations, plural, other {# 次}}",
+      "tokens": "输入 / 输出词元",
+      "cost": "费用",
+      "time": "耗时",
+      "total": "合计",
+      "unpriced": "{count, plural, other {# 次回答}}没有已知价格",
+      "empty": "{period, select, week {最近 12 周没有 Claude 的回答。} month {最近 12 个月没有 Claude 的回答。} other {还没有 Claude 的回答。}}"
+    }
+  }
+}

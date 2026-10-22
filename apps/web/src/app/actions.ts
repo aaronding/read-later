@@ -8,7 +8,7 @@ import { APP_NAME } from "@/config/app";
 import { isSummaryModel } from "@/config/models";
 import { getDb } from "@/db";
 import { LOCALE_COOKIE, isLocale } from "@/i18n/locales";
-import { requireUser } from "@/lib/auth";
+import { isAdmin, requireAdmin, requireUser } from "@/lib/auth";
 import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
 import {
@@ -74,13 +74,13 @@ export async function deleteAction(formData: FormData) {
 
 export async function retryAction(formData: FormData) {
   const user = await requireUser();
-  await retryArticle(getDb(), user.id, articleId(formData));
+  await retryArticle(getDb(), user.id, articleId(formData), { admin: isAdmin(user) });
   scheduleJobProcessing();
   refresh();
 }
 
 export async function resummarizeAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdmin();
   const model = formData.get("model");
   if (!isSummaryModel(model)) throw new Error("Unknown model.");
   await resummarize(getDb(), user.id, articleId(formData), model, formData.get("show") !== "false");
@@ -89,7 +89,7 @@ export async function resummarizeAction(formData: FormData) {
 }
 
 export async function showSummaryAction(formData: FormData) {
-  const user = await requireUser();
+  const user = await requireAdmin();
   const model = formData.get("model");
   if (!isSummaryModel(model)) throw new Error("Unknown model.");
   await showSummaryFrom(getDb(), user.id, articleId(formData), model);
@@ -173,7 +173,10 @@ export async function updateSettingsAction(formData: FormData) {
   const user = await requireUser();
   const model = formData.get("defaultModel");
   if (!isSummaryModel(model)) throw new Error("Unknown model.");
-  await updateSettings(getDb(), user.id, { defaultModel: model, comparisonMode: formData.get("comparisonMode") === "on" });
+  await updateSettings(getDb(), user.id, {
+    defaultModel: model,
+    comparisonMode: isAdmin(user) && formData.get("comparisonMode") === "on",
+  });
   refresh();
 }
 

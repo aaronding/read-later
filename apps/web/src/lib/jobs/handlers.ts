@@ -1,10 +1,10 @@
 import { createHash } from "node:crypto";
 import { and, asc, eq, ne, sql } from "drizzle-orm";
 import { downloadUserAgent } from "@/config/app";
-import { envInt } from "@/config/env";
+import { envInt, isEmailAdmin } from "@/config/env";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
-import { articles, summaries, tags, type Article, type ContentSource, type Job } from "@/db/schema";
+import { articles, summaries, tags, users, type Article, type ContentSource, type Job } from "@/db/schema";
 import { englishText } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { extractArticle, PageTooLargeError, type ExtractedArticle, type ExtractInput } from "@/lib/extract/extract";
@@ -196,18 +196,24 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
     // A login page or an empty page has nothing worth summarizing.
     if (!wantSummaries) return;
 
-    // New content: summarize with the models for a new save, plus any model
-    // that already summarized an earlier (preview) copy.
+    // New content: an admin's save runs the models for a new save, plus any
+    // model that already summarized an earlier (preview) copy. Anyone else's
+    // runs only the summary they are shown, so comparing models stays an
+    // admin's cost.
     const settings = await getSettings(tx, job.userId);
-    const earlier = await tx
-      .select({ model: summaries.model })
-      .from(summaries)
-      .where(eq(summaries.articleId, article.id));
-    const models = new Set<SummaryModel>(modelsForNewSave(settings));
-    for (const { model } of earlier) if (isSummaryModel(model)) models.add(model);
+    const [owner] = await tx.select({ email: users.email }).from(users).where(eq(users.id, job.userId)).limit(1);
+    const admin = isEmailAdmin(owner?.email);
     const primary = isSummaryModel(article.summaryModel) ? article.summaryModel : settings.defaultModel;
     if (primary !== article.summaryModel) {
       await tx.update(articles).set({ summaryModel: primary }).where(eq(articles.id, article.id));
+    }
+    const models = new Set<SummaryModel>(admin ? modelsForNewSave(settings, true) : [primary]);
+    if (admin) {
+      const earlier = await tx
+        .select({ model: summaries.model })
+        .from(summaries)
+        .where(eq(summaries.articleId, article.id));
+      for (const { model } of earlier) if (isSummaryModel(model)) models.add(model);
     }
     for (const model of models) {
       await requestSummary(tx, { userId: job.userId, articleId: article.id, model });

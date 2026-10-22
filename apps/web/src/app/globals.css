@@ -1090,3 +1090,55 @@ details summary {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* ---------- AI usage report ---------- */
+.usage section {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.usage h2 {
+  font-size: 1.15rem;
+}
+.usage-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0 4px;
+}
+.usage-periods a {
+  color: var(--muted);
+  text-decoration: none;
+}
+.usage-periods a[aria-current="page"] {
+  color: var(--text);
+  font-weight: 600;
+}
+.usage-table {
+  overflow-x: auto;
+}
+.usage-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.usage-table th,
+.usage-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+}
+.usage-table thead th {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.usage-table td {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.usage-table tfoot th,
+.usage-table tfoot td {
+  font-weight: 600;
+  border-bottom: none;
+}

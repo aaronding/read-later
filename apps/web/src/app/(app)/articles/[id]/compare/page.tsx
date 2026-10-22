@@ -12,10 +12,13 @@ import { MODEL_INFO, SUMMARY_MODELS, type SummaryModel } from "@/config/models";
 import { getDb } from "@/db";
 import type { Summary } from "@/db/schema";
 import { storedMessageText } from "@/i18n/stored-message";
-import { requireUser } from "@/lib/auth";
+import { getCurrentUser, isAdmin, requireAdmin } from "@/lib/auth";
 import { getArticle } from "@/lib/library";
 
 export async function generateMetadata(): Promise<Metadata> {
+  // The title too would tell anyone else the page exists.
+  const user = await getCurrentUser();
+  if (!user || !isAdmin(user)) return {};
   const t = await getTranslations("Compare");
   return { title: t("title") };
 }
@@ -120,7 +123,7 @@ function ModelColumn({ articleId, model, summary, shown }: { articleId: string; 
 
 export default async function ComparePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const user = await requireUser(`/articles/${id}/compare`);
+  const user = await requireAdmin(`/articles/${id}/compare`);
   const found = await getArticle(getDb(), user.id, id);
   if (!found) notFound();
   const { article, summaries } = found;

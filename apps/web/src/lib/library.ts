@@ -228,7 +228,8 @@ export async function deleteArticle(db: Db, userId: string, id: string) {
 }
 
 /** Retry a failed download or failed summaries; a retry waiting for its backoff runs now. */
-export async function retryArticle(db: Db, userId: string, id: string) {
+/** Tries a failed article again, or its failed summaries: for anyone but an admin, only the one shown. */
+export async function retryArticle(db: Db, userId: string, id: string, { admin }: { admin: boolean }) {
   const found = await getArticle(db, userId, id);
   if (!found) return;
   const { article } = found;
@@ -240,6 +241,7 @@ export async function retryArticle(db: Db, userId: string, id: string) {
   } else {
     for (const summary of found.summaries) {
       if (!isSummaryModel(summary.model)) continue;
+      if (!admin && summary.model !== article.summaryModel) continue;
       // Failed summaries, and any stuck as pending or running with no job.
       const stuck =
         (summary.status === "pending" || summary.status === "running") &&

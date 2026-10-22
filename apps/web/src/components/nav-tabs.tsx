@@ -12,13 +12,16 @@ const TABS = [
   { href: "/settings", label: "settings" },
 ] as const;
 
-export function NavTabs() {
+/** Only admins (ADMIN_EMAILS) see the AI usage report. */
+const ADMIN_TABS = [{ href: "/admin/usage", label: "usage" }] as const;
+
+export function NavTabs({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();
   const t = useTranslations("Library");
   const tCommon = useTranslations("Common");
   return (
     <nav className="tabs" aria-label={t("sectionsLabel")}>
-      {TABS.map((tab) => (
+      {[...TABS, ...(admin ? ADMIN_TABS : [])].map((tab) => (
         <Link key={tab.href} href={tab.href} aria-current={pathname.startsWith(tab.href) ? "page" : undefined}>
           {tCommon(tab.label)}
         </Link>

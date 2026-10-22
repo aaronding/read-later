@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { isEmailAllowed } from "./env";
+import { isEmailAdmin, isEmailAllowed } from "./env";
 
 describe("ALLOWED_EMAILS", () => {
   const original = process.env.ALLOWED_EMAILS;
@@ -20,5 +20,25 @@ describe("ALLOWED_EMAILS", () => {
     expect(isEmailAllowed(undefined)).toBe(false);
     process.env.ALLOWED_EMAILS = "";
     expect(isEmailAllowed("owner@example.com")).toBe(false);
+  });
+});
+
+describe("ADMIN_EMAILS", () => {
+  const original = process.env.ADMIN_EMAILS;
+  afterEach(() => {
+    if (original === undefined) delete process.env.ADMIN_EMAILS;
+    else process.env.ADMIN_EMAILS = original;
+  });
+
+  it("makes the listed emails admins, ignoring case and spacing, and no one else", () => {
+    process.env.ADMIN_EMAILS = " Owner@Example.com,\nsecond@example.com ";
+    expect(isEmailAdmin("owner@example.com")).toBe(true);
+    expect(isEmailAdmin("SECOND@example.com")).toBe(true);
+    expect(isEmailAdmin("third@example.com")).toBe(false);
+    expect(isEmailAdmin(null)).toBe(false);
+    process.env.ADMIN_EMAILS = "";
+    expect(isEmailAdmin("owner@example.com")).toBe(false);
+    delete process.env.ADMIN_EMAILS;
+    expect(isEmailAdmin("owner@example.com")).toBe(false);
   });
 });

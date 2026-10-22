@@ -5,10 +5,10 @@ import { APIError } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 import { APP_NAME } from "@/config/app";
-import { appUrl, isEmailAllowed, requireEnv } from "@/config/env";
+import { appUrl, isEmailAdmin, isEmailAllowed, requireEnv } from "@/config/env";
 import { getDb } from "@/db";
 import { accounts, sessions, users, verifications } from "@/db/schema";
 
@@ -102,5 +102,17 @@ export async function requireUser(next?: string): Promise<SessionUser> {
   if (!user) {
     redirect(next ? `/sign-in?next=${encodeURIComponent(next)}` : "/sign-in");
   }
+  return user;
+}
+
+/** True for an admin (ADMIN_EMAILS). */
+export function isAdmin(user: SessionUser): boolean {
+  return isEmailAdmin(user.email);
+}
+
+/** Use in admin pages and actions: anyone else gets a 404, as if the page didn't exist. */
+export async function requireAdmin(next?: string): Promise<SessionUser> {
+  const user = await requireUser(next);
+  if (!isAdmin(user)) notFound();
   return user;
 }
