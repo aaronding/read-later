@@ -2,16 +2,16 @@
 
 A personal read-later app in the spirit of Pocket. Save an article while you browse; the app keeps the original link, a clean copy of the article, and a short summary written by Claude in the article's own language.
 
-"Read Later" is a working name. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the Chrome extension included.
+"Read Later" is a working name. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the browser extension included.
 
-This is **stage 1**: one owner, Google sign-in, saving from Chrome, Safari and Android, and reading and comparing summaries in the web app. The later stages (an invite-only beta, a public launch, native apps) are described in [BRIEF.md](BRIEF.md); nothing here rules them out.
+This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Safari and Android, and reading and comparing summaries in the web app. The later stages (an invite-only beta, a public launch, native apps) are described in [BRIEF.md](BRIEF.md); nothing here rules them out.
 
 ## What's in the repository
 
 | Path | What it is |
 | --- | --- |
 | `apps/web` | The Next.js app: pages, sign-in, the save API, background jobs, the worker process |
-| `apps/extension` | The Chrome extension (Manifest V3, plain TypeScript) |
+| `apps/extension` | The browser extension for Chrome and Firefox (Manifest V3, plain TypeScript) |
 | `apps/cron-worker` | A tiny Cloudflare Worker that runs leftover jobs every 5 minutes |
 | `packages/brand` | The display name |
 | `docs/` | Setup guides, the Shortcut and extension guides, the server guide, and [decisions](docs/decisions.md) |
@@ -77,7 +77,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 | `pnpm db:migrate` | Applies database migrations to `DATABASE_URL_UNPOOLED`, or to `DATABASE_URL` when that isn't set |
 | `pnpm db:generate` | Creates a new migration after changing `apps/web/src/db/schema.ts` |
 | `pnpm worker` | Runs the background worker loop (only needed on a server) |
-| `pnpm extension:build` | Builds the Chrome extension into `apps/extension/dist` |
+| `pnpm extension:build` | Builds the extension for Chrome into `apps/extension/dist` and for Firefox into `apps/extension/dist-firefox` |
 
 ### Tests
 
@@ -107,6 +107,7 @@ Everything runs on free plans except the Claude API, which is paid per use. Each
 Then connect your devices:
 
 - [Chrome extension](docs/chrome-extension.md): toolbar button, keyboard shortcut and right-click "Save link".
+- [Firefox extension](docs/firefox-extension.md): the same extension, for Firefox.
 - [Safari Shortcut](docs/safari-shortcut.md): iPhone, iPad and Mac.
 - **Android**: open the app in Chrome, choose **Add to Home screen → Install**, and it appears in the Share menu.
 

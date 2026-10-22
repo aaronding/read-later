@@ -6,7 +6,7 @@ The extension saves the page you're reading to your Read Later library, includin
 - **Right-click a link → "Save link to Read Later"**: saves just the link; the server downloads the page.
 - **The badge** on the toolbar button shows `…` while saving, then **✓** when saved or **!** when something went wrong. Hover over the button to see the reason.
 
-It isn't published in the Chrome Web Store (that's planned for stage 3), so you install it from the repository with "Load unpacked". It works the same in Chrome and in other Chromium browsers such as Edge and Brave.
+It isn't published in the Chrome Web Store (that's planned for stage 3), so you install it from the repository with "Load unpacked". It works the same in Chrome and in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox extension](firefox-extension.md).
 
 ## Install
 
