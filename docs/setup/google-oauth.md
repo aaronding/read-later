@@ -17,7 +17,9 @@ You can redo the redirect addresses at any time, so if you don't have your final
 4. **Contact information:** your email. Agree to the policy and click **Create**.
 5. Open **Audience** and, under **Test users**, click **Add users** and add your own Gmail address.
 
-Leave the app in **Testing** for now (publishing it is a stage 3 task). The app only asks for your name, email address and profile picture. Google treats these as basic scopes: they need no review, and **Google doesn't limit them to your test users**, so any Google account could reach the consent screen. What keeps everyone else out is the app's own check, `ALLOWED_EMAILS`. Only the addresses listed there get an account.
+Leave the app in **Testing** while only the addresses in `ALLOWED_EMAILS` use it. The app only asks for your name, email address and profile picture. Google treats these as basic scopes: they need no review, and **Google doesn't limit them to your test users**, so any Google account could reach the consent screen. What keeps everyone else out is the app's own check, `ALLOWED_EMAILS`. Only the addresses listed there get an account.
+
+To open sign-in to everyone, set `ALLOWED_EMAILS` to `*` and publish the app: open **Audience** and click **Publish app**. With only basic scopes, publishing needs no review. `BLOCKED_EMAILS` then keeps particular accounts out.
 
 ## 3. Create the OAuth client
 

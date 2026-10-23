@@ -37,7 +37,7 @@ Edit `.env` (`nano .env`). Copy your current values from Vercel (Project Setting
 - Add `POSTGRES_PASSWORD=` with a long random value.
 - Add `COMPOSE_PROFILES=tunnel` and `CLOUDFLARE_TUNNEL_TOKEN=` (step 3).
 - Add the four `R2_…` values from [the R2 guide](setup/r2-backups.md) for the nightly backup (step 6).
-- Keep `APP_URL`, `BETTER_AUTH_SECRET`, the Google values, `ALLOWED_EMAILS`, `ADMIN_EMAILS`, `ANTHROPIC_API_KEY` and `JOBS_SECRET` exactly as they are, so sessions, tokens and Google sign-in keep working.
+- Keep `APP_URL`, `BETTER_AUTH_SECRET`, the Google values, `ALLOWED_EMAILS`, `BLOCKED_EMAILS`, `ADMIN_EMAILS`, `ANTHROPIC_API_KEY` and `JOBS_SECRET` exactly as they are, so sessions, tokens and Google sign-in keep working.
 
 ## 3. Create the Cloudflare Tunnel
 
