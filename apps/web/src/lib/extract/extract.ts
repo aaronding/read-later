@@ -153,6 +153,55 @@ function keepOnlyFreePart(document: Document, containers: Element[]): void {
   document.body.replaceChildren(...containers);
 }
 
+/** How much of `text`, from its start, `held` holds, whitespace aside. */
+function heldLength(text: string, held: string): number {
+  const stripped = text.replace(/\s+/g, "");
+  // Every shorter part of a held start is held too, so a binary search finds the longest.
+  let low = 0;
+  let high = stripped.length;
+  while (low < high) {
+    const middle = Math.ceil((low + high) / 2);
+    if (held.includes(stripped.slice(0, middle))) low = middle;
+    else high = middle - 1;
+  }
+  let seen = 0;
+  for (let index = 0; index < text.length; index++) {
+    if (seen === low) return index;
+    if (!/\s/.test(text[index]!)) seen++;
+  }
+  return text.length;
+}
+
+/**
+ * The page's description as paragraphs, as far as the sections marked not
+ * free hold it, when that is as long as an article: some publishers give the
+ * whole text away there, to anyone, as LinkedIn does for a post. What they add
+ * after the text, such as LinkedIn's count of comments, is left out. Null for
+ * a sentence or two, or for a blurb about the site those sections don't hold.
+ * Whitespace is left out of the comparison, since a page may break its lines
+ * with tags where the description has a newline.
+ */
+function describedArticle(
+  document: Document,
+  description: string | null,
+  removedText: string,
+): { html: string; text: string } | null {
+  const whole = cleanText(description ?? "");
+  if (textStats(whole).wordCount < MIN_ARTICLE_WORDS) return null;
+  const text = cleanText(whole.slice(0, heldLength(whole, removedText.replace(/\s+/g, ""))));
+  if (textStats(text).wordCount < MIN_ARTICLE_WORDS) return null;
+  const container = document.createElement("div");
+  for (const paragraph of text.split("\n\n")) {
+    const element = document.createElement("p");
+    paragraph.split("\n").forEach((line, index) => {
+      if (index > 0) element.append(document.createElement("br"));
+      element.append(line);
+    });
+    container.append(element);
+  }
+  return { html: container.innerHTML, text };
+}
+
 const HIDDEN_BY_STYLE = /(^|;)\s*visibility\s*:\s*hidden\s*(!important\s*)?(;|$)/i;
 
 /** The elements hidden only by an inline `visibility: hidden`. */
@@ -192,7 +241,9 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     const besideHeadline = passwordFieldBesideHeadline(document, { titles: [metaTitle, pageTitle], siteName: metaSite });
 
     const removed =
-      input.contentSource === "server" ? removeNonFreeSections(document, paywall.selectors) : { count: 0, containers: [] };
+      input.contentSource === "server"
+        ? removeNonFreeSections(document, paywall.selectors)
+        : { count: 0, containers: [], text: "" };
     const removedSections = removed.count;
 
     // Without its subscriber-only sections, the free part of the article is
@@ -219,13 +270,18 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
       }
       article = readArticle(spare);
     }
+    let content = article?.content ?? "";
     let textContent = cleanText(article?.textContent ?? "");
     let { wordCount, readingMinutes } = textStats(textContent);
     if (removedSections > 0 && wordCount < MIN_ARTICLE_WORDS) {
-      // A caption and share buttons are not a free part worth keeping.
-      article = article && { ...article, content: "", textContent: "", excerpt: null };
-      textContent = "";
-      ({ wordCount, readingMinutes } = textStats(""));
+      // A caption and share buttons are not a free part worth keeping, but a
+      // description as long as an article is, since the publisher shows it to
+      // anyone, outside the sections it marks.
+      const described = describedArticle(document, metaDescription, removed.text);
+      article = article && { ...article, excerpt: null };
+      content = described?.html ?? "";
+      textContent = described?.text ?? "";
+      ({ wordCount, readingMinutes } = textStats(textContent));
     }
 
     const siteName =
@@ -237,7 +293,7 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
       short(input.fallbackTitle, 500) ??
       new URL(input.url).hostname;
     const title = stripSiteName(rawTitle, siteName);
-    const contentHtml = article?.content ? sanitizeArticleHtml(withoutLeadingTitle(article.content, title)) : null;
+    const contentHtml = content ? sanitizeArticleHtml(withoutLeadingTitle(content, title)) : null;
 
     const preview = checkPreview({
       contentSource: input.contentSource,

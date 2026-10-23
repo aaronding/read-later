@@ -100,6 +100,52 @@ describe("extractArticle: paywall markup", () => {
     expect(full.textContent).not.toContain("Stock 1 rose");
   });
 
+  describe("a description as long as an article", () => {
+    // Shaped like a LinkedIn post: the post and its comments are marked not
+    // free, and the description holds the whole post, then a comment count.
+    const paragraph = (n: number) => Array.from({ length: 40 }, (_, i) => `post${n}word${i}`).join(" ");
+    const post = `${paragraph(1)}\n\n${paragraph(2)}\nA line of its own &amp; more\n\n${paragraph(3)}`;
+    const page = (description: string, inSection = "") => `<!DOCTYPE html><html lang="en"><head><title>A post | LinkedIn</title>
+      <meta name="description" content="${description}">
+      <script type="application/ld+json">{"@type":"SocialMediaPosting","headline":"A post",
+        "hasPart":{"@type":"WebPageElement","isAccessibleForFree":false,"cssSelector":".details"}}</script></head>
+      <body><main><section class="details">${inSection}<p>${paragraph(1)}</p>
+      <p>${paragraph(2)}<br>A line of its own &amp; more</p><p>${paragraph(3)}</p>
+      <p>SECRET-COMMENT ${paragraph(9)}</p></section></main></body></html>`;
+
+    it("is kept, as far as the marked sections hold it, when nothing else is free", () => {
+      const result = extractArticle({ html: page(`${post} | 12 comments on LinkedIn`), url, contentSource: "server", httpStatus: 200 });
+      expect(result.contentHtml).toContain(`<p>${paragraph(2)}<br>A line of its own &amp; more</p>`);
+      expect(result.textContent).toBe(`${paragraph(1)}\n\n${paragraph(2)}\nA line of its own & more\n\n${paragraph(3)}`);
+      expect(result.textContent).not.toContain("SECRET-COMMENT");
+      expect(result.wordCount).toBe(126);
+      expect(result.previewKind).toBe("subscriber_only");
+      expect(result.previewReason).toEqual({ key: "preview.subscriberOnly" });
+    });
+
+    it("is not taken for the article when it is about the site", () => {
+      const blurb = `${paragraph(4)} ${paragraph(5)} ${paragraph(6)}`;
+      // JSON-LD in the marked section that repeats the description doesn't count.
+      const jsonLd = `<script type="application/ld+json">{"@type":"WebSite","description":"${blurb}"}</script>`;
+      for (const html of [page(blurb), page(blurb, jsonLd)]) {
+        const result = extractArticle({ html, url, contentSource: "server", httpStatus: 200 });
+        expect(result.contentHtml).toBeNull();
+        expect(result.wordCount).toBe(0);
+        expect(result.previewReason).toEqual({ key: "preview.subscriberOnlyNothingFree" });
+      }
+    });
+
+    it("is kept when the page breaks its lines with tags", () => {
+      const tagged = page(`Big news today!\n\n${post}`).replace(
+        `<section class="details"><p>`,
+        `<section class="details"><p>Big news today!<br><br>`,
+      );
+      const result = extractArticle({ html: tagged, url, contentSource: "server", httpStatus: 200 });
+      expect(result.contentHtml).toMatch(/^<p>Big news today!<\/p><p>post1word0 /);
+      expect(result.previewReason).toEqual({ key: "preview.subscriberOnly" });
+    });
+  });
+
   it("keeps the full copy the owner saved from their own signed-in browser", () => {
     const result = extractArticle({ html: html("paywalled-server.html"), url, contentSource: "client" });
     expect(result.textContent).toContain("SECRET-PAYWALLED-PARAGRAPH");
