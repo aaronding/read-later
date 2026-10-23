@@ -17,6 +17,7 @@ import {
   readJsonLd,
   removeNonFreeSections,
   setsCookie,
+  waitsForCookie,
   type PreviewKind,
 } from "./paywall";
 import { sanitizeArticleHtml } from "./sanitize";
@@ -145,21 +146,24 @@ function runs(element: DefaultTreeAdapterTypes.Element, inert: boolean): boolean
  * jsdom builds the DOM. parse5, the parser jsdom itself uses, decides where
  * each one starts and ends. The elements stay, with their attributes, and so
  * does JSON-LD, which the paywall rules read. On the way, it notes whether the
- * scripts set a cookie and move on, as a bot check's do.
+ * scripts set a cookie and move on, or wait for one and reload, as a bot
+ * check's do.
  */
 export function withoutScriptsAndStyles(html: string): { html: string; scriptMovesOn: boolean } {
   const document = parse(html, { scriptingEnabled: false });
   // Each node, and whether it is inside a template or noscript, where scripts never run.
   const stack: [DefaultTreeAdapterTypes.ParentNode, boolean][] = [[document, false]];
-  let cookie = false;
+  let setCookie = false;
   let moves = false;
+  let waits = false;
   while (stack.length > 0) {
     const [node, inert] = stack.pop()!;
     if ("tagName" in node && (node.tagName === "style" || (node.tagName === "script" && !isJsonLd(node)))) {
       if (node.tagName === "script" && runs(node, inert)) {
         const text = node.childNodes.map((child) => ("value" in child ? child.value : "")).join("");
-        cookie ||= setsCookie(text);
+        setCookie ||= setsCookie(text);
         moves ||= movesOn(text);
+        waits ||= waitsForCookie(text);
       }
       node.childNodes = [];
       continue;
@@ -168,7 +172,7 @@ export function withoutScriptsAndStyles(html: string): { html: string; scriptMov
     for (const child of node.childNodes) if ("childNodes" in child) stack.push([child, inside]);
     if ("content" in node) stack.push([node.content, true]); // <template>
   }
-  return { html: serialize(document), scriptMovesOn: cookie && moves };
+  return { html: serialize(document), scriptMovesOn: (setCookie && moves) || waits };
 }
 
 /**
