@@ -6,11 +6,11 @@ You need the app deployed with `JOBS_SECRET` set (see [Vercel](vercel.md)).
 
 ## 1. Set the app's address
 
-In `apps/cron-worker/wrangler.toml`, set `APP_URL` to your app's public address, without a trailing slash:
+In `apps/cron-worker/wrangler.toml`, `APP_URL` is the app's public address, without a trailing slash. Change it there if the address changes:
 
 ```toml
 [vars]
-APP_URL = "https://read.example.com"
+APP_URL = "https://www.readsooner.com"
 ```
 
 ## 2. Deploy it
@@ -37,7 +37,7 @@ The Worker has no public web address: it only runs on its schedule.
 You can also call the endpoint yourself to test it:
 
 ```sh
-curl -X POST https://read.example.com/api/jobs/run -H "Authorization: Bearer YOUR_JOBS_SECRET"
+curl -X POST https://www.readsooner.com/api/jobs/run -H "Authorization: Bearer YOUR_JOBS_SECRET"
 ```
 
 ## Later

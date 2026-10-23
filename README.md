@@ -118,7 +118,7 @@ Everything runs on free plans except the Claude API, which is paid per use. Each
 2. [Google OAuth client](docs/setup/google-oauth.md): Google sign-in.
 3. [Anthropic API key](docs/setup/anthropic.md): summaries (paid per use).
 4. [Vercel](docs/setup/vercel.md): hosts the web app.
-5. [DNS on Cloudflare](docs/setup/dns.md): your own address, such as `read.example.com`.
+5. [DNS on Cloudflare](docs/setup/dns.md): the app's address, `www.readsooner.com`.
 6. [Cloudflare Worker cron](docs/setup/cloudflare-worker-cron.md): the safety net for background jobs.
 7. [R2 backups](docs/setup/r2-backups.md): a nightly database backup.
 

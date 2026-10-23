@@ -17,7 +17,7 @@ The same steps are in the web app under **Settings → Save from Safari**, with 
    - **Mac:** open the **Shortcuts** app → **Shortcuts** menu → **Settings…** → **Advanced**, and turn on **Allow Running Scripts**.
    - **Mac, if Safari still refuses to run the script:** in Safari, open **Settings → Advanced** and turn on **Show features for web developers**. A **Developer** tab appears in Safari's settings; open it and turn on **Allow JavaScript from Apple Events** (under Automation). Quit and reopen Safari afterwards.
 
-In the steps below, replace `https://read.example.com` with your app's address (the `APP_URL` you set up).
+The steps below use the app's address, `https://www.readsooner.com`. Keep the `www`: `readsooner.com` only redirects there, and a redirected request can lose the token the Shortcut sends.
 
 ## Shortcut 1: "Save to ReadSooner" (Safari)
 
@@ -40,7 +40,7 @@ In the steps below, replace `https://read.example.com` with your app's address (
    ```
 
 5. Add the action **Get Contents of URL**:
-   - **URL**: `https://read.example.com/api/save`
+   - **URL**: `https://www.readsooner.com/api/save`
    - Tap **Show More** (on a Mac, the details are shown in the action):
      - **Method**: `POST`
      - **Headers**: add `Authorization` with the value `Bearer rl_…` (the word Bearer, a space, then your token). Add `Content-Type` with the value `application/json`.
@@ -55,7 +55,7 @@ In the steps below, replace `https://read.example.com` with your app's address (
 2. Add **Get URLs from Input** (from **Shortcut Input**).
 3. Add **Get Item from List** and choose **First Item**.
 4. Add **Get Contents of URL**:
-   - **URL**: `https://read.example.com/api/save`
+   - **URL**: `https://www.readsooner.com/api/save`
    - **Method**: `POST`
    - **Headers**: `Authorization` = `Bearer rl_…` (your token)
    - **Request Body**: **JSON**, with two **Text** fields: `url` set to the **Item from List** variable, and `source` set to `shortcut`

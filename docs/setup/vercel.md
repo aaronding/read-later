@@ -17,7 +17,7 @@ Before this, set up [Neon](neon.md) (and run the migrations), the [Google OAuth 
    | Name | Value |
    | --- | --- |
    | `DATABASE_URL` | Neon's **pooled** connection string for the `production` branch: `neon connection-string production --pooled`, or **Connect** with **Connection pooling** on. Not the one in your `.env`, which may be the dev branch's |
-   | `APP_URL` | `https://read.example.com`, or for now the Vercel address shown after the first deploy |
+   | `APP_URL` | `https://www.readsooner.com`, or until the domain is set up, the Vercel address shown after the first deploy |
    | `BETTER_AUTH_SECRET` | a random secret (see `.env.example`) |
    | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | from Google |
    | `ALLOWED_EMAILS` | your Gmail address |

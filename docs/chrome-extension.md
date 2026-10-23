@@ -28,7 +28,7 @@ Its text is in the browser's language when that is English, French, Simplified C
    4. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner** so its button is always visible.
 
 3. **Connect it to your account.** The options page opens by itself after installing. You can also reach it by right-clicking the toolbar button and choosing **Options**.
-   1. **Server URL**: the address of your web app, such as `https://read.example.com` (or `http://localhost:3000` when developing).
+   1. **Server URL**: the address of your web app, `https://www.readsooner.com` (or `http://localhost:3000` when developing).
    2. **Access token**: in the web app, open **Settings → Access tokens**, create a token named for this browser (for example "Chrome on my laptop"), and paste it here. It starts with `rl_`.
    3. Click **Save and check**. "Connected to ReadSooner" means it's working.
 

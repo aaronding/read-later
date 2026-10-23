@@ -24,11 +24,11 @@ Leave the app in **Testing** for now (publishing it is a stage 3 task). The app 
 1. Open **Clients** and click **Create client**.
 2. **Application type:** **Web application**. **Name:** `ReadSooner web`.
 3. **Authorized JavaScript origins:** add each address the app runs at:
-   - `https://read.example.com` (your domain)
+   - `https://www.readsooner.com`
    - `http://localhost:3000` (for development)
    - optionally the Vercel address, such as `https://read-later-yourname.vercel.app`
 4. **Authorized redirect URIs:** the same addresses followed by `/api/auth/callback/google`:
-   - `https://read.example.com/api/auth/callback/google`
+   - `https://www.readsooner.com/api/auth/callback/google`
    - `http://localhost:3000/api/auth/callback/google`
 5. Click **Create**. Copy the **Client ID** and the **Client secret** now, or download them as JSON. Google only shows the full secret at this moment; later you'd have to create a new one.
 
