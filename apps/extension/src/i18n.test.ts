@@ -19,20 +19,20 @@ function messagesFrom(catalogue: Catalogue): GetMessage {
   };
 }
 
-const english = withBrand(readCatalogues()[DEFAULT_LOCALE], "Read Later") as Catalogue;
+const english = withBrand(readCatalogues()[DEFAULT_LOCALE], "ReadSooner") as Catalogue;
 const getMessage = messagesFrom(english);
 const text = (outcome: Outcome) => outcomeText(outcome, getMessage);
 
 describe("outcomeText", () => {
   it("says what happened to a save", () => {
-    expect(text({ ok: true, kind: "saved", linkOnly: false })).toBe("Saved to Read Later");
+    expect(text({ ok: true, kind: "saved", linkOnly: false })).toBe("Saved to ReadSooner");
     expect(text({ ok: true, kind: "saved", linkOnly: true })).toBe(
-      "Saved to Read Later (link only: the page was too large to send)",
+      "Saved to ReadSooner (link only: the page was too large to send)",
     );
-    expect(text({ ok: true, kind: "alreadySaved", linkOnly: false })).toBe("Already in Read Later, moved to the top");
-    expect(text({ ok: true, kind: "refetching", linkOnly: false })).toBe("Already in Read Later, downloading it again");
+    expect(text({ ok: true, kind: "alreadySaved", linkOnly: false })).toBe("Already in ReadSooner, moved to the top");
+    expect(text({ ok: true, kind: "refetching", linkOnly: false })).toBe("Already in ReadSooner, downloading it again");
     expect(text({ ok: true, kind: "alreadySaved", linkOnly: true })).toBe(
-      "Already in Read Later, moved to the top (link only: the page was too large to send)",
+      "Already in ReadSooner, moved to the top (link only: the page was too large to send)",
     );
   });
 
@@ -44,7 +44,7 @@ describe("outcomeText", () => {
   });
 
   it("explains the setup and the connection", () => {
-    expect(text({ ok: true, kind: "connected" })).toBe("Connected to Read Later. You’re ready to save pages.");
+    expect(text({ ok: true, kind: "connected" })).toBe("Connected to ReadSooner. You’re ready to save pages.");
     expect(text({ ok: false, kind: "notConfigured" })).toBe(
       "Open the extension’s options and enter the server URL and an access token.",
     );
@@ -52,7 +52,7 @@ describe("outcomeText", () => {
       "Couldn’t reach https://read.example.com: Failed to fetch",
     );
     expect(text({ ok: false, kind: "notTheApp", server: "https://example.com" })).toBe(
-      "Something other than Read Later answered at https://example.com. Check the server URL.",
+      "Something other than ReadSooner answered at https://example.com. Check the server URL.",
     );
   });
 
@@ -89,9 +89,9 @@ describe("localizePage", () => {
       <input data-i18n-placeholder="tokenLabel" data-i18n-title="serverUrlHint" />`;
     localizePage(document, getMessage);
     expect(document.documentElement.lang).toBe("en");
-    expect(document.title).toBe("Read Later options");
+    expect(document.title).toBe("ReadSooner options");
     expect(document.querySelector("label")!.textContent).toBe("Server URL");
     expect(document.querySelector("input")!.placeholder).toBe("Access token");
-    expect(document.querySelector("input")!.title).toBe("The address of your Read Later web app.");
+    expect(document.querySelector("input")!.title).toBe("The address of your ReadSooner web app.");
   });
 });

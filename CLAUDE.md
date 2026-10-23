@@ -1,4 +1,4 @@
-# Read Later
+# ReadSooner
 
 A personal read-later app. Read these before changing anything:
 

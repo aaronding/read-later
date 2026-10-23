@@ -3,11 +3,11 @@
   <img src="packages/brand/logo/mark.svg" alt="" width="64">
 </picture>
 
-# Read Later
+# ReadSooner
 
 A personal read-later app in the spirit of Pocket. Save an article while you browse; the app keeps the original link, a clean copy of the article, and a short summary written by Claude in the article's own language.
 
-"Read Later" is a working name. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the browser extension included. The logo, in [`packages/brand/logo`](packages/brand/logo), doesn't spell out the name, so it can stay.
+Its domain is readsooner.com. The display name is the `APP_NAME` constant in [`packages/brand/index.js`](packages/brand/index.js); change it there and everything follows, the browser extension included. The repository, the `@read-later` packages and the `readlater` database keep the working name, Read Later ([decision 117](docs/decisions.md)). The logo, in [`packages/brand/logo`](packages/brand/logo), doesn't spell out the name, so it can stay.
 
 This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Safari and Android, and reading and comparing summaries in the web app. The later stages (an invite-only beta, a public launch, native apps) are described in [BRIEF.md](BRIEF.md); nothing here rules them out.
 
@@ -146,7 +146,7 @@ Choices the brief didn't settle are recorded, with the reasoning, in [docs/decis
 
 ## How this is being built
 
-Read Later is built by Aaron Ding with Claude, in Claude Code.
+ReadSooner is built by Aaron Ding with Claude, in Claude Code.
 
 - **Planning.** [BRIEF.md](BRIEF.md) sets what each stage builds. Where it leaves a choice open, Claude makes one and records it, with the reasoning, in [docs/decisions.md](docs/decisions.md).
 - **Research.** The facts in the setup guides were checked by a separate Claude agent against the vendors' current documentation.

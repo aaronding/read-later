@@ -74,7 +74,7 @@ describe("export", () => {
 
   it("writes readable Markdown", async () => {
     const markdown = await markdownIn("en", await loadExport(db, "user-1"));
-    expect(markdown).toContain("# Read Later export");
+    expect(markdown).toContain("# ReadSooner export");
     expect(markdown).toMatch(/^Exported \d{4}-\d{2}-\d{2} · 1 article$/m);
     expect(markdown).toMatch(/^- saved \d{4}-\d{2}-\d{2} · unread · in Inbox · ★ favorite$/m);
     expect(markdown).toContain("## Community orchards");

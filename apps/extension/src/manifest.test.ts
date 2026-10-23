@@ -7,7 +7,7 @@ import { DEFAULT_LOCALE, readCatalogues } from "../locales.mjs";
 import { FIREFOX_ID, manifest } from "../manifest.mjs";
 import { zipDirectory } from "../zip.mjs";
 
-const info = { name: "Read Later", shortName: "Read Later", version: "0.1.0" };
+const info = { name: "ReadSooner", shortName: "ReadSooner", version: "0.1.0" };
 
 describe("manifest", () => {
   it("keeps the product's name and takes the rest of its text from the catalogues", () => {
@@ -15,7 +15,7 @@ describe("manifest", () => {
     for (const target of ["chrome", "firefox"] as const) {
       const built = manifest(target, info);
       expect(built.default_locale).toBe("en");
-      expect([built.name, built.short_name]).toEqual(["Read Later", "Read Later"]);
+      expect([built.name, built.short_name]).toEqual(["ReadSooner", "ReadSooner"]);
       const names = [built.description, built.action.default_title, built.commands._execute_action.description];
       for (const name of names) expect(english).toHaveProperty(name.match(/^__MSG_(\w+)__$/)![1]!);
     }
@@ -49,7 +49,7 @@ describe("zipDirectory", () => {
 
   it("puts the files at the archive's root, readable by any unzip", () => {
     mkdirSync(path.join(dir, "icons"));
-    writeFileSync(path.join(dir, "manifest.json"), '{"name":"Read Later"}');
+    writeFileSync(path.join(dir, "manifest.json"), '{"name":"ReadSooner"}');
     writeFileSync(path.join(dir, "icons", "a.png"), Buffer.from([1, 2, 3, 4]));
     const zip = zipDirectory(dir);
 
@@ -70,7 +70,7 @@ describe("zipDirectory", () => {
       at += 46 + nameLength;
     }
     expect(Object.keys(entries)).toEqual(["icons/a.png", "manifest.json"]);
-    expect(entries["manifest.json"]!.toString()).toBe('{"name":"Read Later"}');
+    expect(entries["manifest.json"]!.toString()).toBe('{"name":"ReadSooner"}');
     expect([...entries["icons/a.png"]!]).toEqual([1, 2, 3, 4]);
   });
 });
