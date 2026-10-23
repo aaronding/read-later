@@ -142,13 +142,41 @@ export function hasPaywallMarker(document: Document): boolean {
 const PASSWORD_MARK = "data-read-later-password";
 
 /**
+ * True for a comment form, whose password lets the commenter edit or delete
+ * the comment later, as on FC2's blogs: it has a visible text area, or it is
+ * named for comments, as N-DSoft's delete box is. The hidden text area
+ * reCAPTCHA and hCaptcha put inside sign-in forms for their answer doesn't
+ * count.
+ */
+function isCommentForm(form: Element): boolean {
+  if (/(^|[\s_-])comments?($|[\s_-])/i.test(`${form.id} ${form.getAttribute("class") ?? ""}`)) return true;
+  return [...form.querySelectorAll("textarea")].some(
+    (box) => !box.closest("noscript") && !/-response$/i.test(box.getAttribute("name") ?? "") && !hiddenWithin(box, form),
+  );
+}
+
+/** True for a form around the whole page, as on ASP.NET sites: it holds the headline or the main part, or most of the text. */
+function wrapsPage(form: Element): boolean {
+  if (form.querySelector("h1, main, [role=main]")) return true;
+  return (form.textContent ?? "").trim().length * 2 >= (form.ownerDocument.body?.textContent ?? "").trim().length;
+}
+
+/** The password fields that could be a sign-in or registration form's: all but a comment form's. */
+function signInFields(document: Document): Element[] {
+  return [...document.querySelectorAll('input[type="password" i]')].filter((field) => {
+    const form = field.closest("form");
+    return !form || !isCommentForm(form) || wrapsPage(form);
+  });
+}
+
+/**
  * Marks the elements around each password field before Readability runs,
  * since Readability drops the fields themselves. On a teaser longer than a
  * few lines it drops their forms, and often the forms' parents, too; the
  * headline check makes up for that.
  */
 export function markPasswordFields(document: Document): void {
-  for (const field of document.querySelectorAll('input[type="password" i]')) {
+  for (const field of signInFields(document)) {
     const form = field.closest("form");
     for (const element of [field.parentElement, form, form?.parentElement]) element?.setAttribute(PASSWORD_MARK, "");
   }
@@ -182,6 +210,20 @@ function hiddenWithin(field: Element, container: Element): boolean {
   return false;
 }
 
+/** True when the heading is only a link to the site's home page, as a site's or blog's name often is. */
+function linksHome(heading: Element): boolean {
+  const link = heading.querySelector("a[href]");
+  if (!link || normalized(link.textContent) !== normalized(heading.textContent)) return false;
+  const host = (url: URL) => url.hostname.replace(/^www\./, "");
+  try {
+    const page = new URL(heading.ownerDocument.URL);
+    const target = new URL(link.getAttribute("href") ?? "", heading.ownerDocument.baseURI);
+    return host(target) === host(page) && target.pathname === "/" && !target.search;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * True when a visible password field sits beside the article's headline: the
  * smallest part of the page holding both is shorter than a login page, and
@@ -190,8 +232,9 @@ function hiddenWithin(field: Element, container: Element): boolean {
  * outside it, in a top bar, a sidebar or a comment form, and on a short post
  * still meets the headline in a small container. Otherwise it is hidden until
  * opened. The headline is an h1 that makes up most of the page's title and
- * isn't the site's name. This finds a wall when Readability removes its
- * form, or takes something else on the page for the article.
+ * isn't the site's name, either the one in its metadata or a link to its home
+ * page. This finds a wall when Readability removes its form, or takes
+ * something else on the page for the article.
  */
 export function passwordFieldBesideHeadline(
   document: Document,
@@ -201,11 +244,12 @@ export function passwordFieldBesideHeadline(
   const site = normalized(siteName);
   const headlines = [...document.querySelectorAll("h1")].filter((heading) => {
     const text = normalized(heading.textContent);
-    return text && text !== site && wanted.some((title) => title.includes(text) && text.length * 2 >= title.length);
+    if (!text || text === site || linksHome(heading)) return false;
+    return wanted.some((title) => title.includes(text) && text.length * 2 >= title.length);
   });
   if (!headlines.length) return false;
   const words = new Map<Element, number>();
-  for (const field of document.querySelectorAll('input[type="password" i]')) {
+  for (const field of signInFields(document)) {
     for (const headline of headlines) {
       const story = headline.closest("article, main, [role=main]");
       if (story && !story.contains(field)) continue;

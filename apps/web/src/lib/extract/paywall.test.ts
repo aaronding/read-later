@@ -71,6 +71,33 @@ describe("markPasswordFields", () => {
     expect(passwordMarksIn(page.querySelector("#other")!)).toBe(false);
     expect(passwordMarksIn(page.querySelector("#outer")!.parentElement!)).toBe(true);
   });
+
+  const text = `<p>${"The island ferry now leaves too late for the morning train. ".repeat(4)}</p>`;
+  const marked = (html: string) => {
+    const page = doc(html);
+    markPasswordFields(page);
+    return passwordMarksIn(page.body);
+  };
+
+  it("leaves out a comment form's password, which lets the commenter edit the comment later", () => {
+    expect(marked(`${text}<div id="outer"><form><textarea name="comment"></textarea><p><input type="password" name="pass"></p></form></div>`)).toBe(false);
+    // N-DSoft's comment forms: one holds its own article element, another has no text area but is named for comments.
+    expect(marked(`${text}<form class="comment-form"><article id="comment-guest"><input type="password"></article><textarea></textarea></form>`)).toBe(false);
+    expect(marked(`${text}<form id="comment-reveal-delete" class="reveal comment-form"><input type="password"></form>`)).toBe(false);
+  });
+
+  it("still marks a sign-in form whose captcha adds a hidden text area", () => {
+    const signIn = (captcha: string) => `${text}<form id="loginform"><input name="log"><input type="password" name="pwd">${captcha}</form>`;
+    expect(marked(signIn(`<noscript><textarea name="g-recaptcha-response"></textarea></noscript>`))).toBe(true);
+    expect(marked(signIn(`<div class="g-recaptcha"><textarea id="g-recaptcha-response" name="g-recaptcha-response" style="display: none;"></textarea></div>`))).toBe(true);
+    expect(marked(signIn(`<div class="h-captcha"><textarea name="h-captcha-response" style="display: none;"></textarea></div>`))).toBe(true);
+  });
+
+  it("still marks a sign-in box in a form around the whole page, with a comment box elsewhere in it", () => {
+    // An ASP.NET page whose headline is an h2, so only the form's share of the text shows that it wraps the page.
+    const page = `<form id="aspnetForm"><h2>Ferries</h2>${text}<p><label>Password <input type="password"></label></p><footer><textarea name="feedback"></textarea></footer></form>`;
+    expect(marked(page)).toBe(true);
+  });
 });
 
 describe("passwordFieldBesideHeadline", () => {
@@ -107,9 +134,31 @@ describe("passwordFieldBesideHeadline", () => {
     expect(passwordFieldBesideHeadline(comments, { titles, siteName })).toBe(false);
   });
 
+  it("ignores a comment form's password beside the headline", () => {
+    const comments = `<form><textarea name="comment"></textarea><input type="password" name="pass"></form>`;
+    const page = doc(`<div class="story"><h1>The ferry timetable nobody asked for</h1>${story}${comments}</div>`);
+    expect(passwordFieldBesideHeadline(page, { titles, siteName })).toBe(false);
+    // A form around the whole page, as on ASP.NET sites, still counts with a comment box somewhere in it.
+    const wrapped = doc(
+      `<form id="aspnetForm"><div class="story"><h1>The ferry timetable nobody asked for</h1>${story}<div><input type="password"></div></div><textarea name="comment"></textarea></form>`,
+    );
+    expect(passwordFieldBesideHeadline(wrapped, { titles, siteName })).toBe(true);
+  });
+
   it("ignores the site's name as a headline, and the page's header", () => {
     const named = doc(`<div class="top"><h1>Coastline Weekly</h1>${wall}</div><article><h2>Ferries</h2>${story}</article>`);
     expect(passwordFieldBesideHeadline(named, { titles: ["Ferries - Coastline Weekly"], siteName })).toBe(false);
+    // Without the name in the page's metadata, a blog's name is the h1 that links to its home page.
+    const at = (html: string) => new JSDOM(html, { url: "https://coastline.example/2026/ferries.html" }).window.document;
+    const linked = (href: string) =>
+      at(`<div id="content"><h1><a href="${href}">Coastline Weekly</a></h1><h2>Ferries</h2>${story}${wall}</div>`);
+    for (const home of ["/", "https://coastline.example/", "https://www.coastline.example/"]) {
+      expect(passwordFieldBesideHeadline(linked(home), { titles: ["Ferries - Coastline Weekly"], siteName: null }), home).toBe(false);
+    }
+    // Links resolve against the page's <base>, as in a browser.
+    const based = at(`<base href="https://coastline.example/"><div id="content"><h1><a href="">Coastline Weekly</a></h1><h2>Ferries</h2>${story}${wall}</div>`);
+    expect(passwordFieldBesideHeadline(based, { titles: ["Ferries - Coastline Weekly"], siteName: null })).toBe(false);
+    expect(passwordFieldBesideHeadline(linked("/2026/ferries.html"), { titles: ["Ferries - Coastline Weekly"], siteName: null })).toBe(true);
     const header = doc(`<header><h1>The ferry timetable nobody asked for</h1>${wall}</header><article>${story}</article>`);
     expect(passwordFieldBesideHeadline(header, { titles, siteName })).toBe(false);
   });
