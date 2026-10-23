@@ -61,7 +61,7 @@ In the steps below, replace `https://read.example.com` with your app's address (
    - **Request Body**: **JSON**, with two **Text** fields: `url` set to the **Item from List** variable, and `source` set to `shortcut`
 5. Add **Get Dictionary Value** for the key `message` in **Contents of URL**, then **Show Notification** with the **Dictionary Value**, as in Shortcut 1.
 
-Links saved this way are downloaded by the server, which has no login to any site. Paywalled or login-only pages then show as **Preview only** in the app. Open them in Safari and use Shortcut 1 to save the full copy; it replaces the preview.
+Links saved this way are downloaded by the server, which has no login to any site. Paywalled or login-only pages then show as **Preview only** in the app. Open them in Safari and use Shortcut 1 to save the full copy; it replaces the preview. Saving a **Preview only** link again with Shortcut 2 downloads it again, which helps when the site has changed or only failed for a moment.
 
 ## Troubleshooting
 
