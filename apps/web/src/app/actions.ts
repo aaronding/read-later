@@ -1,7 +1,7 @@
 "use server";
 
 import { refresh } from "next/cache";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/config/app";
@@ -30,6 +30,7 @@ import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folder
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
 import { deleteTranslation, requestTranslation } from "@/lib/translations";
 import { parseHttpUrl, parsePastedUrl } from "@/lib/urls";
+import { WELCOME_PATH, welcomeUrl } from "@/lib/welcome/welcome";
 
 // Every action checks the session itself and only touches the signed-in
 // user's rows; the forms that call them are not a security boundary.
@@ -147,9 +148,22 @@ export async function saveSharedLinkAction(formData: FormData) {
     url: url.href,
     title: String(formData.get("title") ?? "") || null,
     source: "android",
+    acceptLanguage: (await headers()).get("accept-language"),
   });
   if (result.queued) scheduleJobProcessing();
   redirect(`/inbox?saved=${saveNotice(result)}`);
+}
+
+/** The Save button on the welcome article's own page: saves it, then opens it. */
+export async function saveWelcomeAction() {
+  const user = await requireUser(WELCOME_PATH);
+  const result = await saveArticle(getDb(), {
+    userId: user.id,
+    url: welcomeUrl(),
+    source: "web",
+    acceptLanguage: (await headers()).get("accept-language"),
+  });
+  redirect(`/articles/${result.articleId}`);
 }
 
 export interface SaveUrlState {
@@ -163,7 +177,12 @@ export async function saveUrlAction(_previous: SaveUrlState, formData: FormData)
   const url = parsePastedUrl(String(formData.get("url") ?? ""));
   if (!url) return { ok: false, message: t("notAWebAddress") };
   try {
-    const result = await saveArticle(getDb(), { userId: user.id, url: url.href, source: "web" });
+    const result = await saveArticle(getDb(), {
+      userId: user.id,
+      url: url.href,
+      source: "web",
+      acceptLanguage: (await headers()).get("accept-language"),
+    });
     if (result.queued) scheduleJobProcessing();
     refresh();
     return {

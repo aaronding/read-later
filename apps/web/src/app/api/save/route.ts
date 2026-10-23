@@ -118,6 +118,7 @@ export async function POST(request: Request): Promise<Response> {
       html: body.html,
       title: body.title,
       source: body.source ?? "api",
+      acceptLanguage: request.headers.get("accept-language"),
     });
     if (result.queued) scheduleJobProcessing();
     return reply(result.outcome === "created" ? 201 : 200, {

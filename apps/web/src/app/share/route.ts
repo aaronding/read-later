@@ -30,6 +30,7 @@ export async function GET(request: Request): Promise<Response> {
     url,
     title: params.get("title"),
     source: "android",
+    acceptLanguage: request.headers.get("accept-language"),
   });
   if (result.queued) scheduleJobProcessing();
   return seeOther(`/inbox?saved=${saveNotice(result)}`);

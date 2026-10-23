@@ -12,7 +12,9 @@ import { processJobs } from "@/lib/jobs/process";
 import { setAnthropicClient } from "@/lib/summarize/summarize";
 import { requestTranslation } from "@/lib/translations";
 import { WELCOME_CONTENT } from "@/lib/welcome/content";
-import { addWelcomeArticle, welcomeLocale, welcomeUrl } from "@/lib/welcome/welcome";
+import { saveArticle } from "@/lib/save";
+import { updateSettings } from "@/lib/settings";
+import { addWelcomeArticle, isWelcomeUrl, welcomeLocale, welcomeUrl } from "@/lib/welcome/welcome";
 import { createTestDb, createTestUser } from "./db";
 
 vi.mock("@vercel/functions", () => ({ waitUntil: () => {}, attachDatabasePool: () => {} }));
@@ -115,6 +117,63 @@ describe("a new account", () => {
     const [summary] = await db.select().from(summaries).where(eq(summaries.userId, user.id));
     const translation = await requestTranslation(db, { userId: user.id, summaryId: summary!.id, language: "fr" });
     expect(translation).toMatchObject({ status: "pending", model: summary!.model });
+  });
+});
+
+describe("saving the welcome article's address", () => {
+  it("is the app's own /articles/welcome, with or without www", () => {
+    expect(welcomeUrl()).toBe("https://www.readsooner.example/articles/welcome");
+    expect(isWelcomeUrl(new URL("https://readsooner.example/articles/welcome"))).toBe(true);
+    expect(isWelcomeUrl(new URL("https://www.readsooner.example/articles/welcome/?utm_source=x"))).toBe(true);
+    expect(isWelcomeUrl(new URL("https://www.readsooner.example/articles/other"))).toBe(false);
+    expect(isWelcomeUrl(new URL("https://elsewhere.example/articles/welcome"))).toBe(false);
+  });
+
+  it("adds it back after it was deleted, from the repository's text, in the app's language", async () => {
+    const user = await createAccount("new@example.com");
+    const [first] = await welcomeArticles(user.id);
+    await deleteArticle(db, user.id, first!.id);
+
+    const result = await saveArticle(db, {
+      userId: user.id,
+      url: "https://readsooner.example/articles/welcome",
+      html: "<html><body><p>Whatever the browser sent.</p></body></html>",
+      source: "extension",
+      acceptLanguage: "fr-FR,fr;q=0.9",
+    });
+    expect(result).toMatchObject({ outcome: "created", queued: false });
+    const rows = await welcomeArticles(user.id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ id: result.articleId, url: welcomeUrl(), lang: "fr", title: WELCOME_CONTENT.fr(APP_NAME).title });
+    expect(rows[0]!.submittedHtml).toBeNull();
+    const [summary] = await db.select().from(summaries).where(eq(summaries.articleId, result.articleId));
+    expect(summary).toMatchObject({ handWritten: true, language: "fr" });
+    expect(await db.select().from(jobs).where(eq(jobs.userId, user.id))).toEqual([]);
+    expect(await db.select().from(aiUsage).where(eq(aiUsage.userId, user.id))).toEqual([]);
+    expect(claudeRequests).toBe(0);
+  });
+
+  it("uses the language chosen in Settings over the browser's", async () => {
+    const user = await createAccount("new@example.com");
+    const [first] = await welcomeArticles(user.id);
+    await deleteArticle(db, user.id, first!.id);
+    await updateSettings(db, user.id, { locale: "zh-Hant" });
+    await saveArticle(db, { userId: user.id, url: welcomeUrl(), source: "web", acceptLanguage: "fr" });
+    expect((await welcomeArticles(user.id))[0]).toMatchObject({ lang: "zh-Hant" });
+  });
+
+  it("moves it back to the top of the Inbox while it is still there", async () => {
+    const user = await createAccount("new@example.com");
+    const [first] = await welcomeArticles(user.id);
+    const archived = new Date("2026-01-01T00:00:00Z");
+    await db.update(articles).set({ savedAt: archived, archivedAt: archived }).where(eq(articles.id, first!.id));
+
+    const result = await saveArticle(db, { userId: user.id, url: welcomeUrl(), source: "web" });
+    expect(result).toEqual({ articleId: first!.id, outcome: "resaved", queued: false });
+    const [moved] = await welcomeArticles(user.id);
+    expect(moved!.archivedAt).toBeNull();
+    expect(moved!.savedAt.getTime()).toBeGreaterThan(archived.getTime());
+    expect(await db.select().from(jobs).where(eq(jobs.userId, user.id))).toEqual([]);
   });
 });
 

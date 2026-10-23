@@ -5,8 +5,10 @@ import { articleUrls, articles, jobs, type Article, type SaveSource } from "@/db
 import type { StoredMessage } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { enqueueJob, hasQueuedJob } from "@/lib/jobs/queue";
+import { preferredLocale } from "@/i18n/locales";
 import { getSettings } from "@/lib/settings";
 import { findCanonicalHref, normalizeUrl, parseHttpUrl, trustedCanonicalUrl } from "@/lib/urls";
+import { addWelcomeArticle, findWelcomeArticle, isWelcomeUrl } from "@/lib/welcome/welcome";
 
 /** For programs, such as the browser extension, in the save API's replies. */
 export type SaveErrorCode = "invalid_url" | "too_large" | "server_error";
@@ -29,6 +31,8 @@ export interface SaveRequest {
   html?: string | null;
   title?: string | null;
   source: SaveSource;
+  /** The request's Accept-Language, for the welcome article's language when no language is chosen in Settings. */
+  acceptLanguage?: string | null;
 }
 
 export interface SaveResult {
@@ -106,6 +110,21 @@ export function saveNotice(result: SaveResult): SaveResult["outcome"] | "refetch
 }
 
 /**
+ * Saves the welcome article's address: the article is made again from the
+ * repository's text, never downloaded, in the language the app is shown in.
+ * Still there, it only moves to the top.
+ */
+async function saveWelcome(db: Db, request: SaveRequest): Promise<SaveResult> {
+  const settings = await getSettings(db, request.userId);
+  const created = await addWelcomeArticle(db, request.userId, preferredLocale(settings.locale, request.acceptLanguage));
+  if (created) return { articleId: created, outcome: "created", queued: false };
+  const existing = await findWelcomeArticle(db, request.userId);
+  if (!existing) throw new SaveError("server_error", errorMessage("save.failed"), 500);
+  await db.update(articles).set({ savedAt: new Date(), archivedAt: null }).where(eq(articles.id, existing));
+  return { articleId: existing, outcome: "resaved", queued: false };
+}
+
+/**
  * Records a save and queues the slow work. Fast by design: a few small
  * queries, no network calls. Saving any address that already led to one of
  * the user's articles (article_urls) moves that article back to the top of
@@ -114,6 +133,7 @@ export function saveNotice(result: SaveResult): SaveResult["outcome"] | "refetch
 export async function saveArticle(db: Db, request: SaveRequest): Promise<SaveResult> {
   const parsed = parseHttpUrl(request.url);
   if (!parsed) throw new SaveError("invalid_url", errorMessage("save.invalidUrl", { field: "url" }), 400);
+  if (isWelcomeUrl(parsed)) return saveWelcome(db, request);
   const url = request.url.trim();
   const html = request.html?.trim() ? request.html : null;
   if (html && Buffer.byteLength(html, "utf8") > maxHtmlBytes()) {
