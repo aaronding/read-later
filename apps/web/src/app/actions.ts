@@ -29,7 +29,6 @@ import { addTag, removeTag } from "@/lib/tags";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
 import { deleteTranslation, requestTranslation } from "@/lib/translations";
-import { safeRedirectPath } from "@/lib/redirects";
 import { parseHttpUrl, parsePastedUrl } from "@/lib/urls";
 
 // Every action checks the session itself and only touches the signed-in
@@ -47,10 +46,19 @@ function flag(formData: FormData, name: string): boolean {
   return formData.get(name) === "true";
 }
 
+/**
+ * Refreshes the page the form is on, unless the reader is leaving it for its
+ * list once the action is done (`leaving`, see LeavingForm): a refresh would
+ * show the article archived, unread or not found for a moment first.
+ */
+function refreshUnlessLeaving(formData: FormData) {
+  if (!flag(formData, "leaving")) refresh();
+}
+
 export async function archiveAction(formData: FormData) {
   const user = await requireUser();
   await setArchived(getDb(), user.id, articleId(formData), flag(formData, "archived"));
-  refresh();
+  refreshUnlessLeaving(formData);
 }
 
 export async function favoriteAction(formData: FormData) {
@@ -62,14 +70,13 @@ export async function favoriteAction(formData: FormData) {
 export async function readAction(formData: FormData) {
   const user = await requireUser();
   await setRead(getDb(), user.id, articleId(formData), flag(formData, "read"));
-  refresh();
+  refreshUnlessLeaving(formData);
 }
 
 export async function deleteAction(formData: FormData) {
   const user = await requireUser();
   await deleteArticle(getDb(), user.id, articleId(formData));
-  if (formData.get("redirectTo")) redirect(safeRedirectPath(formData.get("redirectTo")));
-  refresh();
+  refreshUnlessLeaving(formData);
 }
 
 export async function retryAction(formData: FormData) {

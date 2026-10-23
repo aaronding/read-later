@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { archiveAction, deleteAction, favoriteAction, readAction } from "@/app/actions";
 import { ArticleStatus, isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
+import { FolderMenu } from "@/components/folder-menu";
 import { LocalDate } from "@/components/local-date";
 import { MarkOpened } from "@/components/mark-opened";
-import { ConfirmButton } from "@/components/confirm-button";
-import { FolderPicker } from "@/components/folder-picker";
-import { SubmitButton } from "@/components/submit-button";
+import { ReaderActions } from "@/components/reader-actions";
+import { FloatingBack } from "@/components/reader-navigation";
 import { SummaryCard } from "@/components/summary-card";
 import { SuggestedTags } from "@/components/suggested-tags";
 import { SummaryTranslations } from "@/components/summary-translations";
@@ -18,9 +17,10 @@ import { storedMessageText } from "@/i18n/stored-message";
 import { isAdmin, requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
+import { readerBack } from "@/lib/reader-origin";
 import { listTranslations, translationRunsLeft } from "@/lib/translations";
 
-type Props = { params: Promise<{ id: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const user = await requireUser();
@@ -28,14 +28,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: found?.article.title ?? t("titleFallback") };
 }
 
-export default async function ReaderPage({ params }: Props) {
+export default async function ReaderPage({ params, searchParams }: Props) {
   const { id } = await params;
+  const { from } = await searchParams;
   const user = await requireUser(`/articles/${id}`);
   const admin = isAdmin(user);
   const db = getDb();
   const [found, folders] = await Promise.all([getArticle(db, user.id, id), listFolders(db, user.id)]);
   if (!found) notFound();
   const { article } = found;
+  const back = readerBack(from, Boolean(article.archivedAt));
+  const folderName = folders.find((folder) => folder.id === article.folderId)?.name ?? null;
   const summary = shownSummary(article, found.summaries);
   const ready = summary?.status === "ready" ? summary : undefined;
   const translations = ready ? await listTranslations(db, user.id, ready.id) : [];
@@ -62,6 +65,7 @@ export default async function ReaderPage({ params }: Props) {
     <article className="reader">
       <MarkOpened id={article.id} alreadyRead={Boolean(article.readAt)} />
       <AutoRefresh key={work} active={busy} />
+      <FloatingBack href={back.href} label={t("backTo", { list: back.list })} />
 
       <header className="reader-header">
         <div className="meta">
@@ -74,30 +78,12 @@ export default async function ReaderPage({ params }: Props) {
           )}
           {article.readingMinutes ? <span>{tCommon("minRead", { minutes: article.readingMinutes })}</span> : null}
           {article.previewOnly && <span className="badge warn">{tCommon("previewOnly")}</span>}
-        </div>
-        <h1 lang={article.lang ?? undefined}>{article.title || article.url}</h1>
-        <div className="reader-toolbar">
-          <a className="button" href={article.url} target="_blank" rel="noopener noreferrer">
+          <a href={article.url} target="_blank" rel="noopener noreferrer">
             {t("openOriginal")}
           </a>
-          <form action={archiveAction} className="inline-form">
-            <input type="hidden" name="id" value={article.id} />
-            <input type="hidden" name="archived" value={article.archivedAt ? "false" : "true"} />
-            <SubmitButton>{article.archivedAt ? tCommon("moveToInbox") : tCommon("archiveAction")}</SubmitButton>
-          </form>
-          <form action={favoriteAction} className="inline-form">
-            <input type="hidden" name="id" value={article.id} />
-            <input type="hidden" name="favorite" value={article.favorite ? "false" : "true"} />
-            <SubmitButton>{article.favorite ? t("favoriteOn") : t("favoriteOff")}</SubmitButton>
-          </form>
-          {article.readAt && (
-            <form action={readAction} className="inline-form">
-              <input type="hidden" name="id" value={article.id} />
-              <input type="hidden" name="read" value="false" />
-              <SubmitButton className="button ghost">{t("markUnread")}</SubmitButton>
-            </form>
-          )}
         </div>
+        <h1 lang={article.lang ?? undefined}>{article.title || article.url}</h1>
+        <ReaderActions article={article} folderName={folderName} back={back.href} />
       </header>
 
       {article.previewOnly && (
@@ -164,20 +150,15 @@ export default async function ReaderPage({ params }: Props) {
         )
       )}
 
-      <FolderPicker articleId={article.id} current={article.folderId} folders={folders} />
-
-      <footer className="reader-toolbar" style={{ marginTop: 16 }}>
-        <span className="muted small">
-          {tCommon.rich("savedOn", { date: () => <LocalDate value={article.savedAt} /> })} ·{" "}
-          <a href={article.url}>{new URL(article.url).hostname}</a>
-        </span>
-        <form action={deleteAction} className="inline-form" style={{ marginLeft: "auto" }}>
-          <input type="hidden" name="id" value={article.id} />
-          <input type="hidden" name="redirectTo" value="/inbox" />
-          <ConfirmButton className="button danger" message={t("deleteConfirm")}>
-            {tCommon("delete")}
-          </ConfirmButton>
-        </form>
+      <footer className="reader-footer">
+        <div className="meta">
+          <span>{tCommon.rich("savedOn", { date: () => <LocalDate value={article.savedAt} /> })}</span>
+          <a href={article.url} target="_blank" rel="noopener noreferrer">
+            {t("openOriginal")}
+          </a>
+        </div>
+        <ReaderActions article={article} folderName={folderName} back={back.href} />
+        <FolderMenu articleId={article.id} current={article.folderId} folders={folders} />
       </footer>
     </article>
   );
