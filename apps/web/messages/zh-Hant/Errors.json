@@ -3,6 +3,7 @@
     "pageTooLarge": "網頁太大，無法儲存。",
     "job": {
       "tooManyAttempts": "嘗試次數過多，已放棄。",
+      "accountLockedOut": "已停止：儲存這個內容的帳戶已無法登入。",
       "unexpected": "發生未預期的錯誤：{detail}"
     },
     "download": {

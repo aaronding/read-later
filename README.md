@@ -54,7 +54,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
    - `BETTER_AUTH_SECRET` and `JOBS_SECRET`: random strings. In PowerShell or any terminal:
      `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"`
    - `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`: a Google OAuth client that allows `http://localhost:3000` (see [docs/setup/google-oauth.md](docs/setup/google-oauth.md)).
-   - `ALLOWED_EMAILS`: your Google account's email.
+   - `ALLOWED_EMAILS`: your Google account's email, or `*` to let anyone with a Google account sign in. `BLOCKED_EMAILS` then keeps particular accounts out.
    - `ADMIN_EMAILS`: your email again, to see each summary's cost, Compare models, comparison mode and the AI usage report.
    - `ANTHROPIC_API_KEY`: your Claude API key, or use the mock below.
 
@@ -133,7 +133,7 @@ When the free plans stop being enough: [Move to one server](docs/move-to-server.
 
 ## Security notes
 
-- Only the Google accounts in `ALLOWED_EMAILS` can sign in, and every database query is scoped to the signed-in user. Only those also in `ADMIN_EMAILS` see costs in the app, Compare and the AI usage report, which covers every user; each user's own JSON export still has their summaries' costs.
+- Only the Google accounts in `ALLOWED_EMAILS` can sign in, or any account when it is `*`, never those in `BLOCKED_EMAILS`; and every database query is scoped to the signed-in user. A blocked account's queued downloads and summaries stop. Only those also in `ADMIN_EMAILS` see costs in the app, Compare and the AI usage report, which covers every user; each user's own JSON export still has their summaries' costs.
 - Access tokens are stored only as SHA-256 hashes and shown once. Revoke them in Settings.
 - Server-side downloads refuse private, loopback and link-local addresses, also after redirects, so the server can't be pointed at internal services.
 - Saved HTML is sanitized before it is stored, and every page gets a nonce-based Content Security Policy, so even a script that got past the sanitizer would not run.

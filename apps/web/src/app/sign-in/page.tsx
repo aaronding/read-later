@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { Logo } from "@/components/logo";
 import { SignInButton } from "@/components/sign-in-button";
 import { APP_NAME } from "@/config/app";
+import { signUpIsOpen } from "@/config/env";
 import { getCurrentUser } from "@/lib/auth";
 import { safeRedirectPath } from "@/lib/redirects";
 
@@ -27,9 +28,11 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <p className="muted">{tCommon("tagline")}</p>
         {error && (
           <p className="notice error small">
-            {error === "NOT_ALLOWED"
-              ? t("notAllowed", { provider: "Google", variable: "ALLOWED_EMAILS" })
-              : t("signInFailed")}
+            {error !== "NOT_ALLOWED"
+              ? t("signInFailed")
+              : signUpIsOpen()
+                ? t("blocked", { provider: "Google" })
+                : t("notAllowed", { provider: "Google", variable: "ALLOWED_EMAILS" })}
           </p>
         )}
         <SignInButton next={next} />

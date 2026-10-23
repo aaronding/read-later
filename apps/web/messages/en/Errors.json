@@ -3,6 +3,7 @@
     "pageTooLarge": "The page is too large to save.",
     "job": {
       "tooManyAttempts": "Gave up after too many attempts.",
+      "accountLockedOut": "Stopped: the account that saved this can no longer sign in.",
       "unexpected": "Something unexpected went wrong: {detail}"
     },
     "download": {

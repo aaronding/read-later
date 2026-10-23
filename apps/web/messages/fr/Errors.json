@@ -3,6 +3,7 @@
     "pageTooLarge": "La page est trop volumineuse pour être enregistrée.",
     "job": {
       "tooManyAttempts": "Abandon après un trop grand nombre de tentatives.",
+      "accountLockedOut": "Arrêté : le compte qui a enregistré cet article ne peut plus se connecter.",
       "unexpected": "Une erreur inattendue s’est produite : {detail}"
     },
     "download": {

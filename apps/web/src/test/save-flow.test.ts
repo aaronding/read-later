@@ -919,6 +919,23 @@ describe("authentication and input", () => {
     }
   });
 
+  it("lets anyone in when sign-up is open, but no one blocked, and stops a blocked owner's work", async () => {
+    process.env.ALLOWED_EMAILS = "*";
+    try {
+      const { id } = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html"), source: "extension" }))).json();
+      expect(id).toBeTruthy();
+      process.env.BLOCKED_EMAILS = "Owner@Example.com";
+      expect((await POST(saveRequest({ url: `${ARTICLE_URL}/2` }))).status).toBe(401);
+      // The download and summaries queued before the block never run, so they cost nothing.
+      await processJobs({ db });
+      expect(requests).toHaveLength(0);
+      expect(await articleById(id)).toMatchObject({ status: "failed", errorMessage: { key: "job.accountLockedOut" } });
+    } finally {
+      process.env.ALLOWED_EMAILS = "owner@example.com";
+      delete process.env.BLOCKED_EMAILS;
+    }
+  });
+
   it("rejects bad bodies and non-http URLs", async () => {
     const notJson = await POST(saveRequest("not json"));
     expect(notJson.status).toBe(400);
