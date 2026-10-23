@@ -288,9 +288,10 @@ const CALL = String.raw`\s*(?:\.\s*(?:reload|replace|assign)|\[\s*["'](?:reload|
 const HREF = String.raw`\s*(?:\.\s*href|\[\s*["']href["']\s*\])`;
 const SET = String.raw`\s*=(?![=>])`;
 const MOVES_ON = new RegExp(`${LOCATION}(?:${CALL}|${HREF}${SET})|${WINDOW_LOCATION}${SET}`);
-// reCAPTCHA's page tests for the cookie and reloads in the same "if", some 60
-// characters on. Wix's sites read their cookies and, thousands of characters
-// further, reload a page the browser brought back from its history.
+// reCAPTCHA's page tests for the cookie under each of its four names, and
+// reloads in the same "if", some 60 characters after the last test. Wix's sites
+// read their cookies and, thousands of characters further, reload a page the
+// browser brought back from its history.
 const WAITS_FOR_COOKIE = new RegExp(
   String.raw`${COOKIE.source}[\s\S]{0,200}?${LOCATION}\s*(?:\.\s*reload|\[\s*["']reload["']\s*\])\s*\(`,
 );
@@ -300,7 +301,7 @@ export function setsCookie(script: string): boolean {
   return SETS_COOKIE.test(script);
 }
 
-/** True for a script that reloads the page right after reading a cookie. */
+/** True for a script that reloads the page at most 200 characters after it reads or sets a cookie. */
 export function waitsForCookie(script: string): boolean {
   return WAITS_FOR_COOKIE.test(script);
 }

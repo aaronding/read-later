@@ -189,13 +189,15 @@ describe("extractArticle: login pages and teasers", () => {
       expect(refused).toMatchObject({ title: "Just a moment...", previewReason: { key: "preview.downloadRefused" } });
     });
 
-    it("knows a check that waits for a cookie set elsewhere, as reCAPTCHA's does", () => {
+    it("knows a check that waits for a cookie set elsewhere, as reCAPTCHA's does, from other scripts that read one", () => {
       // Shaped like the page NCBI sends: reCAPTCHA sets the cookie, and the page reloads once it is there.
       const recaptcha = `<!DOCTYPE html><html><head><title>Checking your browser - reCAPTCHA</title></head><body>
         <p>Checking your browser before accessing metroreview.example ...</p>
         <p><a href="/story/123">Click here</a> if you are not automatically redirected after 5 seconds.</p>
         <script>function onSuccess() { var wait = setInterval(function () {
-          if (document.cookie.indexOf("recaptcha-ca-e=") != -1) { clearInterval(wait); location.reload(true); } }, 100); }</script>
+          if (document.cookie.indexOf('recaptcha-ca-e=') != -1 || document.cookie.indexOf('recaptcha-fastly-e=') != -1 ||
+            document.cookie.indexOf('recaptcha-cf-e') != -1 || document.cookie.indexOf('recaptcha-akam-e') != -1) {
+            clearInterval(wait); location.reload(true); } }, 100); }</script>
         </body></html>`;
       const result = extractArticle({ html: recaptcha, url, contentSource: "server", httpStatus: 200 });
       expect(result).toMatchObject({ title: "metroreview.example", textContent: "", contentHtml: null });
@@ -212,6 +214,14 @@ describe("extractArticle: login pages and teasers", () => {
           ${"refresh(token);\n".repeat(20)}
           if (navigation.type === "back_forward") window.location.reload();</script>`);
       expect(extractArticle({ html: site, url, contentSource: "server", httpStatus: 200 }).title).toBe("Schedule");
+      // Nor a cookie read in one script and a reload in another, as on Taobao's check.
+      const split = recaptcha.replace(
+        "clearInterval(wait); location.reload(true); }",
+        "clearInterval(wait); ready(); }</script><script>function ready() { location.reload(true); }",
+      );
+      expect(extractArticle({ html: split, url, contentSource: "server", httpStatus: 200 }).title).toBe(
+        "Checking your browser - reCAPTCHA",
+      );
     });
 
     it("reads the cookie and the reload from different scripts, but only from scripts that run", () => {
