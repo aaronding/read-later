@@ -100,6 +100,10 @@ TEST_DATABASE_URL=postgres://postgres@localhost:5432/readlater_test pnpm --filte
 $env:TEST_DATABASE_URL="postgres://postgres@localhost:5432/readlater_test"; pnpm --filter web test
 ```
 
+### Upgrading dependencies
+
+The web app keeps jsdom, which parses saved pages, at 26.1.0. Vercel's Node runtime can't `require()` an ES module, which a local Node 22.12 or later allows, and jsdom 27 and later need that: with jsdom 30, the first deploy failed on every page of the app and on saves, while every test and local build passed ([decision 111](docs/decisions.md)). On the 1,963 pages saved while building the login-page rules, jsdom 26 and 30 extract exactly the same title, text, HTML and language. `pnpm test` loads jsdom and pg the way Vercel does (`apps/web/src/test/vercel-runtime.test.ts`), so an upgrade that brings the problem back fails there; keep the older version if it does.
+
 ### Translations
 
 The app's text is in `apps/web/messages/<language>/`, one JSON file per part of the app (`Library.json`, `Settings.json` and so on), in [ICU message format](https://next-intl.dev/docs/usage/messages). English is the source. To change or add text, edit the English file, then the same key in `fr`, `zh-Hans` and `zh-Hant`: `pnpm test` fails until every language has every message, with the same `{values}` and `<tags>`, and `pnpm typecheck` checks the keys and values the code uses. Write apostrophes as ’, since a plain ' is special in these messages. The extension has its own texts, in `apps/extension/_locales/<language>/messages.json`, in the browsers' format; they follow the browser's language.

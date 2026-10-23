@@ -185,6 +185,27 @@ describe("extractArticle: sign-in forms", () => {
   });
 });
 
+describe("extractArticle: a page hidden until its scripts run", () => {
+  const page = html("hidden-until-script.html");
+  const url = "https://lanterncity.example/news/night-market";
+
+  it("finds the article inside wrappers hidden by an inline visibility:hidden, and keeps one copy", () => {
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.previewOnly).toBe(false);
+    expect(result.textContent.split("old harbour car park")).toHaveLength(2);
+    expect(result.wordCount).toBeGreaterThan(100);
+  });
+
+  it("leaves hidden text out when the visible page has the article", () => {
+    const visible = page
+      .replace('<div id="pc" style="visibility:hidden">', '<div id="pc">')
+      .replace("<!-- The page's own script", '<div style="visibility: hidden"><p>Subscribe to our newsletter for the best of Lantern City every morning.</p></div>\n<!-- The page\'s own script');
+    const result = extractArticle({ html: visible, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toContain("old harbour car park");
+    expect(result.textContent).not.toContain("newsletter");
+  });
+});
+
 describe("extractArticle: a GBK-encoded Chinese page", () => {
   const page = decodeHtml(fixture("chinese-gbk.html"), "text/html");
   const result = extractArticle({ html: page, url: "https://chenbao.example/life/doujiang", contentSource: "server" });

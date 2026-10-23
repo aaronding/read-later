@@ -153,6 +153,13 @@ function keepOnlyFreePart(document: Document, containers: Element[]): void {
   document.body.replaceChildren(...containers);
 }
 
+const HIDDEN_BY_STYLE = /(^|;)\s*visibility\s*:\s*hidden\s*(!important\s*)?(;|$)/i;
+
+/** The elements hidden only by an inline `visibility: hidden`. */
+function hiddenByStyle(document: Document): Element[] {
+  return [...document.querySelectorAll("[style]")].filter((element) => HIDDEN_BY_STYLE.test(element.getAttribute("style") ?? ""));
+}
+
 function short(value: string | null | undefined, max: number): string | null {
   const text = value?.replace(/\s+/g, " ").trim();
   return text ? text.slice(0, max) : null;
@@ -193,13 +200,25 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     // page, such as a sidebar of stock prices.
     if (removedSections > 0) keepOnlyFreePart(document, removed.containers);
     let keptPasswordField = false;
-    let article = new Readability(document, {
-      serializer: (content) => {
-        const element = content as Element;
-        keptPasswordField = passwordMarksIn(element);
-        return element.innerHTML;
-      },
-    }).parse();
+    const readArticle = (page: Document) =>
+      new Readability(page, {
+        serializer: (content) => {
+          const element = content as Element;
+          keptPasswordField = passwordMarksIn(element);
+          return element.innerHTML;
+        },
+      }).parse();
+    // Some pages hide their content until their own scripts show it, which
+    // they never do here, and Readability skips hidden elements. Readability
+    // changes the page it reads, so a copy is kept for a second try.
+    const spare = hiddenByStyle(document).length > 0 ? (document.cloneNode(true) as Document) : null;
+    let article = readArticle(document);
+    if (spare && !cleanText(article?.textContent ?? "")) {
+      for (const element of hiddenByStyle(spare)) {
+        element.setAttribute("style", (element.getAttribute("style") ?? "").replace(HIDDEN_BY_STYLE, "$1"));
+      }
+      article = readArticle(spare);
+    }
     let textContent = cleanText(article?.textContent ?? "");
     let { wordCount, readingMinutes } = textStats(textContent);
     if (removedSections > 0 && wordCount < MIN_ARTICLE_WORDS) {
