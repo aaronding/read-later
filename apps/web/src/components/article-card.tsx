@@ -2,6 +2,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { archiveAction, favoriteAction } from "@/app/actions";
 import type { ArticleListItem } from "@/lib/library";
+import { articleHref } from "@/lib/reader-origin";
 import { ArticleStatus } from "./article-status";
 import { LocalDate } from "./local-date";
 import { SubmitButton } from "./submit-button";
@@ -14,13 +15,14 @@ function hostname(url: string) {
   }
 }
 
-export function ArticleCard({ item }: { item: ArticleListItem }) {
+/** An article in a list. `from` is the list's address, which the reader goes back to. */
+export function ArticleCard({ item, from }: { item: ArticleListItem; from: string }) {
   const t = useTranslations("Common");
   const title = item.title || hostname(item.url);
   return (
     <li className={`card article-card${item.readAt ? "" : " unread"}`}>
       <h2>
-        <Link href={`/articles/${item.id}`}>{title}</Link>
+        <Link href={articleHref(item.id, from)}>{title}</Link>
       </h2>
       <div className="meta">
         <span>{item.siteName || hostname(item.url)}</span>

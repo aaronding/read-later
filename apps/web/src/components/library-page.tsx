@@ -9,6 +9,7 @@ import { AddUrlForm } from "./add-url-form";
 import { ArticleCard } from "./article-card";
 import { isBusy } from "./article-status";
 import { AutoRefresh } from "./auto-refresh";
+import { ListHistory } from "./reader-navigation";
 import { SearchForm } from "./search-form";
 
 export async function LibraryPage({
@@ -33,6 +34,9 @@ export async function LibraryPage({
   const folder = folders.find((entry) => entry.id === folderId);
   const keep = { ...(query ? { q: query } : {}), ...(folder ? { folder: folder.id } : {}), ...(tag ? { tag } : {}) };
   const filtered = Boolean(query || folder || tag);
+  // This list's own address, which its articles go back to.
+  const here = new URLSearchParams({ ...keep, ...(page > 0 ? { page: String(page) } : {}) }).toString();
+  const from = `/${view}${here ? `?${here}` : ""}`;
   const busy = items.some((item) => isBusy(item.status, item.summaryStatus));
   const [t, tCommon, format] = await Promise.all([getTranslations("Library"), getTranslations("Common"), getFormatter()]);
   const empty: Record<LibraryView, string> = {
@@ -93,7 +97,7 @@ export async function LibraryPage({
       ) : (
         <ul className="article-list">
           {items.map((item) => (
-            <ArticleCard key={item.id} item={item} />
+            <ArticleCard key={item.id} item={item} from={from} />
           ))}
         </ul>
       )}
@@ -112,6 +116,7 @@ export async function LibraryPage({
         </nav>
       )}
       <AutoRefresh active={busy} />
+      <ListHistory />
     </>
   );
 }

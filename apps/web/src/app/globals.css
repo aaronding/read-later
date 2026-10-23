@@ -268,7 +268,8 @@ label.checkbox input {
 .tabs a:hover {
   color: var(--text);
 }
-.tabs a[aria-current="page"] {
+.tabs a[aria-current="page"],
+.tabs a[data-origin] {
   color: var(--text);
   border-bottom-color: var(--accent);
   font-weight: 600;
@@ -379,22 +380,6 @@ label.checkbox input {
 .chip.active {
   background: var(--accent-soft);
   border-color: var(--accent);
-}
-
-.folder-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 32px;
-  padding-top: 16px;
-  border-top: 1px solid var(--border);
-}
-.folder-picker select,
-.folder-picker input {
-  width: auto;
-  min-height: 32px;
-  padding: 0.2em 0.6em;
 }
 
 /* ---------- Article list ---------- */
@@ -525,8 +510,12 @@ label.checkbox input {
 
 /* About 70 characters a line at the article's text size. */
 .reader {
+  position: relative;
   max-width: 40rem;
   margin: 0 auto;
+}
+.reader .meta a {
+  color: inherit;
 }
 .reader-header h1 {
   font-family: var(--font-read);
@@ -536,11 +525,107 @@ label.checkbox input {
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
-.reader-toolbar {
+/* The reader's actions: the same bar under the title and at the end of the article. */
+.reader-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin: 16px 0;
+}
+.reader-actions .button svg {
+  flex: none;
+}
+.reader-actions .reader-delete {
+  margin-left: auto;
+}
+.reader-actions .button[aria-pressed="true"] {
+  background: var(--accent-soft);
+}
+.folder-button .action-label {
+  max-width: 12em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* On phones, only the icons; the labels are still read out. */
+@media (max-width: 640px) {
+  .reader-actions .button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
+  .reader-actions .action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+.reader-footer {
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.reader-footer .reader-actions {
+  margin-bottom: 0;
+}
+
+/* The round Back button. On wide screens it sits beside the article and stays
+   in view; on narrower ones it floats in the bottom corner and hides while
+   the page scrolls down (FloatingBack). */
+.floating-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.12), 0 1px 2px rgb(0 0 0 / 0.06);
+}
+.floating-back:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+@media (min-width: 840px) {
+  .floating-back-rail {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -72px;
+  }
+  .floating-back {
+    position: sticky;
+    top: 24px;
+  }
+}
+@media (max-width: 839px) {
+  /* Room below the last action bar for the button, which shows at the end. */
+  .reader {
+    padding-bottom: 40px;
+  }
+  .floating-back {
+    position: fixed;
+    z-index: 5;
+    left: 16px;
+    bottom: max(20px, env(safe-area-inset-bottom));
+  }
+  .floating-back[data-hidden]:not(:focus-visible) {
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+  }
+}
+@media (max-width: 839px) and (prefers-reduced-motion: no-preference) {
+  .floating-back {
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+  }
 }
 
 .summary {
@@ -761,6 +846,118 @@ label.checkbox input {
   border-top: 1px solid var(--border);
   width: 40%;
   margin: 2em auto;
+}
+
+/* ---------- Folder menu ---------- */
+
+/* A panel in the middle of the screen, or a sheet at the bottom on phones,
+   like the "Aa" menu's. */
+.folder-menu {
+  display: none;
+  width: min(360px, calc(100vw - 32px));
+  max-height: 70dvh;
+  overflow-y: auto;
+  padding: 10px 16px 18px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+.folder-menu:popover-open {
+  display: block;
+}
+.folder-menu::backdrop {
+  background: rgb(0 0 0 / 0.28);
+}
+.folder-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.folder-menu-header h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+.folder-menu-close {
+  width: 44px;
+  height: 44px;
+  margin-right: -10px;
+  padding: 0;
+  color: var(--muted);
+}
+.folder-options {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.folder-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 4px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  color: var(--text);
+  font-size: 1rem;
+  text-align: left;
+}
+.folder-option:hover {
+  background: var(--surface-2);
+}
+.folder-option[aria-current] {
+  font-weight: 600;
+}
+.folder-option-check {
+  display: inline-flex;
+  width: 20px;
+  flex: none;
+}
+.folder-option-name {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.folder-new {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+.folder-new input {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-width: 640px) {
+  .folder-menu {
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: 85dvh;
+    margin: 0;
+    border-width: 1px 0 0;
+    border-radius: 16px 16px 0 0;
+    padding-bottom: max(18px, env(safe-area-inset-bottom));
+  }
+}
+/* Without popovers (Safari before 17), the menu is a plain section at the end of the article. */
+@supports not selector(:popover-open) {
+  .folder-button,
+  .folder-menu-close {
+    display: none;
+  }
+  .folder-menu {
+    display: block;
+    width: auto;
+    max-height: none;
+    margin-top: 24px;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    background: none;
+  }
 }
 
 /* ---------- Compare ---------- */

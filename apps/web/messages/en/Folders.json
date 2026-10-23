@@ -2,9 +2,10 @@
   "Folders": {
     "label": "Folder",
     "noFolder": "No folder",
-    "newFolderLabel": "Or a new folder",
-    "newFolderPlaceholder": "or new folder",
+    "current": "Folder: {name}",
+    "newFolder": "New folder",
     "moving": "Moving…",
-    "move": "Move"
+    "move": "Move",
+    "close": "Close"
   }
 }

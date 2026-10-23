@@ -2,9 +2,10 @@
   "Folders": {
     "label": "Dossier",
     "noFolder": "Aucun dossier",
-    "newFolderLabel": "Ou un nouveau dossier",
-    "newFolderPlaceholder": "ou nouveau dossier",
+    "current": "Dossier : {name}",
+    "newFolder": "Nouveau dossier",
     "moving": "Déplacement…",
-    "move": "Déplacer"
+    "move": "Déplacer",
+    "close": "Fermer"
   }
 }

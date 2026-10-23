@@ -2,9 +2,10 @@
   "Folders": {
     "label": "文件夹",
     "noFolder": "无文件夹",
-    "newFolderLabel": "或新建文件夹",
-    "newFolderPlaceholder": "或新建文件夹",
+    "current": "文件夹：{name}",
+    "newFolder": "新建文件夹",
     "moving": "正在移动…",
-    "move": "移动"
+    "move": "移动",
+    "close": "关闭"
   }
 }

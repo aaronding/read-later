@@ -4,11 +4,13 @@ import Link from "next/link";
 import { triageAction } from "@/app/actions";
 import { ArticleStatus, isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
+import { ListHistory } from "@/components/reader-navigation";
 import { SubmitButton } from "@/components/submit-button";
 import { SummaryBody } from "@/components/summary-card";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { getArticle, shownSummary, triageQueue } from "@/lib/library";
+import { articleHref } from "@/lib/reader-origin";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Common");
@@ -41,6 +43,7 @@ export default async function TriagePage() {
   return (
     <div className="triage">
       <AutoRefresh active={isBusy(article.status, chosen?.status ?? null)} />
+      <ListHistory />
       <div className="page-title">
         <h1>{tCommon("triage")}</h1>
         <span className="muted small">{t("remaining", { remaining })}</span>
@@ -72,7 +75,7 @@ export default async function TriagePage() {
           </>
         )}
         <div className="triage-actions">
-          <Link className="button primary" href={`/articles/${article.id}`}>
+          <Link className="button primary" href={articleHref(article.id, "/triage")}>
             {t("readNow")}
           </Link>
           <form action={triageAction}>
