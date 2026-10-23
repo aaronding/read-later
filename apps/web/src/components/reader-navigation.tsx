@@ -18,6 +18,8 @@ let opening: string | null = null;
 let opened: { href: string; length: number } | null = null;
 /** Set when the reader goes back, so the list, which the browser shows as it was, catches up. */
 let listIsStale = false;
+/** When Back was last clicked. A second click that quickly is a double-click, and the list it lands on ignores it. */
+let backClickedAt = 0;
 
 function currentHref(): string {
   return window.location.pathname + window.location.search;
@@ -46,6 +48,12 @@ export function ListHistory() {
       router.refresh();
     }
     const onClick = (event: MouseEvent) => {
+      // Back sits where the list has links and buttons, such as a card's Archive on a phone.
+      if (Date.now() - backClickedAt < 600) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
       const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
       if (!isPlainClick(event) || !(link instanceof HTMLAnchorElement) || (link.target && link.target !== "_self")) return;
       const url = new URL(link.href);
@@ -69,6 +77,12 @@ export function BackLink({ href, onClick, ...rest }: Omit<React.ComponentProps<t
       {...rest}
       onClick={(event) => {
         onClick?.(event);
+        // The second click of a double-click, before the list has come back: going back twice would leave it.
+        if (Date.now() - backClickedAt < 600) {
+          event.preventDefault();
+          return;
+        }
+        backClickedAt = Date.now();
         if (event.defaultPrevented || !isPlainClick(event) || !canGoBack()) return;
         event.preventDefault();
         goBack(router);
