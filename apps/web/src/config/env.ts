@@ -44,20 +44,32 @@ function emailList(name: string): Set<string> {
   );
 }
 
-/** Lower-cased emails from ALLOWED_EMAILS. */
+/** Lower-cased emails from ALLOWED_EMAILS, which may be "*". */
 export function allowedEmails(): Set<string> {
   return emailList("ALLOWED_EMAILS");
 }
 
+/** True when ALLOWED_EMAILS is "*": any Google account may sign in, but those in BLOCKED_EMAILS. */
+export function signUpIsOpen(): boolean {
+  return allowedEmails().has("*");
+}
+
+/**
+ * Who may use the app: the emails in ALLOWED_EMAILS, or anyone when it is "*",
+ * and never those in BLOCKED_EMAILS. Empty, it lets no one in.
+ */
 export function isEmailAllowed(email: string | null | undefined): boolean {
   if (!email) return false;
-  return allowedEmails().has(email.trim().toLowerCase());
+  const address = email.trim().toLowerCase();
+  if (emailList("BLOCKED_EMAILS").has(address)) return false;
+  const allowed = allowedEmails();
+  return allowed.has("*") || allowed.has(address);
 }
 
 /**
  * True for the emails in ADMIN_EMAILS, who see the models' costs, Compare,
- * comparison mode and every user's AI usage. They must be in ALLOWED_EMAILS
- * too, to sign in at all.
+ * comparison mode and every user's AI usage. They must be allowed in by
+ * ALLOWED_EMAILS too, to sign in at all.
  */
 export function isEmailAdmin(email: string | null | undefined): boolean {
   if (!email) return false;

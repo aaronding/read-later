@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { hostname } from "node:os";
-import { envInt } from "@/config/env";
+import { eq } from "drizzle-orm";
+import { envInt, isEmailAllowed } from "@/config/env";
 import { getDb, type Db } from "@/db";
-import type { Job, JobType } from "@/db/schema";
+import { users, type Job, type JobType } from "@/db/schema";
 import { englishText } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { JobError, type JobFailure } from "./errors";
@@ -38,11 +39,18 @@ export interface ProcessStats {
   failed: number;
 }
 
+/** Whether the job's owner may still use the app: a blocked account's downloads and summaries stop. */
+async function ownerAllowed(db: Db, job: Job): Promise<boolean> {
+  const [owner] = await db.select({ email: users.email }).from(users).where(eq(users.id, job.userId)).limit(1);
+  return isEmailAllowed(owner?.email);
+}
+
 async function runJob(db: Db, job: Job, stats: ProcessStats): Promise<void> {
   const handler = HANDLERS[job.type];
   try {
     // A job whose worker died repeatedly comes back here with no attempts left.
     if (job.attempts > job.maxAttempts) throw new JobError(errorMessage("job.tooManyAttempts"), false);
+    if (!(await ownerAllowed(db, job))) throw new JobError(errorMessage("job.accountLockedOut"), false);
     await handler.run(db, job);
     await completeJob(db, job);
     stats.succeeded++;

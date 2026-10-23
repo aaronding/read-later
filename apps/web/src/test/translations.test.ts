@@ -150,6 +150,7 @@ let close: () => Promise<void>;
 let summary: Summary;
 
 beforeAll(async () => {
+  process.env.ALLOWED_EMAILS = "owner@example.com,other@example.com";
   process.env.RUN_JOBS_AFTER_RESPONSE = "false";
   ({ db, close } = await createTestDb());
   await createTestUser(db);
