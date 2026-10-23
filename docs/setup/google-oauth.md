@@ -7,12 +7,12 @@ You can redo the redirect addresses at any time, so if you don't have your final
 ## 1. Create a Google Cloud project
 
 1. Open <https://console.cloud.google.com> and sign in with the Google account you'll use for the app.
-2. At the top, open the project picker and click **New project**. Name it `Read Later` and create it. Make sure it's selected.
+2. At the top, open the project picker and click **New project**. Name it `ReadSooner` and create it. Make sure it's selected.
 
 ## 2. Set up the consent screen ("Google Auth Platform")
 
 1. In the menu, open **Google Auth Platform** (search for it if it isn't in the menu). If it shows **Get started**, click it.
-2. **App information:** app name `Read Later`, and your email as the user support email.
+2. **App information:** app name `ReadSooner`, and your email as the user support email.
 3. **Audience:** choose **External**.
 4. **Contact information:** your email. Agree to the policy and click **Create**.
 5. Open **Audience** and, under **Test users**, click **Add users** and add your own Gmail address.
@@ -22,13 +22,13 @@ Leave the app in **Testing** for now (publishing it is a stage 3 task). The app 
 ## 3. Create the OAuth client
 
 1. Open **Clients** and click **Create client**.
-2. **Application type:** **Web application**. **Name:** `Read Later web`.
+2. **Application type:** **Web application**. **Name:** `ReadSooner web`.
 3. **Authorized JavaScript origins:** add each address the app runs at:
-   - `https://read.example.com` (your domain)
+   - `https://www.readsooner.com`
    - `http://localhost:3000` (for development)
    - optionally the Vercel address, such as `https://read-later-yourname.vercel.app`
 4. **Authorized redirect URIs:** the same addresses followed by `/api/auth/callback/google`:
-   - `https://read.example.com/api/auth/callback/google`
+   - `https://www.readsooner.com/api/auth/callback/google`
    - `http://localhost:3000/api/auth/callback/google`
 5. Click **Create**. Copy the **Client ID** and the **Client secret** now, or download them as JSON. Google only shows the full secret at this moment; later you'd have to create a new one.
 

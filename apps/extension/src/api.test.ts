@@ -8,7 +8,7 @@ const json = (status: number, body: unknown) =>
 
 describe("sendSave", () => {
   it("posts the page with the token and reports the outcome", async () => {
-    const fetchImpl = vi.fn(async () => json(201, { ok: true, message: "Saved to Read Later", outcome: "created" }));
+    const fetchImpl = vi.fn(async () => json(201, { ok: true, message: "Saved to ReadSooner", outcome: "created" }));
     const outcome = await sendSave(settings, { url: "https://example.com/a", html: "<p>x</p>", title: "A" }, fetchImpl);
     expect(outcome).toEqual({ ok: true, kind: "saved", linkOnly: false });
     const [url, init] = fetchImpl.mock.calls[0] as unknown as [string, RequestInit];
@@ -35,7 +35,7 @@ describe("sendSave", () => {
     const fetchImpl = vi
       .fn()
       .mockResolvedValueOnce(json(413, { ok: false, error: "too large", code: "too_large" }))
-      .mockResolvedValueOnce(json(201, { ok: true, message: "Saved to Read Later", outcome: "created" }));
+      .mockResolvedValueOnce(json(201, { ok: true, message: "Saved to ReadSooner", outcome: "created" }));
     const outcome = await sendSave(settings, { url: "https://example.com/a", html: "x".repeat(10) }, fetchImpl);
     expect(outcome).toEqual({ ok: true, kind: "saved", linkOnly: true });
     expect(JSON.parse(String((fetchImpl.mock.calls[1] as [string, RequestInit])[1].body))).not.toHaveProperty("html");
@@ -82,7 +82,7 @@ describe("sendSave", () => {
 
 describe("checkConnection", () => {
   it("checks the token with a GET", async () => {
-    const fetchImpl = vi.fn(async () => json(200, { ok: true, message: "Connected to Read Later", app: "Read Later" }));
+    const fetchImpl = vi.fn(async () => json(200, { ok: true, message: "Connected to ReadSooner", app: "ReadSooner" }));
     expect(await checkConnection(settings, fetchImpl)).toEqual({ ok: true, kind: "connected" });
     expect((fetchImpl.mock.calls[0] as unknown as [string, RequestInit])[1].method).toBeUndefined();
   });

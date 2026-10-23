@@ -19,7 +19,7 @@ crons = ["*/5 * * * *"]
 
 [vars]
 # Your web app's public URL, without a trailing slash.
-APP_URL = "https://read.example.com"
+APP_URL = "https://www.readsooner.com"
 
 # JOBS_SECRET is a secret, not a var. Set it once with:
 #   pnpm exec wrangler secret put JOBS_SECRET

@@ -35,7 +35,7 @@ const fakeLookup = ((hostname: string, options: unknown, callback: (...args: unk
 
 function options(overrides: Partial<SafeFetchOptions> = {}): SafeFetchOptions {
   return {
-    userAgent: "ReadLater-Test/1.0 (+https://example.com)",
+    userAgent: "ReadSooner-Test/1.0 (+https://example.com)",
     timeoutMs: 2_000,
     maxBytes: 64 * 1024,
     lookup: fakeLookup,
@@ -128,7 +128,7 @@ describe("safeFetch", () => {
     const response = await safeFetch(`${base()}/article`, options());
     expect(response.status).toBe(200);
     expect(response.body.toString()).toContain("Hello");
-    expect(lastUserAgent).toBe("ReadLater-Test/1.0 (+https://example.com)");
+    expect(lastUserAgent).toBe("ReadSooner-Test/1.0 (+https://example.com)");
   });
 
   it("follows redirects on the same allowed host", async () => {

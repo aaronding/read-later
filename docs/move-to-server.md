@@ -44,10 +44,10 @@ Edit `.env` (`nano .env`). Copy your current values from Vercel (Project Setting
 1. In the Cloudflare dashboard, open **Networking → Tunnels** and choose **Create a tunnel**. Name it `read-later`.
 2. When asked how to install the connector, pick **Docker** and copy the long token after `--token` in the command shown. Put it in `.env` as `CLOUDFLARE_TUNNEL_TOKEN`. You don't need to run the command; Compose runs `cloudflared` for you.
 3. Open the tunnel's **Routes** tab, choose **Add route → Published application**, and enter:
-   - **Subdomain**: `read` and **Domain**: your domain (so the app's address stays the same as `APP_URL`)
+   - **Subdomain**: `www` and **Domain**: `readsooner.com` (so the app's address stays the same as `APP_URL`)
    - **Service URL**: `http://web:3000`
 
-   If the subdomain still has the Vercel CNAME record, Cloudflare asks you to replace it. Do that when you switch over (step 5).
+   While `www` still has the Vercel CNAME record, Cloudflare asks you to replace it. Do that when you switch over (step 5).
 
 ## 4. Start everything and copy the data
 
@@ -73,7 +73,7 @@ Check the app locally on the server, through an SSH tunnel from your PC: `ssh -L
 ## 5. Switch over
 
 1. Save your last articles on Vercel, then copy the data once more (step 4) so nothing is lost.
-2. Let the tunnel take over the address: approve the replacement of the old Vercel DNS record, or delete that CNAME in Cloudflare DNS and add the route again.
+2. Let the tunnel take over the address: approve the replacement of the old Vercel DNS record for `www`, or delete that CNAME in Cloudflare DNS and add the route again. Vercel also redirects `readsooner.com` to `www`, so hand that to Cloudflare: replace the bare domain's Vercel CNAME with a proxied (orange cloud) `A` record to `192.0.2.1`, an address reserved for examples that Cloudflare answers in front of, and add a redirect rule from the **Redirect from root to WWW** template in **Rules**.
 3. Open your usual address, sign in, and save a page from the extension. Nothing changes on your devices: the extension and Shortcuts keep their server URL and tokens.
 4. Clean up once everything works: remove the Vercel project, and delete the Cloudflare Worker cron with `pnpm exec wrangler delete` in `apps/cron-worker` (the worker container does its job now). Keep Neon for a few weeks as an extra backup, then delete it.
 

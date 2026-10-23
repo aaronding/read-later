@@ -199,7 +199,7 @@ describe("save -> job -> summary", () => {
     const body = await response.json();
 
     expect(response.status).toBe(201);
-    expect(body).toMatchObject({ ok: true, status: "saved", message: "Saved to Read Later", outcome: "created" });
+    expect(body).toMatchObject({ ok: true, status: "saved", message: "Saved to ReadSooner", outcome: "created" });
     expect(response.headers.get("access-control-allow-origin")).toBe("*");
     expect(elapsed).toBeLessThan(1000);
 
@@ -360,7 +360,7 @@ describe("the Apple Shortcut", () => {
     );
     const body = await response.json();
     expect(response.status).toBe(201);
-    expect(body.message).toBe("Saved to Read Later");
+    expect(body.message).toBe("Saved to ReadSooner");
     await processJobs({ db });
     expect(await articleById(body.id)).toMatchObject({ saveSource: "shortcut", contentSource: "client", previewOnly: false });
   });
@@ -523,7 +523,7 @@ describe("saving an address again", () => {
     expect(before.previewOnly).toBe(true);
     expect(requests).toHaveLength(1);
 
-    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved", queued: true, message: "Already in Read Later, downloading it again" });
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved", queued: true, message: "Already in ReadSooner, downloading it again" });
     await processJobs({ db });
     expect(requests).toHaveLength(1);
     expect(await articleById(id)).toMatchObject({ status: "ready", textContent: before.textContent });
@@ -937,19 +937,19 @@ describe("authentication and input", () => {
     const french = { "accept-language": "fr-CA,fr;q=0.9" };
     // No saved language: the request's languages.
     const saved = await (await POST(saveRequest({ url: ARTICLE_URL }, undefined, french))).json();
-    expect(saved).toMatchObject({ ok: true, status: "saved", outcome: "created", message: "Enregistré dans Read Later" });
+    expect(saved).toMatchObject({ ok: true, status: "saved", outcome: "created", message: "Enregistré dans ReadSooner" });
 
     // A saved language wins over the request's.
     await updateSettings(db, "user-1", { locale: "fr" });
     const english = { "accept-language": "en-US,en;q=0.9" };
     const second = await (await POST(saveRequest({ url: `${ARTICLE_URL}/2` }, undefined, english))).json();
-    expect(second).toMatchObject({ ok: true, outcome: "created", message: "Enregistré dans Read Later" });
+    expect(second).toMatchObject({ ok: true, outcome: "created", message: "Enregistré dans ReadSooner" });
     const ftp = await (await POST(saveRequest({ url: "ftp://example.com/file" }, undefined, english))).json();
     expect(ftp).toEqual({ ok: false, code: "invalid_url", error: "url doit être une URL http ou https absolue." });
     const notJson = await (await POST(saveRequest("not json", undefined, english))).json();
     expect(notJson).toEqual({ ok: false, code: "bad_request", error: 'Envoyez du JSON comme {"url": "https://..."}.' });
     const check = await GET(new Request("http://localhost/api/save", { headers: { authorization: `Bearer ${token}` } }));
-    expect(await check.json()).toEqual({ ok: true, message: "Connecté à Read Later", app: "Read Later" });
+    expect(await check.json()).toEqual({ ok: true, message: "Connecté à ReadSooner", app: "ReadSooner" });
 
     // Without a valid token, only the request's languages count.
     const refused = await POST(saveRequest({ url: ARTICLE_URL }, "Bearer rl_nope", french));
@@ -980,7 +980,7 @@ describe("authentication and input", () => {
       GET(new Request("http://localhost/api/save", { headers: { authorization } }));
     const ok = await check(`Bearer ${token}`);
     expect(ok.status).toBe(200);
-    expect(await ok.json()).toEqual({ ok: true, message: "Connected to Read Later", app: "Read Later" });
+    expect(await ok.json()).toEqual({ ok: true, message: "Connected to ReadSooner", app: "ReadSooner" });
     const refused = await check("Bearer rl_nope");
     expect(refused.status).toBe(401);
     expect(await refused.json()).toMatchObject({ ok: false, code: "unauthorized" });

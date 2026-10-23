@@ -10,6 +10,6 @@ export const APP_VERSION = "0.1.0";
  * never pretend to be a browser or a search engine crawler.
  */
 export function downloadUserAgent(): string {
-  const product = APP_NAME.replace(/[^A-Za-z0-9]+/g, "") || "ReadLater";
+  const product = APP_NAME.replace(/[^A-Za-z0-9]+/g, "") || "ReadSooner";
   return `${product}/${APP_VERSION} (+${appUrl()}; personal read-later app fetching a page its user saved)`;
 }

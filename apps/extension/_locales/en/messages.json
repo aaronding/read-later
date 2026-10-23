@@ -23,7 +23,7 @@
     "message": "{app}: $MESSAGE$",
     "description": "The toolbar button’s tooltip after a save, explaining its ✓ or ! badge.",
     "placeholders": {
-      "message": { "content": "$1", "example": "Saved to Read Later" }
+      "message": { "content": "$1", "example": "Saved to ReadSooner" }
     }
   },
   "onlyWebPages": {
@@ -60,7 +60,7 @@
     "message": "$MESSAGE$ (link only: the page was too large to send)",
     "description": "After a save the extension doesn’t have its own words for, as from a newer server.",
     "placeholders": {
-      "message": { "content": "$1", "example": "Saved to Read Later" }
+      "message": { "content": "$1", "example": "Saved to ReadSooner" }
     }
   },
   "connected": {

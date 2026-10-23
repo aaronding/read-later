@@ -47,7 +47,7 @@ describe("the catalogues", () => {
 
   it("have every message the extension uses, and only those", () => {
     const sources = readdirSync(new URL(".", import.meta.url)).filter((file) => /(?<!\.test)\.ts$/.test(file));
-    const info = { name: "Read Later", shortName: "Read Later", version: "1.0" };
+    const info = { name: "ReadSooner", shortName: "ReadSooner", version: "1.0" };
     const used = new Set([
       ...sources.flatMap((file) => found(read(file), /getMessage\("(\w+)"/g)),
       ...found(read("../static/options.html"), /data-i18n(?:-\w+)?="(\w+)"/g),

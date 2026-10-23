@@ -1,6 +1,6 @@
 # The Firefox extension
 
-The same extension as the [Chrome one](chrome-extension.md), built for Firefox. The toolbar button and **Alt+Shift+S** (on a Mac, Option+Shift+S) save the page you're reading with its full text, and right-clicking a link offers **Save link to Read Later**. The badge, the options, the permissions and the extension's languages work as the Chrome guide describes.
+The same extension as the [Chrome one](chrome-extension.md), built for Firefox. The toolbar button and **Alt+Shift+S** (on a Mac, Option+Shift+S) save the page you're reading with its full text, and right-clicking a link offers **Save link to ReadSooner**. The badge, the options, the permissions and the extension's languages work as the Chrome guide describes.
 
 It needs Firefox 140 or later. Firefox for Android isn't tested.
 
@@ -24,7 +24,7 @@ This creates `apps/extension/dist-firefox` and `apps/extension/dist-firefox.zip`
 
 1. Open `about:debugging#/runtime/this-firefox` in Firefox.
 2. Click **Load Temporary Add-on…** and choose `apps/extension/dist-firefox/manifest.json`.
-3. Connect it to your account, as in [the Chrome guide](chrome-extension.md#install) (step 3): the server URL, then an access token from the web app's **Settings → Access tokens**, then **Save and check**. The options page opens by itself after installing. To reach it later, open `about:addons`, click **⋯** on Read Later's card and choose **Options** (**Preferences** on a Mac).
+3. Connect it to your account, as in [the Chrome guide](chrome-extension.md#install) (step 3): the server URL, then an access token from the web app's **Settings → Access tokens**, then **Save and check**. The options page opens by itself after installing. To reach it later, open `about:addons`, click **⋯** on ReadSooner's card and choose **Options** (**Preferences** on a Mac).
 
 After changing the code, run `pnpm extension:build` again and click **Reload** on the add-on's card. The add-on disappears when Firefox quits; load it again the same way.
 
@@ -44,11 +44,11 @@ After changing the code, run `pnpm extension:build` again and click **Reload** o
    3. Upload `apps/extension/dist-firefox.zip`. The automatic check should report no errors and no warnings.
    4. When asked whether you need to submit source code, choose **Yes** and upload `read-later-extension-source.zip`.
    5. Submit. An email tells you when it has been signed.
-4. **Install the signed file.** In the Developer Hub, open **My Add-ons → Read Later**, then the version you uploaded, and click its `.xpi` file in Firefox. Or download it and use **Install Add-on From File…** from the gear menu in `about:addons`.
+4. **Install the signed file.** In the Developer Hub, open **My Add-ons → ReadSooner**, then the version you uploaded, and click its `.xpi` file in Firefox. Or download it and use **Install Add-on From File…** from the gear menu in `about:addons`.
 5. **Accept the install prompt.** Besides the permissions, it lists the data the add-on sends: your browsing activity and website content. That is the address and the text of each page you save, sent only to the server you set in the options.
 6. **Connect it to your account** as in step 3 of the temporary install.
 
-Optional: Firefox puts the button in the **Extensions** menu (the puzzle-piece icon). To keep it on the toolbar, open that menu, click the gear next to Read Later, and choose **Pin to Toolbar**.
+Optional: Firefox puts the button in the **Extensions** menu (the puzzle-piece icon). To keep it on the toolbar, open that menu, click the gear next to ReadSooner, and choose **Pin to Toolbar**.
 
 ### Updating a signed install
 
@@ -65,7 +65,7 @@ The [Chrome guide's table](chrome-extension.md#troubleshooting) applies too. In 
 | --- | --- |
 | "This add-on could not be installed because it has not been verified" | You tried to install the unsigned zip. Use a temporary install, or install the signed `.xpi` from the Developer Hub. |
 | The add-on is gone after restarting Firefox | It was a temporary install. Load it again, or sign it. |
-| Nothing happens in a private window | Firefox runs add-ons in private windows only when you allow it: in `about:addons`, open Read Later and set **Run in Private Windows** to **Allow**. |
+| Nothing happens in a private window | Firefox runs add-ons in private windows only when you allow it: in `about:addons`, open ReadSooner and set **Run in Private Windows** to **Allow**. |
 | The shortcut does nothing | Another add-on or Firefox itself may use it. In `about:addons`, choose **Manage Extension Shortcuts** from the gear menu and pick another. |
 | **!** on `about:` and other built-in pages | Only `http` and `https` pages can be saved. |
 | A page on addons.mozilla.org is saved from the server's own download | Nothing to do: Firefox doesn't let add-ons read Mozilla's own sites, so only the link is sent. |
