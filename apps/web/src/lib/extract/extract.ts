@@ -11,10 +11,12 @@ import {
   hasPaywallMarker,
   markPasswordFields,
   MIN_ARTICLE_WORDS,
+  movesOn,
   passwordFieldBesideHeadline,
   passwordMarksIn,
   readJsonLd,
   removeNonFreeSections,
+  setsCookie,
   type PreviewKind,
 } from "./paywall";
 import { sanitizeArticleHtml } from "./sanitize";
@@ -119,26 +121,54 @@ function isJsonLd(element: DefaultTreeAdapterTypes.Element): boolean {
   return isJsonLdType(element.attrs.find((a) => a.name === "type")?.value);
 }
 
+// A page with this many links is a real one, however little text it has.
+const REAL_PAGE_LINKS = 20;
+
+// The types of script a browser runs, as the HTML standard lists them.
+const JAVASCRIPT_TYPE =
+  /^(?:module|(?:text|application)\/(?:x-)?(?:javascript|ecmascript)|text\/javascript1\.[0-5]|text\/(?:jscript|livescript))?$/i;
+
+/**
+ * A script a browser would run from the page itself: JavaScript, written
+ * inline (the text of a script with a src is ignored), not only for browsers
+ * without modules, and not in a template or noscript.
+ */
+function runs(element: DefaultTreeAdapterTypes.Element, inert: boolean): boolean {
+  const attribute = (name: string) => element.attrs.find((a) => a.name === name)?.value;
+  if (inert || attribute("src") !== undefined || attribute("nomodule") !== undefined) return false;
+  return JAVASCRIPT_TYPE.test((attribute("type") ?? "").trim());
+}
+
 /**
  * Scripts and style sheets are most of a big page's bytes (on a CNN article,
  * 5 of its 5.6 MB) and never part of the article, so their contents go before
  * jsdom builds the DOM. parse5, the parser jsdom itself uses, decides where
  * each one starts and ends. The elements stay, with their attributes, and so
- * does JSON-LD, which the paywall rules read.
+ * does JSON-LD, which the paywall rules read. On the way, it notes whether the
+ * scripts set a cookie and move on, as a bot check's do.
  */
-export function withoutScriptsAndStyles(html: string): string {
+export function withoutScriptsAndStyles(html: string): { html: string; scriptMovesOn: boolean } {
   const document = parse(html, { scriptingEnabled: false });
-  const stack: DefaultTreeAdapterTypes.ParentNode[] = [document];
+  // Each node, and whether it is inside a template or noscript, where scripts never run.
+  const stack: [DefaultTreeAdapterTypes.ParentNode, boolean][] = [[document, false]];
+  let cookie = false;
+  let moves = false;
   while (stack.length > 0) {
-    const node = stack.pop()!;
+    const [node, inert] = stack.pop()!;
     if ("tagName" in node && (node.tagName === "style" || (node.tagName === "script" && !isJsonLd(node)))) {
+      if (node.tagName === "script" && runs(node, inert)) {
+        const text = node.childNodes.map((child) => ("value" in child ? child.value : "")).join("");
+        cookie ||= setsCookie(text);
+        moves ||= movesOn(text);
+      }
       node.childNodes = [];
       continue;
     }
-    for (const child of node.childNodes) if ("childNodes" in child) stack.push(child);
-    if ("content" in node) stack.push(node.content); // <template>
+    const inside = inert || ("tagName" in node && node.tagName === "noscript");
+    for (const child of node.childNodes) if ("childNodes" in child) stack.push([child, inside]);
+    if ("content" in node) stack.push([node.content, true]); // <template>
   }
-  return serialize(document);
+  return { html: serialize(document), scriptMovesOn: cookie && moves };
 }
 
 /**
@@ -220,7 +250,7 @@ function short(value: string | null | undefined, max: number): string | null {
  * jsdom does not execute them unless asked to.
  */
 export function extractArticle(input: ExtractInput): ExtractedArticle {
-  const html = withoutScriptsAndStyles(input.html);
+  const { html, scriptMovesOn } = withoutScriptsAndStyles(input.html);
   if (Buffer.byteLength(html) > MAX_PAGE_HTML_BYTES) throw new PageTooLargeError();
   const dom = new JSDOM(html, { url: input.url, virtualConsole: new VirtualConsole() });
   const document = dom.window.document;
@@ -239,6 +269,39 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     const metaDescription = meta(document, "description", "og:description");
     const htmlLang = document.documentElement.getAttribute("lang")?.trim() || null;
     const besideHeadline = passwordFieldBesideHeadline(document, { titles: [metaTitle, pageTitle], siteName: metaSite });
+    // A bot check, or a page that goes on to the article only once its scripts
+    // have run in a browser, shows a line such as "Please wait..." and hardly a
+    // link, while the scripts of most other pages set cookies and move on too.
+    // A password field makes it a login page, paywall markup or a paywall's
+    // name an article, and a refusal (401 to 403) keeps its own reason.
+    const browserCheck =
+      input.contentSource === "server" &&
+      (input.httpStatus ?? 200) < 400 &&
+      scriptMovesOn &&
+      !paywall.notFree &&
+      !paywallMarker &&
+      !document.querySelector('input[type="password" i]') &&
+      document.querySelectorAll("a[href]").length < REAL_PAGE_LINKS &&
+      textStats(cleanText(document.body?.textContent ?? "")).wordCount < MIN_ARTICLE_WORDS;
+    // Nothing of a check is the article's, not even its title, description or address.
+    if (browserCheck) {
+      const hostname = new URL(input.url).hostname;
+      return {
+        title: short(input.fallbackTitle, 500) ?? hostname,
+        author: null,
+        siteName: hostname.replace(/^www\./, ""),
+        publishedAt: null,
+        lang: null,
+        excerpt: null,
+        contentHtml: null,
+        textContent: "",
+        ...textStats(""),
+        previewOnly: true,
+        previewKind: "login",
+        previewReason: errorMessage("preview.browserCheck"),
+        canonicalHref: null,
+      };
+    }
 
     const removed =
       input.contentSource === "server"

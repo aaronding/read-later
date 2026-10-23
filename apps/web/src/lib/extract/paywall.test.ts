@@ -10,7 +10,9 @@ import {
   passwordMarksIn,
   previewIsSummarizable,
   readJsonLd,
+  movesOn,
   removeNonFreeSections,
+  setsCookie,
   type PreviewCheck,
 } from "./paywall";
 import { textStats } from "./text-stats";
@@ -253,6 +255,39 @@ describe("checkPreview", () => {
 
   it("flags pages where no article was found", () => {
     expect(checkPreview({ ...complete, foundArticle: false })?.reason).toEqual({ key: "preview.noArticle" });
+  });
+});
+
+describe("setsCookie and movesOn", () => {
+  it("find a script that sets a cookie, and one that reloads the page or leaves it", () => {
+    expect(setsCookie(`document.cookie = "check=" + answer;`)).toBe(true);
+    expect(setsCookie(`document["cookie"]="a=1"`)).toBe(true);
+    for (const script of [
+      `window.location.reload();`,
+      `location.href="/story"`,
+      `window.location = next;`,
+      `top.location.replace(target);`,
+      `location['reload']()`,
+      `document.location["href"] = "/"`,
+    ]) {
+      expect(movesOn(script), script).toBe(true);
+    }
+  });
+
+  it("ignore reading them, and other things named location", () => {
+    expect(setsCookie(`if (document.cookie == "") track();`)).toBe(false);
+    for (const script of [
+      `if (location.href.indexOf("?") < 0) track(location.hostname);`,
+      `slot.location.replace(/\s+/g, "_")`,
+      `marker.location = position;`,
+      `places.map(location => location.name)`,
+      `var mylocation = 1; $location = 2;`,
+      `var location = data.location || "";`,
+      `fetch("/api/weather?city=x&location=" + id)`,
+      `window.open(url, "share", "location=no,toolbar=no")`,
+    ]) {
+      expect(movesOn(script), script).toBe(false);
+    }
   });
 });
 
