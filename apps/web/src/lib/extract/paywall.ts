@@ -342,6 +342,21 @@ export function checkPreview(check: PreviewCheck): PreviewVerdict | null {
 }
 
 /** True when a preview still holds article text worth summarizing. */
+const KIND_OF_REASON: Partial<Record<ErrorKey, PreviewKind>> = {
+  "preview.subscriberOnly": "subscriber_only",
+  "preview.subscriberOnlyNothingFree": "subscriber_only",
+  "preview.noArticle": "no_article",
+  "preview.loginPage": "login",
+  "preview.teaser": "teaser",
+  "preview.tooShort": "too_short",
+  ...Object.fromEntries(Object.values(REFUSED_DOWNLOAD).map((key) => [key, "login"])),
+};
+
+/** The kind of a stored preview, from the reason it was given: articles keep the reason, not the kind. */
+export function previewKindOfReason(key: string | null | undefined): PreviewKind | null {
+  return (key && KIND_OF_REASON[key as ErrorKey]) || null;
+}
+
 export function previewIsSummarizable(kind: PreviewKind | null): boolean {
   return kind === null || kind === "subscriber_only" || kind === "teaser";
 }

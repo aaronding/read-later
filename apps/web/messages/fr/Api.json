@@ -4,6 +4,7 @@
     "connected": "Connexion établie avec {app}",
     "saved": "Enregistré dans {app}",
     "alreadySaved": "Déjà dans {app}, remonté en haut de la liste",
+    "alreadySavedRefetching": "Déjà dans {app}, nouveau téléchargement en cours",
     "badRequest": "Envoyez un objet JSON de la forme {example}, avec éventuellement {html} et {title}.",
     "serverError": "Un problème est survenu lors de l’enregistrement. Réessayez."
   }

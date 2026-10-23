@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, OPTIONS, POST } from "@/app/api/save/route";
 import { SUMMARY_MODELS } from "@/config/models";
@@ -425,6 +425,207 @@ describe("duplicates and previews", () => {
     const rows = await db.select({ userId: articles.userId }).from(articles);
     expect(rows.map((row) => row.userId).sort()).toEqual(["user-1", "user-2"]);
     process.env.ALLOWED_EMAILS = "owner@example.com";
+  });
+});
+
+async function enqueueTestJob(articleId: string) {
+  const { enqueueJob } = await import("@/lib/jobs/queue");
+  await enqueueJob(db, { userId: "user-1", articleId, type: "process_article" });
+}
+
+describe("saving an address again", () => {
+  const download = (url: string, body: string) => ({
+    url,
+    status: 200,
+    headers: {},
+    contentType: "text/html; charset=utf-8",
+    body: Buffer.from(body),
+    redirects: [],
+  });
+  const count = async () => (await db.select().from(articles)).length;
+  const save = async (url: string) => (await POST(saveRequest({ url, source: "shortcut" }))).json();
+
+  it("finds an article by the link it was saved from, after its key became the page's canonical address", async () => {
+    const shared = "https://riversideledger.example/features/community-orchards?ref=share";
+    vi.mocked(safeFetch).mockResolvedValue(download(shared, fixture("news-article.html")));
+    const first = await save(shared);
+    await processJobs({ db });
+    expect((await articleById(first.id)).normalizedUrl).toBe(ARTICLE_URL);
+    expect(await save(shared)).toMatchObject({ id: first.id, outcome: "resaved" });
+    expect(await count()).toBe(1);
+  });
+
+  it("finds an article by a short link that redirected to it, and by the address it landed on", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("news-article.html")));
+    const first = await save("https://sho.rt/abc");
+    await processJobs({ db });
+    for (const url of ["https://sho.rt/abc", `${ARTICLE_URL}#comments`, `${ARTICLE_URL}?utm_source=x`]) {
+      expect(await save(url), url).toMatchObject({ id: first.id, outcome: "resaved" });
+    }
+    expect(await count()).toBe(1);
+  });
+
+  it("finds an article by where its download landed, when the page names another canonical address", async () => {
+    const landed = "https://riversideledger.example/features/community-orchards?amp=1";
+    vi.mocked(safeFetch).mockResolvedValue(download(landed, fixture("news-article.html")));
+    const first = await save("https://sho.rt/amp");
+    await processJobs({ db });
+    expect((await articleById(first.id)).normalizedUrl).toBe(ARTICLE_URL);
+    expect(await save(landed)).toMatchObject({ id: first.id, outcome: "resaved" });
+    expect(await count()).toBe(1);
+  });
+
+  it("downloads a preview again when its address is saved again, and keeps the full copy", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("login-wall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect((await articleById(id)).previewOnly).toBe(true);
+
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("news-article.html")));
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved" });
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ previewOnly: false, contentSource: "server" });
+    expect((await summariesFor(id))[0]?.status).toBe("ready");
+  });
+
+  it("keeps a preview when the new download is a shorter one", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("login-wall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    const before = await articleById(id);
+
+    const shorter = "<html><head><title>Sign in</title></head><body><form><input type=\"password\"></form><p>Sign in to read.</p></body></html>";
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, shorter));
+    await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ previewOnly: true, wordCount: before.wordCount, textContent: before.textContent });
+  });
+
+  it("only moves a complete article to the top when its address is saved again", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("news-article.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    vi.mocked(safeFetch).mockClear();
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved" });
+    expect((await processJobs({ db })).claimed).toBe(0);
+    expect(safeFetch).not.toHaveBeenCalled();
+  });
+
+  // A sign-in page of about this many words, flagged as a login page.
+  const signInPage = (words: number) =>
+    `<html><head><title>Sign in</title></head><body><form><input type="password"></form><p>${"Members read every story. ".repeat(Math.ceil(words / 4))}</p></body></html>`;
+
+  it("asks for no new summary when a teaser saved again by its address comes back the same", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("teaser-paywall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    const before = await articleById(id);
+    expect(before.previewOnly).toBe(true);
+    expect(requests).toHaveLength(1);
+
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved", queued: true, message: "Already in Read Later, downloading it again" });
+    await processJobs({ db });
+    expect(requests).toHaveLength(1);
+    expect(await articleById(id)).toMatchObject({ status: "ready", textContent: before.textContent });
+  });
+
+  it("keeps a teaser over a longer sign-in page, and takes a teaser over a longer sign-in page it replaces", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("teaser-paywall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    const teaser = await articleById(id);
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, signInPage(250)));
+    await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ textContent: teaser.textContent, previewReasonMessage: { key: "preview.teaser" } });
+
+    await db.delete(articles);
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, signInPage(250)));
+    const second = await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect((await articleById(second.id)).previewReasonMessage).toEqual({ key: "preview.loginPage" });
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("teaser-paywall.html")));
+    await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect(await articleById(second.id)).toMatchObject({ textContent: teaser.textContent, previewReasonMessage: { key: "preview.teaser" } });
+  });
+
+  it("keeps a preview readable when downloading it again fails", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("login-wall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    const before = await articleById(id);
+    vi.mocked(safeFetch).mockResolvedValue({ ...download(ARTICLE_URL, "Gone"), status: 404 });
+    await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ status: "ready", error: null, errorMessage: null, textContent: before.textContent, previewOnly: true });
+  });
+
+  it("remembers nothing from a download it throws away", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("teaser-paywall.html")));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    // The site now sends our download to its sign-in page, which isn't kept.
+    vi.mocked(safeFetch).mockResolvedValue(download("https://www.riversideledger.example/login", signInPage(250)));
+    await save(ARTICLE_URL);
+    await processJobs({ db });
+    expect((await articleById(id)).normalizedUrl).toBe(ARTICLE_URL);
+    expect(await save("https://www.riversideledger.example/login")).toMatchObject({ outcome: "created" });
+  });
+
+  it("queues no second download while the first is running, and makes a waiting one due now", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("news-article.html")));
+    const { id } = await save(ARTICLE_URL);
+    const [running] = await claimJobs(db, 1, "slow-worker");
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved", queued: false });
+    expect(await db.select().from(jobs).where(and(eq(jobs.articleId, id), eq(jobs.status, "queued")))).toHaveLength(0);
+
+    // The download failed and waits an hour to try again.
+    await db.update(jobs).set({ status: "queued", runAt: new Date(Date.now() + 3_600_000) }).where(eq(jobs.id, running!.id));
+    await db.update(articles).set({ status: "pending", error: "Unavailable" }).where(eq(articles.id, id));
+    expect(await save(ARTICLE_URL)).toMatchObject({ id, outcome: "resaved", queued: true });
+    const [waiting] = await db.select().from(jobs).where(eq(jobs.id, running!.id));
+    expect(waiting!.runAt.getTime()).toBeLessThanOrEqual(Date.now());
+    expect(await db.select().from(jobs).where(and(eq(jobs.articleId, id), eq(jobs.type, "process_article")))).toHaveLength(1);
+  });
+
+  it("still finds an article by its old key after its job moves the key", async () => {
+    const { articleUrls } = await import("@/db/schema");
+    const [old] = await db
+      .insert(articles)
+      .values({ userId: "user-1", url: "https://sho.rt/before", normalizedUrl: "https://sho.rt/before" })
+      .returning();
+    await db.delete(articleUrls);
+    vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("news-article.html")));
+    await enqueueTestJob(old!.id);
+    await processJobs({ db });
+    expect((await articleById(old!.id)).normalizedUrl).toBe(ARTICLE_URL);
+    expect(await save("https://sho.rt/before")).toMatchObject({ id: old!.id, outcome: "resaved" });
+  });
+
+  it("saves a link too long to remember, and finds it again by its own key", async () => {
+    const long = `https://www.riversideledger.example/features/community-orchards?${"q=".concat("x".repeat(2400))}`;
+    vi.mocked(safeFetch).mockResolvedValue(download(long, fixture("teaser-paywall.html")));
+    const first = await save(long);
+    expect(first).toMatchObject({ outcome: "created" });
+    expect(await save(long)).toMatchObject({ id: first.id, outcome: "resaved" });
+  });
+
+  it("remembers the addresses of articles saved before article_urls existed", async () => {
+    const { articleUrls } = await import("@/db/schema");
+    const [old] = await db
+      .insert(articles)
+      .values({ userId: "user-1", url: "https://sho.rt/old#top", normalizedUrl: ARTICLE_URL, status: "ready" })
+      .returning();
+    await db.delete(articleUrls);
+    const backfill = readFileSync(path.join(here, "../../drizzle/0007_backfill_article_urls.sql"), "utf-8");
+    for (const statement of backfill.split("--> statement-breakpoint")) await db.execute(sql.raw(statement));
+    const rows = await db.select().from(articleUrls);
+    expect(rows.map((row) => [row.normalizedUrl, row.articleId]).sort()).toEqual([
+      ["https://sho.rt/old", old!.id],
+      [ARTICLE_URL, old!.id],
+    ]);
+    expect(await save("https://sho.rt/old")).toMatchObject({ id: old!.id, outcome: "resaved" });
   });
 });
 

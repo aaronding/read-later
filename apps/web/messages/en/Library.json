@@ -6,6 +6,7 @@
     "pasteLinkToSave": "Paste a link to save",
     "notices": {
       "resaved": "Already saved; moved to the top.",
+      "refetching": "Already saved; downloading it again.",
       "saved": "Saved. The summary will appear in a moment.",
       "sharedNoLink": "No link was found in what you shared."
     },

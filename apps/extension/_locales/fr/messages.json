@@ -43,6 +43,12 @@
   "alreadySavedLinkOnly": {
     "message": "Déjà dans {app}, remonté en haut de la liste (lien uniquement : la page était trop volumineuse pour être envoyée)"
   },
+  "alreadySavedRefetching": {
+    "message": "Déjà dans {app}, nouveau téléchargement en cours"
+  },
+  "alreadySavedRefetchingLinkOnly": {
+    "message": "Déjà dans {app}, nouveau téléchargement en cours (lien uniquement : la page était trop volumineuse pour être envoyée)"
+  },
   "serverMessageLinkOnly": {
     "message": "$MESSAGE$ (lien uniquement : la page était trop volumineuse pour être envoyée)",
     "placeholders": {

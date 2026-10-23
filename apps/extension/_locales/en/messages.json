@@ -49,6 +49,13 @@
   "alreadySavedLinkOnly": {
     "message": "Already in {app}, moved to the top (link only: the page was too large to send)"
   },
+  "alreadySavedRefetching": {
+    "message": "Already in {app}, downloading it again",
+    "description": "The article was saved before, but as a preview, a failure or an empty page, so saving its link again downloads it again."
+  },
+  "alreadySavedRefetchingLinkOnly": {
+    "message": "Already in {app}, downloading it again (link only: the page was too large to send)"
+  },
   "serverMessageLinkOnly": {
     "message": "$MESSAGE$ (link only: the page was too large to send)",
     "description": "After a save the extension doesn’t have its own words for, as from a newer server.",

@@ -48,7 +48,11 @@ export async function LibraryPage({
       </div>
       {params.saved && (
         <p className="notice success" role="status">
-          {params.saved === "resaved" ? t("notices.resaved") : t("notices.saved")}
+          {params.saved === "resaved"
+            ? t("notices.resaved")
+            : params.saved === "refetching"
+              ? t("notices.refetching")
+              : t("notices.saved")}
         </p>
       )}
       {params.shared === "nolink" && <p className="notice error">{t("notices.sharedNoLink")}</p>}

@@ -30,6 +30,7 @@ describe("outcomeText", () => {
       "Saved to Read Later (link only: the page was too large to send)",
     );
     expect(text({ ok: true, kind: "alreadySaved", linkOnly: false })).toBe("Already in Read Later, moved to the top");
+    expect(text({ ok: true, kind: "refetching", linkOnly: false })).toBe("Already in Read Later, downloading it again");
     expect(text({ ok: true, kind: "alreadySaved", linkOnly: true })).toBe(
       "Already in Read Later, moved to the top (link only: the page was too large to send)",
     );

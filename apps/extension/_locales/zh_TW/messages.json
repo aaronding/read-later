@@ -41,6 +41,12 @@
   "alreadySavedLinkOnly": {
     "message": "{app} 中已有這篇文章，已移到最上方 (僅連結：網頁太大，無法傳送)"
   },
+  "alreadySavedRefetching": {
+    "message": "{app} 中已有這篇文章，正在重新下載"
+  },
+  "alreadySavedRefetchingLinkOnly": {
+    "message": "{app} 中已有這篇文章，正在重新下載 (僅連結：網頁太大，無法傳送)"
+  },
   "serverMessageLinkOnly": {
     "message": "$MESSAGE$ (僅連結：網頁太大，無法傳送)",
     "placeholders": {

@@ -23,7 +23,7 @@ import {
   triageLater,
 } from "@/lib/library";
 import { toAppearance, type Appearance } from "@/lib/appearance";
-import { SaveError, saveArticle } from "@/lib/save";
+import { SaveError, saveArticle, saveNotice } from "@/lib/save";
 import { saveAppearance, updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
@@ -142,7 +142,7 @@ export async function saveSharedLinkAction(formData: FormData) {
     source: "android",
   });
   if (result.queued) scheduleJobProcessing();
-  redirect(`/inbox?saved=${result.outcome}`);
+  redirect(`/inbox?saved=${saveNotice(result)}`);
 }
 
 export interface SaveUrlState {
@@ -161,7 +161,12 @@ export async function saveUrlAction(_previous: SaveUrlState, formData: FormData)
     refresh();
     return {
       ok: true,
-      message: result.outcome === "resaved" ? t("alreadySaved") : t("saved", { app: APP_NAME }),
+      message:
+        saveNotice(result) === "refetching"
+          ? t("alreadySavedRefetching")
+          : result.outcome === "resaved"
+            ? t("alreadySaved")
+            : t("saved", { app: APP_NAME }),
     };
   } catch (error) {
     if (!(error instanceof SaveError)) throw error;
