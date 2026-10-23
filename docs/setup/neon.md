@@ -39,7 +39,7 @@ From your PC, in the repository folder:
 pnpm db:migrate
 ```
 
-It connects with `DATABASE_URL_UNPOOLED`, or with `DATABASE_URL` when that isn't set. "Migrations applied." means the database is ready. Run this again whenever a new version of the app adds a migration (it's safe to run when there's nothing new).
+It connects with `DATABASE_URL_UNPOOLED`, or with `DATABASE_URL` when that isn't set. "Migrations applied." means the database is ready. Run this again whenever a new version of the app adds a migration, before that version is deployed: Vercel doesn't run migrations, and the new code may need the new tables (it's safe to run when there's nothing new).
 
 ## 4. A branch for development
 

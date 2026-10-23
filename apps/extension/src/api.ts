@@ -13,7 +13,7 @@ export interface SavePayload {
  * it doesn't know, or the browser's network error.
  */
 export type Outcome =
-  | { ok: true; kind: "saved" | "alreadySaved"; linkOnly: boolean; detail?: string }
+  | { ok: true; kind: "saved" | "alreadySaved" | "refetching"; linkOnly: boolean; detail?: string }
   | { ok: true; kind: "connected" }
   | { ok: false; kind: "notConfigured" }
   | { ok: false; kind: "unreachable"; server: string; detail: string }
@@ -74,7 +74,8 @@ export async function sendSave(settings: Settings, payload: SavePayload, fetchIm
     const body = await jsonBody(response);
     if (!body) return { ok: false, kind: "notTheApp", server: settings.serverUrl };
     if (body.outcome === "created" || body.outcome === "replaced") return { ok: true, kind: "saved", linkOnly };
-    if (body.outcome === "resaved") return { ok: true, kind: "alreadySaved", linkOnly };
+    // A preview, failed or empty copy saved again is downloaded again (queued).
+    if (body.outcome === "resaved") return { ok: true, kind: body.queued === true ? "refetching" : "alreadySaved", linkOnly };
     return { ok: true, kind: "saved", linkOnly, detail: textOf(body.message) };
   } catch (error) {
     return unreachable(settings, error);

@@ -6,6 +6,7 @@
     "pasteLinkToSave": "粘贴要保存的链接",
     "notices": {
       "resaved": "之前已保存，已移到最前面。",
+      "refetching": "之前已保存，正在重新下载。",
       "saved": "已保存。摘要稍后就会显示。",
       "sharedNoLink": "在分享的内容中找不到链接。"
     },

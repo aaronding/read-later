@@ -22,6 +22,11 @@ describe("sendSave", () => {
       sendSave(settings, { url: "https://example.com/a" }, async () => json(200, { ok: true, message: "…", outcome }));
     expect(await save("replaced")).toEqual({ ok: true, kind: "saved", linkOnly: false });
     expect(await save("resaved")).toEqual({ ok: true, kind: "alreadySaved", linkOnly: false });
+    // A preview saved again by its link is downloaded again.
+    const refetch = await sendSave(settings, { url: "https://example.com/a" }, async () =>
+      json(200, { ok: true, message: "…", outcome: "resaved", queued: true }),
+    );
+    expect(refetch).toEqual({ ok: true, kind: "refetching", linkOnly: false });
     // An outcome from a newer server: its own message is all there is to show.
     expect(await save("queued")).toEqual({ ok: true, kind: "saved", linkOnly: false, detail: "…" });
   });

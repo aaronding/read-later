@@ -223,6 +223,25 @@ export const articles = pgTable(
   ],
 );
 
+// Every address that led to an article, normalized, so that saving any of
+// them again finds it: the link as saved, the page's trusted canonical
+// address, and where our own download ended after redirects. The article's
+// normalized_url is one of them.
+export const articleUrls = pgTable(
+  "article_urls",
+  {
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    normalizedUrl: text("normalized_url").notNull(),
+    articleId: uuid("article_id")
+      .notNull()
+      .references(() => articles.id, { onDelete: "cascade" }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.userId, t.normalizedUrl] }), index("article_urls_article_id_idx").on(t.articleId)],
+);
+
 export type SummaryStatus = "pending" | "running" | "ready" | "failed";
 
 export const summaries = pgTable(

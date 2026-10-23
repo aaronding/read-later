@@ -3,7 +3,8 @@
     "saveUrl": {
       "notAWebAddress": "这看起来不像网址（http 或 https）。",
       "saved": "已保存到 {app}。",
-      "alreadySaved": "之前已保存，已移到最前面。"
+      "alreadySaved": "之前已保存，已移到最前面。",
+      "alreadySavedRefetching": "之前已保存，正在重新下载。"
     },
     "createToken": {
       "nameRequired": "请为令牌命名，例如“笔记本电脑上的 {chrome}”。"

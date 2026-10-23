@@ -4,6 +4,7 @@
     "connected": "Connected to {app}",
     "saved": "Saved to {app}",
     "alreadySaved": "Already in {app}, moved to the top",
+    "alreadySavedRefetching": "Already in {app}, downloading it again",
     "badRequest": "Send JSON like {example}, optionally with {html} and {title}.",
     "serverError": "Something went wrong while saving. Please try again."
   }

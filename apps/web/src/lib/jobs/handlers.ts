@@ -4,11 +4,11 @@ import { downloadUserAgent } from "@/config/app";
 import { envInt, isEmailAdmin } from "@/config/env";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
-import { articles, summaries, tags, users, type Article, type ContentSource, type Job } from "@/db/schema";
+import { articleUrls, articles, summaries, tags, users, type Article, type ContentSource, type Job } from "@/db/schema";
 import { englishText } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { extractArticle, PageTooLargeError, type ExtractedArticle, type ExtractInput } from "@/lib/extract/extract";
-import { previewIsSummarizable } from "@/lib/extract/paywall";
+import { previewIsSummarizable, previewKindOfReason, type PreviewKind } from "@/lib/extract/paywall";
 import { decodeHtml, isHtmlContentType } from "@/lib/net/decode";
 import { FetchError, safeFetch, type SafeFetchResponse } from "@/lib/net/safe-fetch";
 import { refreshSearchVector } from "@/lib/search-index";
@@ -17,6 +17,7 @@ import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
 import { retranslate } from "@/lib/translations";
 import { recordUsage } from "@/lib/usage";
+import { rememberUrls } from "@/lib/save";
 import { JobError, type JobFailure } from "./errors";
 import { enqueueJob, hasQueuedJob } from "./queue";
 
@@ -96,21 +97,54 @@ async function download(url: string): Promise<SafeFetchResponse> {
   return response;
 }
 
+/** The addresses the page itself names: its trusted canonical URL, and for our own downloads where redirects ended (link shorteners). */
+function pageKeys(article: Article, pageUrl: string, canonicalHref: string | null): string[] {
+  const canonical = trustedCanonicalUrl(pageUrl, canonicalHref);
+  const landed = pageUrl !== article.url ? normalizeUrl(pageUrl) : null;
+  return [canonical, landed].filter((key): key is string => key !== null);
+}
+
 /**
- * The duplicate key after processing: the trusted canonical URL, or for our
- * own downloads the URL we ended up at after redirects (link shorteners).
- * Left unchanged if another saved article already uses it.
+ * The duplicate key after processing: the first of the page's own addresses,
+ * left unchanged if another saved article already has it.
  */
-async function bestNormalizedUrl(db: Db, article: Article, pageUrl: string, canonicalHref: string | null) {
-  const candidate =
-    trustedCanonicalUrl(pageUrl, canonicalHref) ?? (pageUrl !== article.url ? normalizeUrl(pageUrl) : null);
+async function bestNormalizedUrl(db: Db, article: Article, keys: string[]) {
+  const candidate = keys[0];
   if (!candidate || candidate === article.normalizedUrl) return article.normalizedUrl;
   const [clash] = await db
     .select({ id: articles.id })
     .from(articles)
     .where(and(eq(articles.userId, article.userId), eq(articles.normalizedUrl, candidate), ne(articles.id, article.id)))
     .limit(1);
-  return clash ? article.normalizedUrl : candidate;
+  const [remembered] = await db
+    .select({ articleId: articleUrls.articleId })
+    .from(articleUrls)
+    .where(and(eq(articleUrls.userId, article.userId), eq(articleUrls.normalizedUrl, candidate), ne(articleUrls.articleId, article.id)))
+    .limit(1);
+  return clash || remembered ? article.normalizedUrl : candidate;
+}
+
+/**
+ * How good a copy is: a complete one beats any preview, and a preview that
+ * gets summarized (a teaser or a subscriber-only page's free part) beats one
+ * that doesn't (a login page, no article, too short).
+ */
+function copyRank(previewOnly: boolean, kind: PreviewKind | null, wordCount: number): number {
+  if (!previewOnly) return 2;
+  return previewIsSummarizable(kind) && wordCount >= MIN_SUMMARY_WORDS ? 1 : 0;
+}
+
+/**
+ * True when the stored copy is at least as good as the new one, so the new
+ * one is thrown away: it ranks lower, or is a preview of the same rank and no
+ * longer. Saving a preview again then changes nothing, and asks for no
+ * summary, unless the page now gives more.
+ */
+function keepsStoredCopy(article: Article, extracted: ExtractedArticle): boolean {
+  if (!article.contentHtml) return false;
+  const stored = copyRank(article.previewOnly, previewKindOfReason(article.previewReasonMessage?.key), article.wordCount ?? 0);
+  const fresh = copyRank(extracted.previewOnly, extracted.previewKind, extracted.wordCount);
+  return fresh < stored || (fresh === stored && extracted.previewOnly && extracted.wordCount <= (article.wordCount ?? 0));
 }
 
 /** Download (if needed), extract, store, then queue the summaries. */
@@ -147,9 +181,10 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
     });
   }
 
-  // Never replace a complete copy with a preview.
-  const keepExisting = Boolean(article.contentHtml && !article.previewOnly && extracted.previewOnly);
-  const normalizedUrl = await bestNormalizedUrl(db, article, pageUrl, extracted.canonicalHref);
+  const keepExisting = keepsStoredCopy(article, extracted);
+  // A copy that is thrown away says nothing about the article's addresses.
+  const keys = keepExisting ? [] : pageKeys(article, pageUrl, extracted.canonicalHref);
+  const normalizedUrl = await bestNormalizedUrl(db, article, keys);
   const wantSummaries =
     !keepExisting && extracted.wordCount >= MIN_SUMMARY_WORDS && previewIsSummarizable(extracted.previewKind);
   const previewReason = extracted.previewReason ? await englishText(extracted.previewReason) : null;
@@ -191,6 +226,7 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
             }),
       })
       .where(eq(articles.id, article.id));
+    await rememberUrls(tx, article, [normalizedUrl, article.normalizedUrl, ...keys]);
     await refreshSearchVector(tx, article.id);
 
     // A login page or an empty page has nothing worth summarizing.
@@ -221,11 +257,21 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   });
 }
 
+/**
+ * An article with no copy yet waits for the next try, or has failed. One that
+ * already has a copy, downloaded again because it was saved again, keeps it
+ * and stays readable; the failure is only the job's.
+ */
 export async function processArticleFailed(db: Db, job: Job, failure: JobFailure): Promise<void> {
   if (!job.articleId) return;
+  const hasCopy = sql`${articles.contentHtml} IS NOT NULL`;
   await db
     .update(articles)
-    .set({ status: failure.willRetry ? "pending" : "failed", error: failure.text, errorMessage: failure.message })
+    .set({
+      status: sql`CASE WHEN ${hasCopy} THEN 'ready' ELSE ${failure.willRetry ? "pending" : "failed"} END`,
+      error: sql`CASE WHEN ${hasCopy} THEN NULL ELSE ${failure.text} END`,
+      errorMessage: sql`CASE WHEN ${hasCopy} THEN NULL ELSE ${JSON.stringify(failure.message)}::jsonb END`,
+    })
     .where(and(eq(articles.id, job.articleId), eq(articles.userId, job.userId)));
 }
 

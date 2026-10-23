@@ -6,7 +6,7 @@ import { preferredLocale, type AppLocale } from "@/i18n/locales";
 import { loadMessages } from "@/i18n/messages";
 import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
-import { SaveError, maxHtmlBytes, saveArticle, type SaveErrorCode } from "@/lib/save";
+import { SaveError, maxHtmlBytes, saveArticle, saveNotice, type SaveErrorCode } from "@/lib/save";
 import { getSettings } from "@/lib/settings";
 import { authenticateBearer } from "@/lib/tokens";
 
@@ -87,6 +87,9 @@ export async function GET(request: Request): Promise<Response> {
   return reply(200, { ok: true, message: t("connected", { app: APP_NAME }), app: APP_NAME });
 }
 
+// The reply's message for each way a save went.
+const SAVED_MESSAGE = { created: "saved", replaced: "saved", resaved: "alreadySaved", refetching: "alreadySavedRefetching" } as const;
+
 export async function POST(request: Request): Promise<Response> {
   const db = getDb();
   const userId = await authenticateBearer(db, request.headers.get("authorization"));
@@ -120,9 +123,11 @@ export async function POST(request: Request): Promise<Response> {
     return reply(result.outcome === "created" ? 201 : 200, {
       ok: true,
       status: "saved",
-      message: t(result.outcome === "resaved" ? "alreadySaved" : "saved", { app: APP_NAME }),
+      message: t(SAVED_MESSAGE[saveNotice(result)], { app: APP_NAME }),
       id: result.articleId,
       outcome: result.outcome,
+      // True when the article will be downloaded again.
+      queued: result.queued,
     });
   } catch (error) {
     if (error instanceof SaveError) {

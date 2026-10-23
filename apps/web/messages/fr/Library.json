@@ -6,6 +6,7 @@
     "pasteLinkToSave": "Collez un lien à enregistrer",
     "notices": {
       "resaved": "Déjà enregistré, remonté en haut de la liste.",
+      "refetching": "Déjà enregistré, nouveau téléchargement en cours.",
       "saved": "Enregistré. Le résumé apparaîtra dans un instant.",
       "sharedNoLink": "Aucun lien n’a été trouvé dans ce que vous avez partagé."
     },

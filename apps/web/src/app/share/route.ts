@@ -1,7 +1,7 @@
 import { getDb } from "@/db";
 import { getCurrentUser } from "@/lib/auth";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
-import { saveArticle } from "@/lib/save";
+import { saveArticle, saveNotice } from "@/lib/save";
 import { shareNeedsConfirmation, sharedUrl } from "@/lib/share";
 
 // The Android share target (see manifest.ts). Saves the shared link, then
@@ -32,5 +32,5 @@ export async function GET(request: Request): Promise<Response> {
     source: "android",
   });
   if (result.queued) scheduleJobProcessing();
-  return seeOther(`/inbox?saved=${result.outcome}`);
+  return seeOther(`/inbox?saved=${saveNotice(result)}`);
 }

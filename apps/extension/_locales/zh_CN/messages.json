@@ -41,6 +41,12 @@
   "alreadySavedLinkOnly": {
     "message": "{app} 中已有此文章，已移到最前面（仅链接：网页太大，无法发送）"
   },
+  "alreadySavedRefetching": {
+    "message": "{app} 中已有此文章，正在重新下载"
+  },
+  "alreadySavedRefetchingLinkOnly": {
+    "message": "{app} 中已有此文章，正在重新下载（仅链接：网页太大，无法发送）"
+  },
   "serverMessageLinkOnly": {
     "message": "$MESSAGE$（仅链接：网页太大，无法发送）",
     "placeholders": {

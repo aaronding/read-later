@@ -35,6 +35,8 @@ export function outcomeText(outcome: Outcome, getMessage: GetMessage): string {
       return outcome.linkOnly ? getMessage("serverMessageLinkOnly", outcome.detail) : outcome.detail;
     case "alreadySaved":
       return outcome.linkOnly ? getMessage("alreadySavedLinkOnly") : getMessage("alreadySaved");
+    case "refetching":
+      return outcome.linkOnly ? getMessage("alreadySavedRefetchingLinkOnly") : getMessage("alreadySavedRefetching");
     case "connected":
       return getMessage("connected");
     case "notConfigured":
