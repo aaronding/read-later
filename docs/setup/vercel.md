@@ -40,4 +40,5 @@ Every push to the `main` branch now deploys automatically. Pushes to other branc
 
 - **Background work:** each save starts its jobs right after replying, using Next.js `after()`, and can keep working for up to 300 seconds (Hobby's limit with Fluid compute, which new projects use). The [Cloudflare Worker cron](cloudflare-worker-cron.md) picks up anything left over every 5 minutes.
 - **Size limit:** Vercel accepts request bodies up to 4.5 MB, so the app limits saved pages to 4 MB. Larger pages are saved as a link.
-- **Logs:** a deployment's **Logs** tab shows errors from saves and background jobs.
+- **Logs:** a deployment's **Logs** tab shows errors from saves and background jobs. A page that shows Next.js's "This page couldn't load" after a deploy has its error there too.
+- **Node.js on Vercel** can't `require()` an ES module, unlike Node on your PC, so a package the server loads at run time can work locally and fail only here. That is why jsdom stays at 26.1.0 (see the README's "Upgrading dependencies"), and `pnpm test` checks it the way Vercel loads it.
