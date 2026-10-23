@@ -84,6 +84,8 @@ export interface RemovedSections {
    * here, never elsewhere on the page; empty when there is no such place.
    */
   containers: Element[];
+  /** The removed sections' text, without their scripts, whose JSON-LD may repeat the description. */
+  text: string;
 }
 
 function articleAround(parent: Element): Element | null {
@@ -102,6 +104,7 @@ function articleAround(parent: Element): Element | null {
 export function removeNonFreeSections(document: Document, selectors: string[]): RemovedSections {
   let count = 0;
   let largest: { parent: Element; size: number } | null = null;
+  const texts: string[] = [];
   for (const selector of selectors) {
     let matches: NodeListOf<Element>;
     try {
@@ -112,6 +115,8 @@ export function removeNonFreeSections(document: Document, selectors: string[]): 
     for (const element of matches) {
       const size = element.textContent?.length ?? 0;
       if (element.parentElement && (!largest || size > largest.size)) largest = { parent: element.parentElement, size };
+      for (const script of element.querySelectorAll("script")) script.remove();
+      texts.push(element.textContent ?? "");
       element.remove();
       count++;
     }
@@ -119,7 +124,7 @@ export function removeNonFreeSections(document: Document, selectors: string[]): 
   // A stray match elsewhere on the page (a promo box) must not widen the
   // article to the page around it, so only the largest section counts.
   const container = largest?.parent.isConnected ? articleAround(largest.parent) : null;
-  return { count, containers: container ? [container] : [] };
+  return { count, containers: container ? [container] : [], text: texts.join(" ") };
 }
 
 const PAYWALL_MARKER =
