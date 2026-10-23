@@ -156,6 +156,100 @@ describe("extractArticle: paywall markup", () => {
 describe("extractArticle: login pages and teasers", () => {
   const url = "https://metroreview.example/story/123";
 
+  describe("a bot check instead of the article", () => {
+    // Shaped like Juejin's: the browser works out an answer, sets it as a
+    // cookie and reloads the page, which then shows the article.
+    const check = `<!DOCTYPE html><html lang="en"><head><title>Just a moment...</title></head>
+      <body><script>var i = 0; while (!solves(i)) i++;
+      document.cookie = "challenge=" + i + "; Max-Age=1"; window.location.reload();</script>Please wait...</body></html>`;
+
+    it("keeps nothing of it on our own download, and says why", () => {
+      const named = check.replace(
+        "<title>",
+        `<meta name="description" content="The site's own blurb."><meta name="author" content="The Site">
+        <meta property="og:site_name" content="Checker"><link rel="canonical" href="https://metroreview.example/verify"><title>`,
+      );
+      const result = extractArticle({ html: named, url, contentSource: "server", httpStatus: 200, fallbackTitle: "The story" });
+      expect(result).toMatchObject({
+        title: "The story",
+        siteName: "metroreview.example",
+        author: null,
+        excerpt: null,
+        lang: null,
+        canonicalHref: null,
+        contentHtml: null,
+        textContent: "",
+        wordCount: 0,
+      });
+      expect(result.previewKind).toBe("login");
+      expect(result.previewReason).toEqual({ key: "preview.browserCheck" });
+      expect(extractArticle({ html: check, url, contentSource: "server", httpStatus: 200 }).title).toBe("metroreview.example");
+      // A refusal says what the server was told, and keeps the page as before.
+      const refused = extractArticle({ html: check, url, contentSource: "server", httpStatus: 403 });
+      expect(refused).toMatchObject({ title: "Just a moment...", previewReason: { key: "preview.downloadRefused" } });
+    });
+
+    it("reads the cookie and the reload from different scripts, but only from scripts that run", () => {
+      const split = check.replace(`document.cookie = "challenge=" + i + "; Max-Age=1"; window.location.reload();`, `document.cookie = "challenge=" + i;</script>
+        <script type="text/javascript">setTimeout(function () { location.reload(); }, 100);`);
+      expect(extractArticle({ html: split, url, contentSource: "server", httpStatus: 200 }).previewReason).toEqual({
+        key: "preview.browserCheck",
+      });
+      for (const inert of [
+        `<script type="text/template">`,
+        `<script type="text/javascript; charset=utf-8">`,
+        `<script src="/app.js">`,
+        `<script nomodule>`,
+        `<template><script>`,
+        `<noscript><script>`,
+      ]) {
+        const html = split.replace(`<script type="text/javascript">`, inert);
+        expect(extractArticle({ html, url, contentSource: "server", httpStatus: 200 }).previewReason?.key, inert).not.toBe(
+          "preview.browserCheck",
+        );
+      }
+    });
+
+    it("leaves a page with more on it to the other rules, though a script there sets a cookie and moves on", () => {
+      // A homepage's consent or ad script does both, as most big pages' scripts do.
+      const menu = Array.from({ length: 60 }, (_, i) => `<li><a href="/section-${i}">Section ${i} news</a></li>`).join("");
+      const home = check
+        .replace("<title>Just a moment...</title>", "<title>Metro Review</title>")
+        .replace("Please wait...", `<nav><ul>${menu}</ul></nav><main><p>Today's top story, in a line or two.</p></main>`);
+      const result = extractArticle({ html: home, url, contentSource: "server", httpStatus: 200 });
+      expect(result.title).toBe("Metro Review");
+      expect(result.previewReason).toEqual({ key: "preview.tooShort" });
+      // A short forum post whose menu is icons: little text, but many links.
+      const icons = Array.from({ length: 30 }, (_, i) => `<a href="/board-${i}"><img src="/icon-${i}.png" alt=""></a>`).join("");
+      const post = home.replace(`<ul>${menu}</ul>`, icons).replace("<title>Metro Review</title>", "<title>Who wins tonight?</title>");
+      expect(extractArticle({ html: post, url, contentSource: "server", httpStatus: 200 }).title).toBe("Who wins tonight?");
+    });
+
+    it("leaves a short teaser by its paywall to the teaser rule", () => {
+      const teaser = check.replace(
+        "Please wait...",
+        `<article><h1>The story</h1><p>${"A sentence of the free part. ".repeat(10)}</p>
+        <div class="paywall"><p>Subscribe to keep reading.</p></div></article>`,
+      );
+      expect(extractArticle({ html: teaser, url, contentSource: "server", httpStatus: 200 }).previewReason).toEqual({
+        key: "preview.teaser",
+      });
+    });
+
+    it("leaves a page with an article, or a login form, to the other rules", () => {
+      const story = check.replace("Please wait...", `<article><p>${"A sentence of the story. ".repeat(40)}</p></article>`);
+      expect(extractArticle({ html: story, url, contentSource: "server", httpStatus: 200 }).previewOnly).toBe(false);
+      const login = check.replace(
+        "Please wait...",
+        `<main><p>Sign in with your email address and password to keep reading this story, and every other story on the site.</p>
+        <form><input type="email"><input type="password"></form></main>`,
+      );
+      expect(extractArticle({ html: login, url, contentSource: "server", httpStatus: 200 }).previewReason).toEqual({
+        key: "preview.loginPage",
+      });
+    });
+  });
+
   it("flags a login page as preview only", () => {
     const result = extractArticle({ html: html("login-wall.html"), url, contentSource: "server", httpStatus: 200 });
     expect(result.previewOnly).toBe(true);
@@ -346,7 +440,7 @@ describe("extractArticle: scripts, styles and size", () => {
       expect(result.textContent, body).toContain("MORE149");
       expect(result.textContent, body).not.toContain("document.write");
     }
-    const stripped = withoutScriptsAndStyles(`<style id="paywall-css">.x{}</style><script>alert(1)</script><p>keep</p>`);
+    const { html: stripped } = withoutScriptsAndStyles(`<style id="paywall-css">.x{}</style><script>alert(1)</script><p>keep</p>`);
     expect(stripped).toContain('<style id="paywall-css"></style>'); // the element and its name stay
     expect(stripped).not.toContain("alert(1)");
     expect(stripped).toContain("<p>keep</p>");

@@ -29,6 +29,7 @@
       "subscriberOnlyNothingFree": "Le site indique que cet article est réservé aux abonnés, et sa partie gratuite est trop courte pour être conservée.",
       "noArticle": "Aucun article n’a été trouvé sur cette page.",
       "loginPage": "Cette page ressemble à une page de connexion plutôt qu’à l’article.",
+      "browserCheck": "Au lieu de l’article, le site a envoyé une page qui n’y mène qu’une fois ses scripts exécutés dans un navigateur, par exemple une vérification que le visiteur n’est pas un robot.",
       "teaser": "La page n’affiche que le début de l’article, le reste étant réservé aux abonnés.",
       "tooShort": "Seul un texte très court a pu être lu sur cette page."
     },

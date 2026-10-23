@@ -182,8 +182,10 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   }
 
   const keepExisting = keepsStoredCopy(article, extracted);
-  // A copy that is thrown away says nothing about the article's addresses.
-  const keys = keepExisting ? [] : pageKeys(article, pageUrl, extracted.canonicalHref);
+  // A copy that is thrown away says nothing about the article's addresses,
+  // and where a bot check's redirects ended is the check's address.
+  const browserCheck = extracted.previewReason?.key === "preview.browserCheck";
+  const keys = keepExisting || browserCheck ? [] : pageKeys(article, pageUrl, extracted.canonicalHref);
   const normalizedUrl = await bestNormalizedUrl(db, article, keys);
   const wantSummaries =
     !keepExisting && extracted.wordCount >= MIN_SUMMARY_WORDS && previewIsSummarizable(extracted.previewKind);

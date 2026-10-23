@@ -550,6 +550,19 @@ describe("saving an address again", () => {
     expect(await articleById(second.id)).toMatchObject({ textContent: teaser.textContent, previewReasonMessage: { key: "preview.teaser" } });
   });
 
+  it("remembers no address of a bot check the download was redirected to", async () => {
+    const check = `<html><head><title>Just a moment...</title><link rel="canonical" href="${ARTICLE_URL}?verify=1"></head>
+      <body><script>document.cookie = "answer=42"; location.reload();</script>Please wait...</body></html>`;
+    vi.mocked(safeFetch).mockResolvedValue(download(`${ARTICLE_URL}/verify?seed=9`, check));
+    const { id } = await save(ARTICLE_URL);
+    await processJobs({ db });
+    const article = await articleById(id);
+    expect(article).toMatchObject({ previewReasonMessage: { key: "preview.browserCheck" }, textContent: "" });
+    expect(article.normalizedUrl).toBe(ARTICLE_URL);
+    const { articleUrls } = await import("@/db/schema");
+    expect((await db.select().from(articleUrls)).map((row) => row.normalizedUrl)).toEqual([ARTICLE_URL]);
+  });
+
   it("keeps a preview readable when downloading it again fails", async () => {
     vi.mocked(safeFetch).mockResolvedValue(download(ARTICLE_URL, fixture("login-wall.html")));
     const { id } = await save(ARTICLE_URL);

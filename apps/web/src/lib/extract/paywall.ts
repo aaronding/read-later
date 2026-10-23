@@ -272,6 +272,30 @@ export function passwordFieldBesideHeadline(
   return false;
 }
 
+// How a bot check, or a page that goes on to the article only in a browser,
+// lets the browser through: its scripts set a cookie, then reload the page or
+// go to another address. The app never runs a page's scripts.
+const SETS_COOKIE = /\bdocument\s*(?:\.\s*cookie|\[\s*["']cookie["']\s*\])\s*=(?![=>])/;
+// The page's own location, not a property of that name on something else. A
+// bare "location =" takes a window first, since it is as often a variable of
+// that name, or "location=" in a query or a pop-up's features.
+const LOCATION = String.raw`(?<![\w$.])(?:(?:window|self|top|document)\s*\.\s*)?location`;
+const WINDOW_LOCATION = String.raw`(?<![\w$.])(?:window|self|top|document)\s*\.\s*location`;
+const CALL = String.raw`\s*(?:\.\s*(?:reload|replace|assign)|\[\s*["'](?:reload|replace|assign)["']\s*\])\s*\(`;
+const HREF = String.raw`\s*(?:\.\s*href|\[\s*["']href["']\s*\])`;
+const SET = String.raw`\s*=(?![=>])`;
+const MOVES_ON = new RegExp(`${LOCATION}(?:${CALL}|${HREF}${SET})|${WINDOW_LOCATION}${SET}`);
+
+/** True for a script that sets a cookie. */
+export function setsCookie(script: string): boolean {
+  return SETS_COOKIE.test(script);
+}
+
+/** True for a script that reloads the page or goes to another address. */
+export function movesOn(script: string): boolean {
+  return MOVES_ON.test(script);
+}
+
 const LOGIN_TITLE =
   /\b(sign[ -]?in|log[ -]?in|subscribe|register|create an account)\b|登录|登入|注册|ログイン|로그인|anmelden|connexion|iniciar sesión/i;
 
@@ -352,6 +376,7 @@ const KIND_OF_REASON: Partial<Record<ErrorKey, PreviewKind>> = {
   "preview.subscriberOnlyNothingFree": "subscriber_only",
   "preview.noArticle": "no_article",
   "preview.loginPage": "login",
+  "preview.browserCheck": "login",
   "preview.teaser": "teaser",
   "preview.tooShort": "too_short",
   ...Object.fromEntries(Object.values(REFUSED_DOWNLOAD).map((key) => [key, "login"])),

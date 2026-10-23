@@ -29,6 +29,7 @@
       "subscriberOnlyNothingFree": "The site marks this article as subscriber-only, and too little of it is free to keep.",
       "noArticle": "No article could be found on this page.",
       "loginPage": "This looks like a login page rather than the article.",
+      "browserCheck": "Instead of the article, the site sent a page that leads to it only once its scripts run in a browser, such as a check that the visitor isn’t a bot.",
       "teaser": "The page shows a paywall and only the start of the article.",
       "tooShort": "Only a very short text could be read from this page."
     },
