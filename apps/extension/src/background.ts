@@ -7,7 +7,7 @@ import { browserMessage as getMessage, outcomeText } from "./i18n.js";
 import { loadSettings } from "./settings.js";
 
 const MENU_ID = "save-link";
-const COLORS = { busy: "#6b7280", ok: "#1f6f5c", error: "#b42318" };
+const COLORS = { busy: "#6b7280", ok: "#2b2723", error: "#b42318" };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   // Firefox for Android has no context menus; the toolbar action still works there.

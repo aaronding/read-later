@@ -22,16 +22,16 @@ export interface Palette {
 }
 
 export const LIGHT_PALETTES = {
-  paper: { bg: "#fbfaf7", surface: "#ffffff", text: "#1d1f1e", accent: "#1f6f5c" },
-  white: { bg: "#ffffff", surface: "#ffffff", text: "#1a1c1e", accent: "#1f6f5c" },
+  paper: { bg: "#fbfaf7", surface: "#ffffff", text: "#1d1f1e", accent: "#2b2723" },
+  white: { bg: "#ffffff", surface: "#ffffff", text: "#1a1c1e", accent: "#2b2723" },
   sepia: { bg: "#f4ecd8", surface: "#fbf6ea", text: "#3d2f1f", accent: "#8f4d1c" },
   sage: { bg: "#e3ebd9", surface: "#eef4e8", text: "#1f2b20", accent: "#2d6a43" },
   mist: { bg: "#eef0f3", surface: "#f8f9fb", text: "#1c2128", accent: "#2b5aa8" },
 } as const satisfies Record<string, Palette>;
 
 export const DARK_PALETTES = {
-  graphite: { bg: "#16171a", surface: "#1f2024", text: "#e8e6e1", accent: "#5cc2a4" },
-  black: { bg: "#000000", surface: "#121314", text: "#d6d6d3", accent: "#55bb9d" },
+  graphite: { bg: "#16171a", surface: "#1f2024", text: "#e8e6e1", accent: "#e3d8c1" },
+  black: { bg: "#000000", surface: "#121314", text: "#d6d6d3", accent: "#d9ceb7" },
   slate: { bg: "#22272e", surface: "#2a3038", text: "#cdd5df", accent: "#74baff" },
   midnight: { bg: "#0e1726", surface: "#162135", text: "#d8e1ee", accent: "#7fb0ff" },
   dusk: { bg: "#1c1814", surface: "#26201a", text: "#e8dcc8", accent: "#e0a35e" },
@@ -141,7 +141,11 @@ export function paletteTokens(palette: Palette, scheme: Scheme): Record<ColorTok
     muted: mixColors(text, bg, light ? 0.72 : 0.68),
     border: mixColors(text, bg, light ? 0.13 : 0.16),
     accent,
-    "accent-hover": mixColors(text, accent, light ? 0.22 : 0.25),
+    // Hovering moves the accent toward the text, or, for an accent as dark or as
+    // light as the text itself (the default palettes' ink and bone), toward the
+    // page, so the change still shows.
+    "accent-hover":
+      contrastRatio(accent, text) < 1.3 ? mixColors(bg, accent, 0.18) : mixColors(text, accent, light ? 0.22 : 0.25),
     // Text on the accent, such as the primary button's: white or the page
     // color, whichever stands out more.
     "accent-contrast": contrastRatio("#ffffff", accent) >= contrastRatio(bg, accent) ? "#ffffff" : bg,

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- icon.svg redrawn on a 32 px grid: the slips and the cord as 2 px lines on
+       whole pixels at 16 and 32 px, without the notch, so the small icons and the
+       favicon stay sharp. As the favicon it takes darker colors when the browser
+       is in dark mode; the PNGs are drawn in the light ones. -->
+  <style>
+    .tile { fill: #a3362a }
+    .ink { stroke: #fbf3e6 }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: #3f1813 }
+      .ink { stroke: #f0907d }
+    }
+  </style>
+  <rect class="tile" width="32" height="32" rx="7"/>
+  <g class="ink" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 9V23M13 5V26.5M17 10V22M21 7V24"/>
+    <path d="M7 13H22A3 3 0 0 1 22 19H7"/>
+  </g>
+</svg>
