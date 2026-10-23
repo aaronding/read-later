@@ -1,5 +1,6 @@
 {
   "Library": {
+    "backTo": "返回{list}",
     "sectionsLabel": "區塊",
     "searchView": "{view, select, inbox {搜尋收件匣} favorites {搜尋我的最愛} archive {搜尋封存} other {搜尋}}",
     "searchPlaceholder": "{view, select, inbox {搜尋收件匣} favorites {搜尋我的最愛} archive {搜尋封存} other {搜尋}}",

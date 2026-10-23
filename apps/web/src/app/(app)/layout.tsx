@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { APP_NAME } from "@/config/app";
 import { AppearanceMenu } from "@/components/appearance-menu";
+import { NavigationMemory } from "@/components/back-link";
 import { Logo } from "@/components/logo";
 import { NavTabs } from "@/components/nav-tabs";
 import { SearchForm } from "@/components/search-form";
@@ -26,6 +28,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <NavTabs admin={isAdmin(user)} />
       </header>
       <main>{children}</main>
+      <Suspense fallback={null}>
+        <NavigationMemory />
+      </Suspense>
     </div>
   );
 }

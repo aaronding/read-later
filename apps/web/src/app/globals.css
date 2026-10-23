@@ -528,6 +528,21 @@ label.checkbox input {
   max-width: 40rem;
   margin: 0 auto;
 }
+/* Tall enough to tap on a phone. */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+.back-link:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
+}
 .reader-header h1 {
   font-family: var(--font-read);
   font-size: clamp(1.7rem, 1.2rem + 2vw, 2.4rem);

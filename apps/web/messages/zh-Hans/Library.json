@@ -1,5 +1,6 @@
 {
   "Library": {
+    "backTo": "返回{list}",
     "sectionsLabel": "栏目",
     "searchView": "{view, select, inbox {搜索收件箱} favorites {搜索收藏} archive {搜索归档} other {搜索}}",
     "searchPlaceholder": "{view, select, inbox {搜索收件箱} favorites {搜索收藏} archive {搜索归档} other {搜索}}",

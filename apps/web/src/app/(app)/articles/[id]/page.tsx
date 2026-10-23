@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { archiveAction, deleteAction, favoriteAction, readAction } from "@/app/actions";
 import { ArticleStatus, isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
+import { BackLink } from "@/components/back-link";
 import { LocalDate } from "@/components/local-date";
 import { MarkOpened } from "@/components/mark-opened";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -64,6 +65,7 @@ export default async function ReaderPage({ params }: Props) {
       <AutoRefresh key={work} active={busy} />
 
       <header className="reader-header">
+        <BackLink fallback={article.archivedAt ? "archive" : "inbox"} />
         <div className="meta">
           <span>{article.siteName}</span>
           {article.author && <span>{article.author}</span>}

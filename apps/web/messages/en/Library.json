@@ -1,5 +1,6 @@
 {
   "Library": {
+    "backTo": "Back to {list}",
     "sectionsLabel": "Sections",
     "searchView": "{view, select, inbox {Search Inbox} favorites {Search Favorites} archive {Search Archive} other {Search}}",
     "searchPlaceholder": "{view, select, inbox {Search Inbox} favorites {Search Favorites} archive {Search Archive} other {Search}}",
