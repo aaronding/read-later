@@ -189,6 +189,31 @@ describe("extractArticle: login pages and teasers", () => {
       expect(refused).toMatchObject({ title: "Just a moment...", previewReason: { key: "preview.downloadRefused" } });
     });
 
+    it("knows a check that waits for a cookie set elsewhere, as reCAPTCHA's does", () => {
+      // Shaped like the page NCBI sends: reCAPTCHA sets the cookie, and the page reloads once it is there.
+      const recaptcha = `<!DOCTYPE html><html><head><title>Checking your browser - reCAPTCHA</title></head><body>
+        <p>Checking your browser before accessing metroreview.example ...</p>
+        <p><a href="/story/123">Click here</a> if you are not automatically redirected after 5 seconds.</p>
+        <script>function onSuccess() { var wait = setInterval(function () {
+          if (document.cookie.indexOf("recaptcha-ca-e=") != -1) { clearInterval(wait); location.reload(true); } }, 100); }</script>
+        </body></html>`;
+      const result = extractArticle({ html: recaptcha, url, contentSource: "server", httpStatus: 200 });
+      expect(result).toMatchObject({ title: "metroreview.example", textContent: "", contentHtml: null });
+      expect(result.previewReason).toEqual({ key: "preview.browserCheck" });
+      // An app that reads a cookie and sends the browser elsewhere is routing, not a check.
+      const app = recaptcha
+        .replace("<title>Checking your browser - reCAPTCHA</title>", "<title>Overview of Open Platform</title>")
+        .replace("location.reload(true);", 'window.location.href = "/fallback";');
+      expect(extractArticle({ html: app, url, contentSource: "server", httpStatus: 200 }).title).toBe("Overview of Open Platform");
+      // Nor is a reload far from the cookie, as Wix's sites do for a page brought back from history.
+      const site = recaptcha
+        .replace("<title>Checking your browser - reCAPTCHA</title>", "<title>Schedule</title>")
+        .replace(/<script>[\s\S]*<\/script>/, `<script>var token = document.cookie.split(";").find(isToken);
+          ${"refresh(token);\n".repeat(20)}
+          if (navigation.type === "back_forward") window.location.reload();</script>`);
+      expect(extractArticle({ html: site, url, contentSource: "server", httpStatus: 200 }).title).toBe("Schedule");
+    });
+
     it("reads the cookie and the reload from different scripts, but only from scripts that run", () => {
       const split = check.replace(`document.cookie = "challenge=" + i + "; Max-Age=1"; window.location.reload();`, `document.cookie = "challenge=" + i;</script>
         <script type="text/javascript">setTimeout(function () { location.reload(); }, 100);`);

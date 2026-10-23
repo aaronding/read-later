@@ -13,6 +13,7 @@ import {
   movesOn,
   removeNonFreeSections,
   setsCookie,
+  waitsForCookie,
   type PreviewCheck,
 } from "./paywall";
 import { textStats } from "./text-stats";
@@ -258,10 +259,15 @@ describe("checkPreview", () => {
   });
 });
 
-describe("setsCookie and movesOn", () => {
-  it("find a script that sets a cookie, and one that reloads the page or leaves it", () => {
+describe("setsCookie, waitsForCookie and movesOn", () => {
+  it("find a script that sets or waits for a cookie, and one that reloads the page or leaves it", () => {
     expect(setsCookie(`document.cookie = "check=" + answer;`)).toBe(true);
     expect(setsCookie(`document["cookie"]="a=1"`)).toBe(true);
+    // reCAPTCHA's check page waits for the cookie reCAPTCHA sets, then reloads.
+    const waits = `if (document.cookie.indexOf("recaptcha-ca-e=") != -1) location.reload(true);`;
+    expect(setsCookie(waits)).toBe(false);
+    expect(waitsForCookie(waits)).toBe(true);
+    expect(waitsForCookie(`if (document["cookie"]) { clearInterval(wait); location['reload'](); }`)).toBe(true);
     for (const script of [
       `window.location.reload();`,
       `location.href="/story"`,
@@ -274,8 +280,15 @@ describe("setsCookie and movesOn", () => {
     }
   });
 
-  it("ignore reading them, and other things named location", () => {
+  it("ignore reading the cookie or the location, and other things of those names", () => {
     expect(setsCookie(`if (document.cookie == "") track();`)).toBe(false);
+    expect(waitsForCookie(`if (document.cookie) window.location.href = "/elsewhere";`)).toBe(false);
+    expect(waitsForCookie(`location.reload(); var token = document.cookie;`)).toBe(false);
+    // Wix's sites read their cookies, and reload only a page brought back from history, much further on.
+    const wix = `var token = document.cookie.split(";").find(isToken);\n${"refresh(token);\n".repeat(20)}
+      if (navigation.type === "back_forward") window.location.reload();`;
+    expect(waitsForCookie(wix)).toBe(false);
+    expect(waitsForCookie(`var cookies = document.cookies; mydocument.cookie = 1; location.reload();`)).toBe(false);
     for (const script of [
       `if (location.href.indexOf("?") < 0) track(location.hostname);`,
       `slot.location.replace(/\s+/g, "_")`,

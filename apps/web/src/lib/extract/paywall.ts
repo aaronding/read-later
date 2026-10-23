@@ -274,8 +274,11 @@ export function passwordFieldBesideHeadline(
 
 // How a bot check, or a page that goes on to the article only in a browser,
 // lets the browser through: its scripts set a cookie, then reload the page or
-// go to another address. The app never runs a page's scripts.
+// go to another address; or they wait for the cookie a check such as
+// reCAPTCHA sets, and reload as soon as it is there. The app never runs a
+// page's scripts.
 const SETS_COOKIE = /\bdocument\s*(?:\.\s*cookie|\[\s*["']cookie["']\s*\])\s*=(?![=>])/;
+const COOKIE = /\bdocument\s*(?:\.\s*cookie|\[\s*["']cookie["']\s*\])(?![\w$])/;
 // The page's own location, not a property of that name on something else. A
 // bare "location =" takes a window first, since it is as often a variable of
 // that name, or "location=" in a query or a pop-up's features.
@@ -285,10 +288,21 @@ const CALL = String.raw`\s*(?:\.\s*(?:reload|replace|assign)|\[\s*["'](?:reload|
 const HREF = String.raw`\s*(?:\.\s*href|\[\s*["']href["']\s*\])`;
 const SET = String.raw`\s*=(?![=>])`;
 const MOVES_ON = new RegExp(`${LOCATION}(?:${CALL}|${HREF}${SET})|${WINDOW_LOCATION}${SET}`);
+// reCAPTCHA's page tests for the cookie and reloads in the same "if", some 60
+// characters on. Wix's sites read their cookies and, thousands of characters
+// further, reload a page the browser brought back from its history.
+const WAITS_FOR_COOKIE = new RegExp(
+  String.raw`${COOKIE.source}[\s\S]{0,200}?${LOCATION}\s*(?:\.\s*reload|\[\s*["']reload["']\s*\])\s*\(`,
+);
 
 /** True for a script that sets a cookie. */
 export function setsCookie(script: string): boolean {
   return SETS_COOKIE.test(script);
+}
+
+/** True for a script that reloads the page right after reading a cookie. */
+export function waitsForCookie(script: string): boolean {
+  return WAITS_FOR_COOKIE.test(script);
 }
 
 /** True for a script that reloads the page or goes to another address. */
