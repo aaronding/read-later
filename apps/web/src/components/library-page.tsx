@@ -1,9 +1,10 @@
 import { getFormatter, getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
-import { listArticles, type LibraryView } from "@/lib/library";
+import { lastPage, listArticles, type LibraryView } from "@/lib/library";
 import { allTags } from "@/lib/tags";
 import { AddUrlForm } from "./add-url-form";
 import { ArticleCard } from "./article-card";
@@ -34,9 +35,19 @@ export async function LibraryPage({
   const folder = folders.find((entry) => entry.id === folderId);
   const keep = { ...(query ? { q: query } : {}), ...(folder ? { folder: folder.id } : {}), ...(tag ? { tag } : {}) };
   const filtered = Boolean(query || folder || tag);
+  const address = (at: number) => {
+    const search = new URLSearchParams({ ...keep, ...(at > 0 ? { page: String(at) } : {}) }).toString();
+    return `/${view}${search ? `?${search}` : ""}`;
+  };
+  // A later page with nothing left on it, as once its last article is archived
+  // or the address is old, opens the last page that still has articles. It
+  // counts what the page was asked for, so a folder since deleted counts none.
+  if (items.length === 0 && page > 0) {
+    const last = await lastPage(db, user.id, { view, query, folderId, tag });
+    if (last < page) redirect(address(last));
+  }
   // This list's own address, which its articles go back to.
-  const here = new URLSearchParams({ ...keep, ...(page > 0 ? { page: String(page) } : {}) }).toString();
-  const from = `/${view}${here ? `?${here}` : ""}`;
+  const from = address(page);
   const busy = items.some((item) => isBusy(item.status, item.summaryStatus));
   const [t, tCommon, format] = await Promise.all([getTranslations("Library"), getTranslations("Common"), getFormatter()]);
   const help = (href: string) => (chunks: React.ReactNode) => <Link href={href}>{chunks}</Link>;

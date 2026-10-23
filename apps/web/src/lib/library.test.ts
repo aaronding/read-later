@@ -7,8 +7,10 @@ import { refreshSearchVector } from "./search-index";
 import {
   deleteArticle,
   getArticle,
+  lastPage,
   listArticles,
   markOpened,
+  PAGE_SIZE,
   retryArticle,
   setArchived,
   setFavorite,
@@ -75,6 +77,38 @@ beforeAll(async () => {
   });
 });
 afterAll(() => close());
+
+describe("lastPage", () => {
+  it("is the last page of the list that has articles on it", async () => {
+    await createTestUser(db, "pages@example.com", "user-3");
+    const add = (count: number, archived = false) =>
+      db.insert(articles).values(
+        Array.from({ length: count }, () => {
+          const url = `https://example.com/${crypto.randomUUID()}`;
+          return { userId: "user-3", url, normalizedUrl: url, title: "A story", status: "ready" as const, archivedAt: archived ? new Date() : null };
+        }),
+      );
+    expect(await lastPage(db, "user-3", { view: "inbox" })).toBe(0);
+    await add(PAGE_SIZE);
+    expect(await lastPage(db, "user-3", { view: "inbox" })).toBe(0);
+    await add(1);
+    expect(await lastPage(db, "user-3", { view: "inbox" })).toBe(1);
+    expect((await listArticles(db, "user-3", { view: "inbox", page: 1 })).items).toHaveLength(1);
+    expect((await listArticles(db, "user-3", { view: "inbox", page: 2 })).items).toHaveLength(0);
+    // The list's own filters count, as they do for its pages.
+    await add(PAGE_SIZE * 2 + 1, true);
+    expect(await lastPage(db, "user-3", { view: "inbox" })).toBe(1);
+    expect(await lastPage(db, "user-3", { view: "archive" })).toBe(2);
+    expect(await lastPage(db, "user-3", { view: "favorites" })).toBe(0);
+    const { findOrCreateFolder, setArticleFolder } = await import("./folders");
+    const folder = await findOrCreateFolder(db, "user-3", "Later");
+    const inbox = await listArticles(db, "user-3", { view: "inbox" });
+    for (const item of inbox.items.slice(0, 3)) await setArticleFolder(db, "user-3", item.id, folder);
+    expect(await lastPage(db, "user-3", { view: "inbox", folderId: folder! })).toBe(0);
+    expect(await lastPage(db, "user-3", { view: "inbox", folderId: crypto.randomUUID() })).toBe(0);
+    expect(await lastPage(db, "user-3", { view: "inbox", tag: "unknown" })).toBe(0);
+  });
+});
 
 describe("listArticles", () => {
   it("lists the Inbox newest first, only for this user, with the TL;DR", async () => {
