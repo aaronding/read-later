@@ -8,6 +8,7 @@ import { isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { SubmitButton } from "@/components/submit-button";
 import { SummaryBody, formatCost, formatDuration } from "@/components/summary-card";
+import { APP_NAME } from "@/config/app";
 import { MODEL_INFO, SUMMARY_MODELS, type SummaryModel } from "@/config/models";
 import { getDb } from "@/db";
 import type { Summary } from "@/db/schema";
@@ -74,6 +75,7 @@ function ModelColumn({ articleId, model, summary, shown }: { articleId: string; 
       {summary?.status === "ready" && (
         <>
           <SummaryBody summary={summary} />
+          {summary.handWritten && <p className="muted small">{tSummary("writtenBy", { app: APP_NAME })}</p>}
           {summary.suggestedTags && summary.suggestedTags.length > 0 && (
             <div className="tag-list">
               {summary.suggestedTags.map((tag) => (

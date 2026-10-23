@@ -11,6 +11,7 @@ import { APP_NAME } from "@/config/app";
 import { appUrl, isEmailAdmin, isEmailAllowed, requireEnv } from "@/config/env";
 import { getDb } from "@/db";
 import { accounts, sessions, users, verifications } from "@/db/schema";
+import { addWelcomeArticle, welcomeLocale } from "@/lib/welcome/welcome";
 
 /**
  * The error the sign-in hooks throw for an email that isn't allowed. It needs
@@ -53,6 +54,15 @@ function createAuth() {
           // Only emails in ALLOWED_EMAILS get an account.
           before: async (user) => {
             if (!isEmailAllowed(user.email)) throw notAllowedError();
+          },
+          // A new account starts with the welcome article. It runs once the
+          // account is stored, and a failure here never stops the sign-in.
+          after: async (user, context) => {
+            try {
+              await addWelcomeArticle(db, user.id, welcomeLocale(context?.headers));
+            } catch (error) {
+              console.error("Couldn't add the welcome article", error);
+            }
           },
         },
       },

@@ -346,6 +346,8 @@ export async function summarize(db: Db, job: Job): Promise<void> {
     inputChars: result.inputChars,
     totalChars: result.totalChars,
     stopReason: result.stopReason,
+    // Written again by the model, a summary written by hand becomes the model's.
+    handWritten: false,
     error: null,
     errorMessage: null,
     completedAt: new Date(),

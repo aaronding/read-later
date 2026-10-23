@@ -4,6 +4,7 @@
     "costUnknown": "cost unknown",
     "duration": "{seconds} s",
     "answeredBy": "answered by {model}",
+    "writtenBy": "Written by {app}",
     "partialShare": "This summary covers only the first {share, number, percent} of a very long article.",
     "partialSaved": "This summary covers only the part of the article that was saved.",
     "modelLabel": "Model",

@@ -4,6 +4,7 @@
     "costUnknown": "coût inconnu",
     "duration": "{seconds} s",
     "answeredBy": "réponse de {model}",
+    "writtenBy": "Rédigé par {app}",
     "partialShare": "Ce résumé ne couvre que les premiers {share, number, percent} d’un article très long.",
     "partialSaved": "Ce résumé ne couvre que la partie de l’article qui a été enregistrée.",
     "modelLabel": "Modèle",

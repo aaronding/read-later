@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useFormatter, useTranslations, type createFormatter, type createTranslator } from "next-intl";
 import { resummarizeAction } from "@/app/actions";
+import { APP_NAME } from "@/config/app";
 import { MODEL_INFO, SUMMARY_MODELS, modelLabel } from "@/config/models";
 import type { Summary } from "@/db/schema";
 import type { Messages } from "@/i18n/messages";
@@ -75,7 +76,7 @@ export function SummaryCard({
     <section className="card summary" aria-labelledby="summary-heading">
       <h2 id="summary-heading">
         <span>{t("heading")}</span>
-        <span>{modelLabel(summary.model)}</span>
+        <span>{summary.handWritten ? t("writtenBy", { app: APP_NAME }) : modelLabel(summary.model)}</span>
       </h2>
       <SummaryBody summary={summary} />
       {summary.partial && (
@@ -90,12 +91,15 @@ export function SummaryCard({
       {/* Costs, Compare and writing it again are for admins (ADMIN_EMAILS). */}
       {admin && (
         <div className="summary-footer">
-          <span>
-            {formatCost(summary.costUsd, t, format)} · {formatDuration(summary.durationMs, t, format)}
-            {summary.servedModel && summary.servedModel !== summary.model
-              ? ` · ${t("answeredBy", { model: summary.servedModel })}`
-              : ""}
-          </span>
+          {/* No model wrote a summary written by hand, so it has no cost or time. */}
+          {!summary.handWritten && (
+            <span>
+              {formatCost(summary.costUsd, t, format)} · {formatDuration(summary.durationMs, t, format)}
+              {summary.servedModel && summary.servedModel !== summary.model
+                ? ` · ${t("answeredBy", { model: summary.servedModel })}`
+                : ""}
+            </span>
+          )}
           <Link href={`/articles/${articleId}/compare`}>{tCommon("compareModels")}</Link>
           {/* Keyed by the model so the picker shows the new summary's, once it is written. */}
           <form key={summary.model} action={resummarizeAction} className="inline-form">

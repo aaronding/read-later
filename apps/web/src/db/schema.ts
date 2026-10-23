@@ -159,7 +159,8 @@ export const folders = pgTable(
 
 export type ArticleStatus = "pending" | "processing" | "ready" | "failed";
 export type ContentSource = "client" | "server";
-export type SaveSource = "extension" | "shortcut" | "android" | "web" | "api";
+// "welcome" is the guide every new account starts with (lib/welcome).
+export type SaveSource = "extension" | "shortcut" | "android" | "web" | "api" | "welcome";
 
 export const articles = pgTable(
   "articles",
@@ -274,6 +275,9 @@ export const summaries = pgTable(
     inputChars: integer("input_chars"),
     totalChars: integer("total_chars"),
     stopReason: text("stop_reason"),
+    // True for a summary written by hand, such as the welcome article's: no
+    // model wrote it, though model says which one translates it.
+    handWritten: boolean("hand_written").notNull().default(false),
     // As on articles: English text, and the same as a message key and values.
     error: text("error"),
     errorMessage: jsonb("error_message").$type<StoredMessage>(),

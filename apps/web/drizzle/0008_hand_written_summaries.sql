@@ -1,0 +1,1 @@
+ALTER TABLE "summaries" ADD COLUMN "hand_written" boolean DEFAULT false NOT NULL;

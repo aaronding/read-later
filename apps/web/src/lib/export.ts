@@ -58,6 +58,7 @@ export async function loadExport(db: Db, userId: string) {
         .map((summary) => ({
           model: summary.model,
           servedModel: summary.servedModel,
+          handWritten: summary.handWritten,
           language: summary.language,
           tldr: summary.tldr,
           keyPoints: summary.keyPoints,
@@ -122,7 +123,7 @@ export function exportToMarkdown(data: ExportData, t: ExportTranslator, tErrors:
     const summary =
       article.summaries.find((row) => row.model === article.shownSummaryModel) ?? article.summaries.at(-1);
     if (summary) {
-      out.push(`### ${t("summary", { model: modelLabel(summary.model) })}`, "", summary.tldr ?? "", "");
+      out.push(`### ${t("summary", { model: summary.handWritten ? APP_NAME : modelLabel(summary.model) })}`, "", summary.tldr ?? "", "");
       for (const point of summary.keyPoints ?? []) out.push(`- ${point}`);
       out.push("");
       for (const translation of summary.translations) {
