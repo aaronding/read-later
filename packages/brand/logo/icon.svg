@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- The app's icon, wherever it stands among other apps' icons: on a home
+       screen, in the browser's toolbar and on its tabs. mark.svg's character in one
+       pale color on cinnabar, which stands out there; the bookmark slip is told by
+       its notch. icon-small.svg is the same on a 32 px grid. -->
+  <rect width="512" height="512" rx="112" fill="#a3362a"/>
+  <g fill="none" stroke="#fbf3e6" stroke-width="30" stroke-linecap="round">
+    <path d="M160 136V378M272 154V354M328 110V390"/>
+    <path d="M120 218H350A44 44 0 0 1 350 306H120" stroke-width="26"/>
+  </g>
+  <path d="M216 78A12 12 0 0 1 228 90V427.7L216 413.3L204 427.7V90A12 12 0 0 1 216 78Z" fill="#fbf3e6" stroke="#fbf3e6" stroke-width="6" stroke-linejoin="round"/>
+</svg>

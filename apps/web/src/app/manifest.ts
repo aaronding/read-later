@@ -15,7 +15,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     scope: "/",
     display: "standalone",
     background_color: "#fbfaf7",
-    theme_color: "#1f6f5c",
+    // The browser's bars start in Paper's page color; each page then sets its
+    // own (theme-color in the root layout).
+    theme_color: "#fbfaf7",
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
