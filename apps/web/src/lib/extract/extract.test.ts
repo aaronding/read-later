@@ -152,6 +152,18 @@ describe("extractArticle: sign-in forms", () => {
     expect(result.previewOnly).toBe(false);
   });
 
+  it("keeps a short blog entry whose blog name is its h1 and whose comment form has a password", () => {
+    const result = extractArticle({
+      html: html("blog-comment-form.html"),
+      url: "https://harbourdiary.example/entry-512.html",
+      contentSource: "server",
+      httpStatus: 200,
+    });
+    expect(result.textContent).toContain("boats came home out of a white wall");
+    expect(result.wordCount).toBeLessThan(300);
+    expect(result.previewOnly).toBe(false);
+  });
+
   it("flags a short teaser with a sign-in form inside the article", () => {
     const result = extractArticle({
       html: html("inline-login-teaser.html"),
