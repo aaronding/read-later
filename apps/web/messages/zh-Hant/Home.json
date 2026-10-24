@@ -1,0 +1,45 @@
+{
+  "Home": {
+    "headline": "先讀重點，值得時再讀全文。",
+    "lead": "瀏覽時隨手儲存文章。每篇文章都有一份簡潔的閱讀版本，以及由 AI 以原文語言撰寫的簡短摘要。",
+    "how": {
+      "heading": "使用方式",
+      "save": {
+        "title": "儲存",
+        "text": "在瀏覽器中點一下，或在手機上輕點「分享」。"
+      },
+      "gist": {
+        "title": "掌握重點",
+        "text": "大約半分鐘內就有一句話的 TL;DR 和幾個重點。"
+      },
+      "read": {
+        "title": "讀，或不讀",
+        "text": "閱讀簡潔版本、留待稍後，或直接封存。"
+      }
+    },
+    "ways": {
+      "heading": "隨處儲存",
+      "setUp": "設定 →",
+      "chrome": {
+        "title": "{chrome}",
+        "text": "工具列按鈕，或按 Alt+Shift+S。"
+      },
+      "safari": {
+        "title": "{safari}",
+        "text": "適用於 {iphone}、{ipad} 和 {mac} 的捷徑。"
+      },
+      "android": {
+        "title": "{android}",
+        "text": "安裝 App 後，輕點「分享」即可。"
+      },
+      "paste": {
+        "title": "任何地方",
+        "text": "把連結貼到收件匣。"
+      }
+    },
+    "shots": {
+      "inbox": "收件匣，每篇文章下方都有一句話摘要",
+      "reader": "手機上的文章，摘要放在最前面"
+    }
+  }
+}

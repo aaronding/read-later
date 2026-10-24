@@ -1,0 +1,45 @@
+{
+  "Home": {
+    "headline": "先读要点，值得时再读全文。",
+    "lead": "浏览时随手保存文章。每篇文章都有一份简洁的正文副本，以及由 AI 用原文语言撰写的简短摘要。",
+    "how": {
+      "heading": "使用方式",
+      "save": {
+        "title": "保存",
+        "text": "在浏览器中点一下，或在手机上轻点“分享”。"
+      },
+      "gist": {
+        "title": "掌握要点",
+        "text": "约半分钟内得到一句话 TL;DR 和几条要点。"
+      },
+      "read": {
+        "title": "读，或不读",
+        "text": "阅读简洁的正文、留待稍后，或直接归档。"
+      }
+    },
+    "ways": {
+      "heading": "随处保存",
+      "setUp": "设置 →",
+      "chrome": {
+        "title": "{chrome}",
+        "text": "工具栏按钮，或按 Alt+Shift+S。"
+      },
+      "safari": {
+        "title": "{safari}",
+        "text": "适用于 {iphone}、{ipad} 和 {mac} 的快捷指令。"
+      },
+      "android": {
+        "title": "{android}",
+        "text": "安装应用后，轻点“分享”即可。"
+      },
+      "paste": {
+        "title": "任何地方",
+        "text": "把链接粘贴到收件箱。"
+      }
+    },
+    "shots": {
+      "inbox": "收件箱，每篇文章下方都有一句话摘要",
+      "reader": "手机上的文章，摘要在最前面"
+    }
+  }
+}

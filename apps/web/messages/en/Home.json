@@ -1,0 +1,45 @@
+{
+  "Home": {
+    "headline": "Read the gist now. The whole article when it’s worth it.",
+    "lead": "Save articles as you browse. Each one gets a clean copy and a short summary by AI, in the article’s own language.",
+    "how": {
+      "heading": "How it works",
+      "save": {
+        "title": "Save",
+        "text": "One click in your browser, or Share on your phone."
+      },
+      "gist": {
+        "title": "Get the gist",
+        "text": "A one-sentence TL;DR and the key points, within about half a minute."
+      },
+      "read": {
+        "title": "Read, or don’t",
+        "text": "Read the clean copy, keep it for later, or archive it."
+      }
+    },
+    "ways": {
+      "heading": "Save from anywhere",
+      "setUp": "Set up →",
+      "chrome": {
+        "title": "{chrome}",
+        "text": "A toolbar button, or Alt+Shift+S."
+      },
+      "safari": {
+        "title": "{safari}",
+        "text": "A Shortcut on {iphone}, {ipad} and {mac}."
+      },
+      "android": {
+        "title": "{android}",
+        "text": "Install the app, then tap Share."
+      },
+      "paste": {
+        "title": "Anywhere",
+        "text": "Paste a link into your Inbox."
+      }
+    },
+    "shots": {
+      "inbox": "The Inbox, with a one-sentence summary under each article",
+      "reader": "An article on a phone, with its summary first"
+    }
+  }
+}

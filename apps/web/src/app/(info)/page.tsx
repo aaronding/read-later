@@ -1,0 +1,87 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
+import { SignInButton } from "@/components/sign-in-button";
+import { APP_NAME } from "@/config/app";
+import { getCurrentUser } from "@/lib/auth";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("Common");
+  return { title: { absolute: APP_NAME }, description: t("tagline") };
+}
+
+const STEPS = ["save", "gist", "read"] as const;
+const WAYS = [
+  { key: "chrome", help: "/help/chrome" },
+  { key: "safari", help: "/help/safari" },
+  { key: "android", help: "/help/android" },
+  { key: "paste", help: null },
+] as const;
+const products = { app: APP_NAME, chrome: "Chrome", safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac", android: "Android" };
+
+// The homepage, for visitors who aren't signed in; signed in, the Inbox.
+export default async function HomePage() {
+  if (await getCurrentUser()) redirect("/inbox");
+  const [t, locale] = await Promise.all([getTranslations("Home"), getLocale()]);
+  return (
+    <div className="home">
+      <section className="hero">
+        <div>
+          <h1>{t("headline")}</h1>
+          <p className="hero-lead">{t("lead")}</p>
+          <SignInButton next="/inbox" />
+        </div>
+        {/* The real app, in the visitor's language and theme: the Inbox on a
+            computer, and an article on a phone (scripts/home-images.ts). */}
+        <div className="hero-shots">
+          {(["light", "dark"] as const).map((scheme) => (
+            <div key={scheme} className={`theme-${scheme}-only`}>
+              <img
+                className="hero-shot-desktop"
+                src={`/home/inbox-${locale}-${scheme}.webp`}
+                alt={t("shots.inbox")}
+                width={1920}
+                height={1280}
+                fetchPriority="high"
+              />
+              <img
+                className="hero-shot-phone"
+                src={`/home/reader-${locale}-${scheme}.webp`}
+                alt={t("shots.reader")}
+                width={750}
+                height={1520}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="band" aria-labelledby="how-heading">
+        <h2 id="how-heading">{t("how.heading")}</h2>
+        <ol className="tiles tiles-3">
+          {STEPS.map((step, index) => (
+            <li key={step} className="card tile">
+              <span className="tile-number">{index + 1}</span>
+              <h3>{t(`how.${step}.title`)}</h3>
+              <p>{t(`how.${step}.text`)}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="band" aria-labelledby="ways-heading">
+        <h2 id="ways-heading">{t("ways.heading")}</h2>
+        <ul className="tiles tiles-4">
+          {WAYS.map(({ key, help }) => (
+            <li key={key} className="card tile">
+              <h3>{t(`ways.${key}.title`, products)}</h3>
+              <p>{t(`ways.${key}.text`, products)}</p>
+              {help && <Link href={help}>{t("ways.setUp")}</Link>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
+  );
+}

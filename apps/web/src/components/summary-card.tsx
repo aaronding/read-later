@@ -75,7 +75,7 @@ export function SummaryCard({
     <section className="card summary" aria-labelledby="summary-heading">
       <h2 id="summary-heading">
         <span>{t("heading")}</span>
-        <span>{modelLabel(summary.model)}</span>
+        <span className="summary-model">{modelLabel(summary.model)}</span>
       </h2>
       <SummaryBody summary={summary} />
       {summary.partial && (

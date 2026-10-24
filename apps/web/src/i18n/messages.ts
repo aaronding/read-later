@@ -12,6 +12,7 @@ import type exportMessages from "../../messages/en/Export.json";
 import type folders from "../../messages/en/Folders.json";
 import type guides from "../../messages/en/Guides.json";
 import type help from "../../messages/en/Help.json";
+import type home from "../../messages/en/Home.json";
 import type library from "../../messages/en/Library.json";
 import type privacy from "../../messages/en/Privacy.json";
 import type reader from "../../messages/en/Reader.json";
@@ -42,6 +43,7 @@ export const NAMESPACES = [
   "Folders",
   "Guides",
   "Help",
+  "Home",
   "Library",
   "Privacy",
   "Reader",
@@ -68,6 +70,7 @@ export type Messages = typeof about &
   typeof folders &
   typeof guides &
   typeof help &
+  typeof home &
   typeof library &
   typeof privacy &
   typeof reader &
