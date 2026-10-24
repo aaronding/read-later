@@ -9,7 +9,7 @@ import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } 
 import { GET, OPTIONS, POST } from "@/app/api/save/route";
 import { SUMMARY_MODELS } from "@/config/models";
 import type { Db } from "@/db";
-import { articles, jobs, summaries } from "@/db/schema";
+import { aiUsage, articles, jobs, summaries } from "@/db/schema";
 import type { AppLocale } from "@/i18n/locales";
 import { englishText } from "@/i18n/stored-message";
 import { processJobs } from "@/lib/jobs/process";
@@ -336,6 +336,74 @@ describe("save -> job -> summary", () => {
       expect(String(requests[0]!.messages[0]!.content)).toContain("This is the first");
     } finally {
       delete process.env.SUMMARY_MAX_INPUT_CHARS;
+    }
+  });
+});
+
+describe("the monthly AI allowance", () => {
+  // What the user's answers cost this month, as if earlier summaries had used it.
+  const spend = (costUsd: number) =>
+    db.insert(aiUsage).values({
+      userId: "user-1",
+      articleId: null,
+      summaryId: null,
+      kind: "summary",
+      model: "claude-sonnet-5-5",
+      inputTokens: 1000,
+      outputTokens: 200,
+      costUsd,
+      durationMs: 1000,
+    });
+
+  it("still saves at the limit, but doesn't ask Claude until next month", async () => {
+    await spend(1);
+    const response = await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }));
+    const body = await response.json();
+    expect(response.status).toBe(201);
+    expect(body.message).toMatch(/^Saved to .+\. This month’s AI allowance is used up, so it won’t be summarized until [A-Z][a-z]+ 1\.$/);
+    expect(body.aiAllowance).toEqual({ usedPercent: 100, renewsOn: expect.stringMatching(/^\d{4}-\d{2}-01$/) });
+    expect(JSON.stringify(body)).not.toMatch(/usd|cost/i);
+
+    await processJobs({ db });
+    expect(requests).toHaveLength(0);
+    expect(await articleById(body.id)).toMatchObject({ status: "ready" });
+    const [summary] = await summariesFor(body.id);
+    expect(summary).toMatchObject({ status: "failed", errorMessage: { key: "summary.monthlyLimit" } });
+
+    // A new month: what was spent is last month's, and Retry summarizes it.
+    await db.update(aiUsage).set({ createdAt: new Date(Date.now() - 40 * 24 * 3600 * 1000) });
+    await retryArticle(db, "user-1", body.id, { admin: false });
+    await processJobs({ db });
+    expect(requests).toHaveLength(1);
+    expect((await summariesFor(body.id))[0]).toMatchObject({ status: "ready" });
+  });
+
+  it("warns when it is close, and still summarizes", async () => {
+    await spend(0.85);
+    const body = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    expect(body.message).toMatch(/^Saved to .+\. You’ve used 85% of this month’s AI allowance\.$/);
+    expect(body.aiAllowance).toMatchObject({ usedPercent: 85 });
+    await processJobs({ db });
+    expect((await summariesFor(body.id))[0]).toMatchObject({ status: "ready" });
+  });
+
+  it("says nothing well before the limit", async () => {
+    await spend(0.5);
+    const body = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+    expect(body.message).toMatch(/^Saved to [^.]+$/);
+    expect(body.aiAllowance).toMatchObject({ usedPercent: 50 });
+  });
+
+  it("doesn't limit an admin", async () => {
+    process.env.ADMIN_EMAILS = "owner@example.com";
+    try {
+      await spend(5);
+      const body = await (await POST(saveRequest({ url: ARTICLE_URL, html: fixture("news-article.html") }))).json();
+      expect(body.aiAllowance).toBeUndefined();
+      await processJobs({ db });
+      expect((await summariesFor(body.id))[0]).toMatchObject({ status: "ready" });
+    } finally {
+      delete process.env.ADMIN_EMAILS;
     }
   });
 });

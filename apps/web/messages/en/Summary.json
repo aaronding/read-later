@@ -16,6 +16,7 @@
     "translationFailed": "The translation failed.",
     "translationFailedWithError": "The translation failed: {error}",
     "translatedBy": "Translated by {model}",
-    "removeTranslation": "Remove"
+    "removeTranslation": "Remove",
+    "translationsPaused": "Translations resume when this month’s AI allowance renews."
   }
 }

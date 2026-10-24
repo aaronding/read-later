@@ -336,6 +336,16 @@ label.checkbox input {
   background: var(--accent-soft);
 }
 
+/* The month's AI allowance (lib/allowance.ts): the notice above every page and the bar in Settings. */
+.allowance-notice {
+  margin-top: 0;
+}
+.allowance progress {
+  width: 100%;
+  height: 8px;
+  accent-color: var(--accent);
+}
+
 /* ---------- Add URL ---------- */
 
 .add-url {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getFormatter, getTranslations } from "next-intl/server";
 import { deleteFolderAction, revokeTokenAction, updateLocaleAction, updateSettingsAction } from "@/app/actions";
 import { AppearancePicker } from "@/components/appearance-picker";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -12,6 +12,7 @@ import { appUrl } from "@/config/env";
 import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
 import { HTML_LANG, LOCALES, LOCALE_NAMES } from "@/i18n/locales";
+import { getAllowance, renewalDate, shareValue } from "@/lib/allowance";
 import { isAdmin, requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getSavedAppearance } from "@/lib/saved-appearance";
@@ -26,17 +27,19 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SettingsPage() {
   const user = await requireUser("/settings");
   const db = getDb();
-  const [settings, tokens, folders, appearance] = await Promise.all([
+  const [settings, tokens, folders, appearance, allowance] = await Promise.all([
     getSettings(db, user.id),
     listApiTokens(db, user.id),
     listFolders(db, user.id),
     getSavedAppearance(),
+    getAllowance(db, user.id),
   ]);
   const serverUrl = appUrl();
-  const [t, tCommon, tAppearance] = await Promise.all([
+  const [t, tCommon, tAppearance, format] = await Promise.all([
     getTranslations("Settings"),
     getTranslations("Common"),
     getTranslations("Appearance"),
+    getFormatter(),
   ]);
 
   return (
@@ -81,6 +84,14 @@ export default async function SettingsPage() {
 
       <section className="card" aria-labelledby="summaries-heading">
         <h2 id="summaries-heading">{t("summaries.heading")}</h2>
+        {/* The share only: what the answers cost is the owner's to know. */}
+        {allowance.limitUsd !== null && (
+          <div className="allowance">
+            <p>{t("summaries.allowance", { share: shareValue(allowance), date: renewalDate(format, allowance) })}</p>
+            <progress max={100} value={Math.min(100, allowance.share * 100)} />
+            <p className="muted small">{t("summaries.allowanceModels")}</p>
+          </div>
+        )}
         {/* Keyed by the saved settings, as the language form is. */}
         <form key={`${settings.defaultModel}:${settings.comparisonMode}`} action={updateSettingsAction}>
           <div className="field">

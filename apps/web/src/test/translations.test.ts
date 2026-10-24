@@ -535,6 +535,39 @@ describe("what Claude's answers used", () => {
   });
 });
 
+describe("the monthly AI allowance", () => {
+  const spendAll = () =>
+    db.insert(aiUsage).values({
+      userId: "user-1",
+      articleId: null,
+      summaryId: null,
+      kind: "summary",
+      model: "claude-haiku-5-5",
+      inputTokens: 1,
+      outputTokens: 1,
+      costUsd: 1,
+      durationMs: 1,
+    });
+
+  it("refuses a new translation once it is used up", async () => {
+    await spendAll();
+    await expect(requestTranslation(db, { userId: "user-1", summaryId: summary.id, language: "fr" })).rejects.toThrow(
+      TranslationRequestError,
+    );
+    expect(await translationRows()).toHaveLength(0);
+  });
+
+  it("stops a translation already queued without asking Claude", async () => {
+    await requestTranslation(db, { userId: "user-1", summaryId: summary.id, language: "fr" });
+    await spendAll();
+    expect(await processJobs({ db })).toMatchObject({ failed: 1 });
+    expect(requests).toHaveLength(0);
+    expect(await translationRows()).toMatchObject([{ status: "failed", errorMessage: { key: "translation.monthlyLimit" } }]);
+    // The run wasn't taken, so next month's Retry still has it.
+    expect(await translationRunsLeft(db, summary.id)).toBe(MAX_TRANSLATION_RUNS_PER_SUMMARY);
+  });
+});
+
 describe("the limit on translating one summary", () => {
   it("refuses a run past the limit, even after Remove", async () => {
     expect(MAX_TRANSLATION_RUNS_PER_SUMMARY).toBe(3);

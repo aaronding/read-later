@@ -3,6 +3,7 @@ import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { formatCost, formatDuration } from "@/components/summary-card";
 import { getDb } from "@/db";
+import { monthlyLimitUsd } from "@/lib/allowance";
 import { getCurrentUser, isAdmin, requireAdmin } from "@/lib/auth";
 import { USAGE_PERIODS, isUsagePeriod, usageReport, type UsagePeriod, type UsageReportRow } from "@/lib/usage";
 
@@ -59,6 +60,13 @@ export default async function UsagePage({ searchParams }: { searchParams: Promis
         )}
       </>
     );
+  };
+
+  // Against each user's monthly limit as it is now (lib/allowance.ts).
+  const limitShare = (row: UsageReportRow) => {
+    const limit = monthlyLimitUsd(row.email);
+    if (limit === null) return t("usage.noLimit");
+    return t("usage.ofLimit", { share: limit === 0 ? 1 : Math.floor((row.chargedUsd / limit) * 100) / 100 });
   };
 
   return (
@@ -120,7 +128,10 @@ export default async function UsagePage({ searchParams }: { searchParams: Promis
                       <td>
                         {format.number(row.inputTokens)} / {format.number(row.outputTokens)}
                       </td>
-                      <td>{cost(row)}</td>
+                      <td>
+                        {cost(row)}
+                        {period === "month" && <div className="muted small">{limitShare(row)}</div>}
+                      </td>
                       <td>{formatTotalTime(row.durationMs, tSummary, format)}</td>
                     </tr>
                   ))}

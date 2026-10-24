@@ -75,6 +75,14 @@ export function ArticleStatus({
       </div>
     );
   }
+  // Not a failure: the month's AI allowance ran out, and Retry works again next month.
+  if (summaryStatus === "failed" && summaryErrorMessage?.key === "summary.monthlyLimit" && summaryError) {
+    return (
+      <div className="status">
+        {summaryError} <RetryButton id={id} />
+      </div>
+    );
+  }
   if (summaryStatus === "failed") {
     return (
       <div className="status error">

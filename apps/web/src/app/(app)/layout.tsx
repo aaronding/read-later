@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { APP_NAME } from "@/config/app";
+import { AllowanceNotice } from "@/components/allowance-notice";
 import { AppearanceMenu } from "@/components/appearance-menu";
 import { Logo } from "@/components/logo";
 import { NavTabs } from "@/components/nav-tabs";
@@ -25,7 +26,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </div>
         <NavTabs admin={isAdmin(user)} />
       </header>
-      <main>{children}</main>
+      <main>
+        <AllowanceNotice userId={user.id} />
+        {children}
+      </main>
     </div>
   );
 }

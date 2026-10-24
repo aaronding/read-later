@@ -16,6 +16,7 @@
     "translationFailed": "翻譯失敗。",
     "translationFailedWithError": "翻譯失敗：{error}",
     "translatedBy": "由 {model} 翻譯",
-    "removeTranslation": "移除"
+    "removeTranslation": "移除",
+    "translationsPaused": "本月 AI 額度恢復後，才能繼續翻譯。"
   }
 }

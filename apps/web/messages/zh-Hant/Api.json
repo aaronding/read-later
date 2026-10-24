@@ -6,6 +6,9 @@
     "alreadySaved": "{app} 中已有這篇文章，已移到最上方",
     "alreadySavedRefetching": "{app} 中已有這篇文章，正在重新下載",
     "badRequest": "請傳送類似 {example} 的 JSON，可另外附上 {html} 和 {title}。",
-    "serverError": "儲存時發生錯誤，請再試一次。"
+    "serverError": "儲存時發生錯誤，請再試一次。",
+    "allowanceNearing": "本月 AI 額度已用掉 {share, number, percent}。",
+    "allowanceReached": "本月 AI 額度已用完，{date} 之前不會產生摘要。",
+    "savedWithAllowance": "{saved}。{note}"
   }
 }

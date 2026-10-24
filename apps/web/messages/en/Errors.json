@@ -48,7 +48,8 @@
       "cutOff": "The summary was cut off before it was finished.",
       "tooLong": "The article is too long for this model.",
       "empty": "{claude} returned no summary.",
-      "badFormat": "{claude}’s summary was not in the expected format."
+      "badFormat": "{claude}’s summary was not in the expected format.",
+      "monthlyLimit": "Not summarized: this month’s AI allowance is used up. Use Retry once the new month starts."
     },
     "save": {
       "invalidUrl": "{field} must be an absolute http or https URL.",
@@ -65,7 +66,8 @@
       "empty": "{claude} returned no translation.",
       "badFormat": "{claude}’s translation was not in the expected format.",
       "apiKeyRejected": "The {claude} API didn’t accept the API key. Check {variable}, restart the app (redeploy it on {vercel}), then try the translation again.",
-      "apiKeyRejectedWithDetail": "The {claude} API didn’t accept the API key ({detail}). Check {variable}, restart the app (redeploy it on {vercel}), then try the translation again."
+      "apiKeyRejectedWithDetail": "The {claude} API didn’t accept the API key ({detail}). Check {variable}, restart the app (redeploy it on {vercel}), then try the translation again.",
+      "monthlyLimit": "this month’s AI allowance is used up. Use Retry once the new month starts."
     }
   }
 }

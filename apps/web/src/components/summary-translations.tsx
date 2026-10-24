@@ -16,7 +16,16 @@ const STALE_MS = 10 * 60_000;
 
 const LIMIT_VALUES = { claude: "Claude", max: MAX_TRANSLATION_RUNS_PER_SUMMARY };
 
-function Translation({ translation, canRetry }: { translation: SummaryTranslation; canRetry: boolean }) {
+function Translation({
+  translation,
+  canRetry,
+  paused,
+}: {
+  translation: SummaryTranslation;
+  canRetry: boolean;
+  /** This month's AI allowance is used up, so Retry waits for next month. */
+  paused: boolean;
+}) {
   const t = useTranslations("Summary");
   const tCommon = useTranslations("Common");
   const tStatus = useTranslations("Status");
@@ -25,8 +34,10 @@ function Translation({ translation, canRetry }: { translation: SummaryTranslatio
   const busy = translation.status === "pending" || translation.status === "running";
   const stale = busy && Date.now() - translation.updatedAt.getTime() > STALE_MS;
   const error = storedMessageText(tErrors, translation.errorMessage, translation.error);
-  // With no runs left, the reader says why there is no Retry, unless the error already does.
-  const retry = canRetry ? (
+  // When the allowance is used up or no runs are left, the reader says why there is no Retry, unless the error already does.
+  const retry = paused ? (
+    translation.errorMessage?.key !== "translation.monthlyLimit" && <span className="muted small">{t("translationsPaused")}</span>
+  ) : canRetry ? (
     <form action={translateSummaryAction} className="inline-form">
       <input type="hidden" name="summaryId" value={translation.summaryId} />
       <input type="hidden" name="language" value={translation.language} />
@@ -87,11 +98,14 @@ export function SummaryTranslations({
   summary,
   translations,
   runsLeft,
+  paused = false,
 }: {
   summary: Summary;
   translations: SummaryTranslation[];
   /** How many more times Claude may translate this summary. */
   runsLeft: number;
+  /** This month's AI allowance is used up: nothing can be translated until it renews. */
+  paused?: boolean;
 }) {
   const t = useTranslations("Summary");
   const tCommon = useTranslations("Common");
@@ -100,15 +114,16 @@ export function SummaryTranslations({
   const taken = new Set(translations.map((translation) => translation.language));
   const targets = translationTargets(summary.language).filter((language) => !taken.has(language));
   const hasRoom = targets.length > 0 && translations.length < MAX_TRANSLATIONS_PER_SUMMARY;
-  const canAdd = hasRoom && runsLeft > 0;
+  const canAdd = hasRoom && runsLeft > 0 && !paused;
   if (!translations.length && !hasRoom) return null;
   const selectId = `translate-${summary.id}`;
   return (
     <div className="summary-translations">
       {translations.map((translation) => (
-        <Translation key={translation.id} translation={translation} canRetry={runsLeft > 0} />
+        <Translation key={translation.id} translation={translation} canRetry={runsLeft > 0} paused={paused} />
       ))}
-      {hasRoom && !canAdd && (
+      {hasRoom && runsLeft > 0 && paused && <p className="muted small">{t("translationsPaused")}</p>}
+      {hasRoom && runsLeft === 0 && (
         <p className="muted small">{tErrors("translation.limitReached", LIMIT_VALUES)}</p>
       )}
       {canAdd && (

@@ -15,6 +15,7 @@ import {
 } from "@/lib/summarize/languages";
 import { SummaryError } from "@/lib/summarize/summarize";
 import { translateSummary } from "@/lib/summarize/translate";
+import { getAllowance } from "@/lib/allowance";
 import { fillUsage, releaseRun, reserveRun, translationRuns, type UsageOwner } from "@/lib/usage";
 
 // Translations of summaries: asked for in the reader, made by a background
@@ -111,6 +112,9 @@ export async function requestTranslation(
     if ((await translationRunsLeft(tx, summary.id)) === 0) {
       throw new TranslationRequestError("The summary has been translated as many times as it can be.");
     }
+    if ((await getAllowance(tx, userId)).reached) {
+      throw new TranslationRequestError("This month's AI allowance is used up.");
+    }
     const again = { status: "pending" as const, model: summary.model, error: null, errorMessage: null, stopReason: null };
     const [translation] = await tx
       .insert(summaryTranslations)
@@ -204,6 +208,7 @@ export async function translateSummaryJob(db: Db, job: Job): Promise<void> {
   // Being written again: wait for it, then translate the new text. Once it
   // is stored, retranslate() asks for that anyway.
   if (summary.status !== "ready") throw new JobError(errorMessage("translation.summaryNotReady"), true);
+  if ((await getAllowance(db, job.userId)).reached) throw new JobError(errorMessage("translation.monthlyLimit"), false);
   // Retries count too, so a translation that keeps failing stops here.
   const run = await reserveTranslationRun(db, {
     userId: job.userId,
