@@ -24,6 +24,14 @@ export const LOCALE_NAMES: Record<AppLocale, string> = {
   "zh-Hant": "繁體中文（台灣）",
 };
 
+/** The same names without the region, for the chosen language where space is short. */
+export const LOCALE_SHORT_NAMES: Record<AppLocale, string> = {
+  en: "English",
+  fr: "Français",
+  "zh-Hans": "简体中文",
+  "zh-Hant": "繁體中文",
+};
+
 export function isLocale(value: unknown): value is AppLocale {
   return typeof value === "string" && (LOCALES as readonly string[]).includes(value);
 }

@@ -1,0 +1,51 @@
+{
+  "Help": {
+    "title": "帮助",
+    "menuLabel": "帮助主题",
+    "pagerLabel": "更多帮助",
+    "signInFirst": "你需要在“设置”中创建访问令牌，请先<link>登录</link>。",
+    "start": {
+      "title": "入门",
+      "intro": "{app} 为你保存想稍后阅读的文章，每篇都附有简洁的正文副本和简短摘要。设置只需几分钟。",
+      "token": "在<link>设置</link>中<strong>创建访问令牌</strong>。{chrome} 扩展程序和 {safari} 快捷指令用它把文章保存到你的账号。",
+      "save": "<strong>选择保存方式：</strong>",
+      "chrome": "在电脑上，使用 <link>{chrome} 扩展程序</link>。",
+      "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 快捷指令</link>。",
+      "android": "在 {android} 上，<link>安装应用</link>后使用“分享”。",
+      "paste": "在任何设备上，都可以把链接粘贴到收件箱顶部。",
+      "read": "<strong>阅读。</strong>新文章约半分钟内就会显示摘要。其余功能请参阅<link>阅读与整理</link>。"
+    },
+    "chrome": {
+      "title": "{chrome} 扩展程序",
+      "intro": "通过工具栏按钮、键盘快捷键和右键菜单保存到 {app}。"
+    },
+    "safari": {
+      "title": "{safari} 快捷指令",
+      "intro": "在 {iphone}、{ipad} 和 {mac} 上从“共享”菜单保存。只需制作一次，之后会通过 iCloud 同步。"
+    },
+    "android": {
+      "title": "{android}",
+      "intro": "从 {chrome} 安装 {app}，它就会出现在所有应用的分享菜单中。"
+    },
+    "using": {
+      "title": "阅读与整理",
+      "intro": "文章保存后可以做什么。",
+      "summaries": {
+        "heading": "摘要与翻译",
+        "text": "每篇文章都以一句话 TL;DR 和要点开头，使用文章本身的语言。在摘要下方，<strong>翻译成</strong>可以用其他语言显示摘要，建议的标签轻点即可添加。<strong>Aa</strong> 按钮用于设置主题、配色和字体。"
+      },
+      "preview": {
+        "heading": "“仅预览”",
+        "text": "有些网站只向已登录或已订阅的读者显示文章。只凭链接保存时，{app} 只能得到开头部分，并标记为“仅预览”；它从不绕过付费墙。请在登录该网站后打开文章，再用扩展程序或 {safari} 快捷指令重新保存，完整副本就会取代预览。"
+      },
+      "organize": {
+        "heading": "保持井然有序",
+        "text": "<strong>整理</strong>逐篇显示未读文章：立即阅读、稍后阅读或归档。<strong>收藏</strong>和<strong>归档</strong>保存你标记的文章，文件夹和标签用于分组，搜索会查找标题、摘要和正文。"
+      },
+      "data": {
+        "heading": "你的数据",
+        "text": "在“设置”中，<strong>导出</strong>可以把全部内容下载为 JSON 或 Markdown。你可以随时删除任何文章。"
+      }
+    }
+  }
+}

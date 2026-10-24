@@ -1,0 +1,59 @@
+{
+  "Privacy": {
+    "title": "Privacy policy",
+    "effective": "Effective {date}",
+    "glance": {
+      "heading": "In short",
+      "kept": "{app} keeps your Google name and email, and what you save.",
+      "ai": "<strong>To summarize an article, {app} sends its text, title and address to an AI service</strong>, with the names of up to {tags, number} of your tags. Never your name or email.",
+      "tracking": "No ads, analytics or tracking. Nothing is sold, and what you save is never shown to anyone else.",
+      "choices": "Export everything at any time, and ask for your account to be deleted from the <link>About</link> page."
+    },
+    "kept": {
+      "heading": "What {app} keeps",
+      "account": "<strong>Your Google account:</strong> your name, email, the address of your profile picture, and the sign-in tokens Google returns. Nothing else from Google.",
+      "sessions": "<strong>Sign-ins:</strong> the IP address and browser of each signed-in session.",
+      "saved": "<strong>What you save:</strong> each page’s address, the page as it was saved, its clean copy, and its summaries and translations.",
+      "library": "<strong>Your library:</strong> settings, folders, tags, and which articles are read, favorites or archived.",
+      "tokens": "<strong>Access tokens:</strong> a name and a hash; the token itself is shown once and never stored.",
+      "usage": "<strong>AI usage:</strong> the model, tokens, estimated cost and time of each AI answer.",
+      "feedback": "<strong>Messages</strong> you send from the About page."
+    },
+    "cookies": {
+      "heading": "Cookies",
+      "intro": "Only the cookies the app needs, none for tracking:",
+      "session": {
+        "purpose": "Keeps you signed in",
+        "duration": "{days, number} days"
+      },
+      "state": {
+        "purpose": "Google sign-in",
+        "duration": "A few minutes"
+      },
+      "locale": {
+        "purpose": "Your language, if you choose one",
+        "duration": "1 year"
+      },
+      "theme": {
+        "purpose": "Your theme, if you choose one while signed out",
+        "duration": "1 year"
+      }
+    },
+    "retention": {
+      "heading": "How long it is kept",
+      "library": "Your library stays until you delete it, or your account.",
+      "usage": "AI usage records stay after an article is deleted, until your account is.",
+      "submitted": "A page sent by the extension or Shortcut is deleted once its clean copy is made; if that fails, it stays with the article.",
+      "short": "Finished background work: {jobs, number} days. Nightly backups: {backups, number} days."
+    },
+    "choices": {
+      "heading": "Your choices",
+      "export": "<strong>Export</strong> everything as JSON or Markdown in <link>Settings</link>.",
+      "delete": "<strong>Delete</strong> any article or access token yourself. To delete your account, send a request from the <link>About</link> page; your data then leaves the backups within {days, number} days."
+    },
+    "changes": {
+      "heading": "Changes",
+      "text": "This page changes with the policy, and the date above says when."
+    }
+  }
+}

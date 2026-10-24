@@ -1,3 +1,4 @@
+import type about from "../../messages/en/About.json";
 import type actions from "../../messages/en/Actions.json";
 import type admin from "../../messages/en/Admin.json";
 import type api from "../../messages/en/Api.json";
@@ -10,7 +11,9 @@ import type errors from "../../messages/en/Errors.json";
 import type exportMessages from "../../messages/en/Export.json";
 import type folders from "../../messages/en/Folders.json";
 import type guides from "../../messages/en/Guides.json";
+import type help from "../../messages/en/Help.json";
 import type library from "../../messages/en/Library.json";
+import type privacy from "../../messages/en/Privacy.json";
 import type reader from "../../messages/en/Reader.json";
 import type settings from "../../messages/en/Settings.json";
 import type share from "../../messages/en/Share.json";
@@ -25,6 +28,7 @@ import { DEFAULT_LOCALE, type AppLocale } from "./locales";
 // English is the source; the other languages are translations of it.
 
 export const NAMESPACES = [
+  "About",
   "Actions",
   "Admin",
   "Api",
@@ -37,7 +41,9 @@ export const NAMESPACES = [
   "Export",
   "Folders",
   "Guides",
+  "Help",
   "Library",
+  "Privacy",
   "Reader",
   "Settings",
   "Share",
@@ -48,7 +54,8 @@ export const NAMESPACES = [
 ] as const;
 export type Namespace = (typeof NAMESPACES)[number];
 
-export type Messages = typeof actions &
+export type Messages = typeof about &
+  typeof actions &
   typeof admin &
   typeof api &
   typeof appearance &
@@ -60,7 +67,9 @@ export type Messages = typeof actions &
   typeof exportMessages &
   typeof folders &
   typeof guides &
+  typeof help &
   typeof library &
+  typeof privacy &
   typeof reader &
   typeof settings &
   typeof share &
@@ -74,6 +83,7 @@ export type Messages = typeof actions &
  * server components translate everything else before it leaves the server.
  */
 export const CLIENT_NAMESPACES = [
+  "About",
   "Appearance",
   "Auth",
   "Common",

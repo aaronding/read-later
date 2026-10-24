@@ -1,0 +1,51 @@
+{
+  "Help": {
+    "title": "Aide",
+    "menuLabel": "Rubriques d’aide",
+    "pagerLabel": "Suite de l’aide",
+    "signInFirst": "Il vous faut un jeton d’accès des Paramètres : <link>connectez-vous</link> d’abord.",
+    "start": {
+      "title": "Premiers pas",
+      "intro": "{app} conserve les articles que vous voulez lire plus tard, chacun avec une copie épurée et un court résumé. La configuration prend quelques minutes.",
+      "token": "<strong>Créez un jeton d’accès</strong> dans les <link>Paramètres</link>. L’extension {chrome} et le raccourci {safari} s’en servent pour enregistrer dans votre compte.",
+      "save": "<strong>Choisissez comment enregistrer :</strong>",
+      "chrome": "Sur un ordinateur, l’<link>extension {chrome}</link>.",
+      "safari": "Sur {iphone}, {ipad} ou {mac}, le <link>raccourci {safari}</link>.",
+      "android": "Sur {android}, <link>installez l’application</link> et utilisez Partager.",
+      "paste": "Partout, collez un lien en haut de la boîte de réception.",
+      "read": "<strong>Lisez.</strong> Un nouvel article affiche son résumé en une demi-minute environ. <link>Lire et ranger</link> explique le reste."
+    },
+    "chrome": {
+      "title": "Extension {chrome}",
+      "intro": "Un bouton, un raccourci clavier et un menu contextuel pour enregistrer dans {app}."
+    },
+    "safari": {
+      "title": "Raccourci {safari}",
+      "intro": "Enregistrez depuis le menu Partager sur {iphone}, {ipad} et {mac}. Vous le créez une fois, et il se synchronise par iCloud."
+    },
+    "android": {
+      "title": "{android}",
+      "intro": "Installez {app} depuis {chrome}, et il apparaît dans le menu Partager de toutes les applications."
+    },
+    "using": {
+      "title": "Lire et ranger",
+      "intro": "Ce que vous pouvez faire d’un article une fois enregistré.",
+      "summaries": {
+        "heading": "Résumés et traductions",
+        "text": "Chaque article commence par un TL;DR d’une phrase et ses points clés, dans la langue de l’article. Sous le résumé, <strong>Traduire en</strong> l’affiche dans une autre langue, et les tags suggérés s’ajoutent d’un geste. Le bouton <strong>Aa</strong> règle le thème, les couleurs et la police."
+      },
+      "preview": {
+        "heading": "« Aperçu seulement »",
+        "text": "Certains sites ne montrent un article qu’aux lecteurs connectés ou abonnés. Enregistré à partir du seul lien, {app} n’en obtient que le début et le marque « Aperçu seulement » ; il ne contourne jamais un paywall. Ouvrez l’article en étant connecté au site et enregistrez-le à nouveau avec l’extension ou le raccourci {safari} : la copie complète remplace l’aperçu."
+      },
+      "organize": {
+        "heading": "Garder de l’ordre",
+        "text": "Le <strong>Triage</strong> présente les articles non lus un par un : à lire maintenant, plus tard, ou à archiver. Les <strong>Favoris</strong> et les <strong>Archives</strong> gardent ce que vous marquez, les dossiers et les tags regroupent les articles, et la recherche parcourt titres, résumés et textes."
+      },
+      "data": {
+        "heading": "Vos données",
+        "text": "Dans les Paramètres, <strong>Exportation</strong> télécharge tout en JSON ou en Markdown. Vous pouvez supprimer n’importe quel article à tout moment."
+      }
+    }
+  }
+}

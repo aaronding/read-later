@@ -1,0 +1,28 @@
+{
+  "About": {
+    "title": "关于 {app}",
+    "intro": "一款延续 Pocket 思路的稍后阅读应用。保存一篇文章，{app} 会保留它的链接、一份简洁的正文副本和一段由 AI 撰写的简短摘要，让你一眼判断是现在读、稍后读，还是不必读。",
+    "feedback": {
+      "heading": "联系",
+      "label": "你的留言",
+      "placeholder": "问题、想法、故障，或删除账号的请求。你的留言会连同账号的姓名和邮箱一起发送。",
+      "signedOut": "<link>登录</link>后即可发送留言。",
+      "send": "发送",
+      "sending": "正在发送…",
+      "sent": "谢谢，你的留言已发送。",
+      "errors": {
+        "empty": "请先填写留言。",
+        "tooLong": "留言太长，请控制在 {max, number} 个字符以内。",
+        "tooMany": "你今天已发送 {count, plural, other {# 条留言}}，请明天再试。"
+      }
+    },
+    "deployment": {
+      "heading": "已部署版本",
+      "note": "仅管理员可见",
+      "version": "版本",
+      "commit": "提交",
+      "environment": "环境",
+      "builtAt": "构建时间"
+    }
+  }
+}

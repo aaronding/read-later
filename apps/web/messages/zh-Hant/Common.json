@@ -25,6 +25,11 @@
     "queued": "已排入佇列…",
     "allowanceNearing": "本月用於摘要和翻譯的 AI 額度已用掉 {share, number, percent}，將於 {date} 恢復。",
     "allowanceReached": "本月的 AI 額度已用完。儲存和閱讀不受影響。摘要和翻譯將於 {date} 恢復，屆時可對期間儲存的文章點「重試」。",
-    "feedback": "意見回饋"
+    "about": "關於",
+    "privacy": "隱私權",
+    "feedback": "意見回饋",
+    "help": "說明",
+    "footerLabel": "網站",
+    "language": "語言"
   }
 }

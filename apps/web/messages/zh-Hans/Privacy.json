@@ -1,0 +1,59 @@
+{
+  "Privacy": {
+    "title": "隐私政策",
+    "effective": "自 {date} 起生效",
+    "glance": {
+      "heading": "简而言之",
+      "kept": "{app} 会保存你的 Google 姓名和邮箱，以及你保存的内容。",
+      "ai": "<strong>为了给文章写摘要，{app} 会把文章的正文、标题和地址发送给 AI 服务</strong>，连同你最多 {tags, number} 个标签的名称。绝不发送你的姓名或邮箱。",
+      "tracking": "没有广告、统计分析或跟踪。不出售任何数据，你保存的内容也绝不会展示给他人。",
+      "choices": "你可以随时导出全部内容，并可在<link>关于</link>页面申请删除账号。"
+    },
+    "kept": {
+      "heading": "{app} 保存的信息",
+      "account": "<strong>你的 Google 账号：</strong>姓名、邮箱、头像的地址，以及 Google 返回的登录令牌。不会从 Google 获取其他信息。",
+      "sessions": "<strong>登录记录：</strong>每个登录会话的 IP 地址和浏览器。",
+      "saved": "<strong>你保存的内容：</strong>每个网页的地址、保存时的网页、简洁的正文副本，以及它的摘要和翻译。",
+      "library": "<strong>你的资料库：</strong>设置、文件夹、标签，以及哪些文章已读、已收藏或已归档。",
+      "tokens": "<strong>访问令牌：</strong>名称和哈希值；令牌本身只显示一次，从不保存。",
+      "usage": "<strong>AI 用量：</strong>AI 每次回答所用的模型、token 数、估算费用和耗时。",
+      "feedback": "你从“关于”页面发送的<strong>留言</strong>。"
+    },
+    "cookies": {
+      "heading": "Cookie",
+      "intro": "只使用应用所必需的 Cookie，不用于跟踪：",
+      "session": {
+        "purpose": "保持登录",
+        "duration": "{days, number} 天"
+      },
+      "state": {
+        "purpose": "Google 登录",
+        "duration": "几分钟"
+      },
+      "locale": {
+        "purpose": "你选择的语言",
+        "duration": "1 年"
+      },
+      "theme": {
+        "purpose": "未登录时选择的主题",
+        "duration": "1 年"
+      }
+    },
+    "retention": {
+      "heading": "保存多久",
+      "library": "你的资料库会一直保留，直到你删除它或删除账号。",
+      "usage": "删除文章后，AI 用量记录仍会保留，直到账号被删除。",
+      "submitted": "扩展程序或快捷指令发送的网页，在生成简洁副本后即被删除；如果生成失败，它会随文章一起保留。",
+      "short": "已完成的后台任务：{jobs, number} 天。每日备份：{backups, number} 天。"
+    },
+    "choices": {
+      "heading": "你的选择",
+      "export": "在<link>设置</link>中把全部内容<strong>导出</strong>为 JSON 或 Markdown。",
+      "delete": "你可以自行<strong>删除</strong>任何文章或访问令牌。如需删除账号，请在<link>关于</link>页面发送请求；之后你的数据会在 {days, number} 天内从备份中删除。"
+    },
+    "changes": {
+      "heading": "变更",
+      "text": "政策变更时本页会随之更新，上方的日期会注明变更时间。"
+    }
+  }
+}

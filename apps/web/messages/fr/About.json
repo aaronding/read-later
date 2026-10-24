@@ -1,0 +1,28 @@
+{
+  "About": {
+    "title": "À propos de {app}",
+    "intro": "Une application de lecture différée dans l’esprit de Pocket. Enregistrez un article : {app} garde son lien, une copie épurée et un court résumé écrit par l’IA, pour savoir en un instant s’il faut le lire maintenant, plus tard ou pas du tout.",
+    "feedback": {
+      "heading": "Contact",
+      "label": "Votre message",
+      "placeholder": "Questions, idées, problèmes ou demande de suppression de votre compte. Votre message est envoyé avec le nom et l’adresse e-mail de votre compte.",
+      "signedOut": "<link>Connectez-vous</link> pour envoyer un message.",
+      "send": "Envoyer",
+      "sending": "Envoi…",
+      "sent": "Merci. Votre message a été envoyé.",
+      "errors": {
+        "empty": "Écrivez d’abord un message.",
+        "tooLong": "Ce message est trop long. Limitez-le à {max, number} caractères.",
+        "tooMany": "Vous avez envoyé {count, plural, one {# message} other {# messages}} aujourd’hui. Réessayez demain."
+      }
+    },
+    "deployment": {
+      "heading": "Version déployée",
+      "note": "administrateurs seulement",
+      "version": "Version",
+      "commit": "Commit",
+      "environment": "Environnement",
+      "builtAt": "Compilée le"
+    }
+  }
+}

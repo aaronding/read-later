@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { deleteFolderAction, revokeTokenAction, updateLocaleAction, updateSettingsAction } from "@/app/actions";
 import { AppearancePicker } from "@/components/appearance-picker";
 import { ConfirmButton } from "@/components/confirm-button";
-import { AndroidGuide, ChromeGuide, ShortcutGuide } from "@/components/connect-guides";
 import { LocalDate } from "@/components/local-date";
 import { SignOutButton } from "@/components/sign-in-button";
 import { SubmitButton } from "@/components/submit-button";
 import { TokenForm } from "@/components/token-form";
-import { appUrl } from "@/config/env";
 import { MODEL_INFO, SUMMARY_MODELS } from "@/config/models";
 import { getDb } from "@/db";
 import { HTML_LANG, LOCALES, LOCALE_NAMES } from "@/i18n/locales";
@@ -34,7 +33,6 @@ export default async function SettingsPage() {
     getSavedAppearance(),
     getAllowance(db, user.id),
   ]);
-  const serverUrl = appUrl();
   const [t, tCommon, tAppearance, format] = await Promise.all([
     getTranslations("Settings"),
     getTranslations("Common"),
@@ -156,24 +154,20 @@ export default async function SettingsPage() {
         ))}
       </section>
 
-      <section className="card" aria-labelledby="chrome-heading">
-        <h2 id="chrome-heading">{t("guides.chromeHeading", { chrome: "Chrome" })}</h2>
-        <ChromeGuide serverUrl={serverUrl} />
-      </section>
-
-      <section className="card" aria-labelledby="shortcut-heading">
-        <h2 id="shortcut-heading">
-          {t("guides.shortcutHeading", { safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac" })}
-        </h2>
-        <details>
-          <summary>{t("guides.shortcutSummary", { apple: "Apple" })}</summary>
-          <ShortcutGuide saveUrl={`${serverUrl}/api/save`} />
-        </details>
-      </section>
-
-      <section className="card" aria-labelledby="android-heading">
-        <h2 id="android-heading">{t("guides.androidHeading", { android: "Android" })}</h2>
-        <AndroidGuide />
+      <section className="card" aria-labelledby="devices-heading">
+        <h2 id="devices-heading">{t("devices.heading")}</h2>
+        <p className="muted">{t("devices.intro")}</p>
+        <ul>
+          <li>
+            <Link href="/help/chrome">{t("devices.chrome", { chrome: "Chrome" })}</Link>
+          </li>
+          <li>
+            <Link href="/help/safari">{t("devices.safari", { safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac" })}</Link>
+          </li>
+          <li>
+            <Link href="/help/android">{t("devices.android", { android: "Android" })}</Link>
+          </li>
+        </ul>
       </section>
 
       <section className="card" aria-labelledby="folders-heading">

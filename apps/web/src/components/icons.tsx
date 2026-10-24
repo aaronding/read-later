@@ -101,3 +101,48 @@ export function CheckIcon() {
     </Icon>
   );
 }
+
+export function GlobeIcon() {
+  return (
+    <Icon size={18}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18" />
+      <path d="M12 3c2.5 2.6 3.75 5.6 3.75 9s-1.25 6.4-3.75 9c-2.5-2.6-3.75-5.6-3.75-9S9.5 5.6 12 3z" />
+    </Icon>
+  );
+}
+
+export function SystemThemeIcon() {
+  return (
+    <Icon size={18}>
+      <rect x="3" y="4" width="18" height="12" rx="2" />
+      <path d="M8 20h8" />
+      <path d="M12 16v4" />
+    </Icon>
+  );
+}
+
+export function SunIcon() {
+  return (
+    <Icon size={18}>
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </Icon>
+  );
+}
+
+export function MoonIcon() {
+  return (
+    <Icon size={18}>
+      <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
+    </Icon>
+  );
+}
+
+export function ChevronIcon() {
+  return (
+    <Icon size={14}>
+      <path d="M6 9l6 6 6-6" strokeWidth="2" />
+    </Icon>
+  );
+}

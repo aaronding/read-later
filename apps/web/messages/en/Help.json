@@ -1,0 +1,51 @@
+{
+  "Help": {
+    "title": "Help",
+    "menuLabel": "Help topics",
+    "pagerLabel": "More help",
+    "signInFirst": "You need an access token from Settings: <link>sign in</link> first.",
+    "start": {
+      "title": "Getting started",
+      "intro": "{app} keeps the articles you want to read later, each with a clean copy and a short summary. Setting it up takes a few minutes.",
+      "token": "<strong>Create an access token</strong> in <link>Settings</link>. The {chrome} extension and the {safari} Shortcut use it to save to your account.",
+      "save": "<strong>Choose how to save:</strong>",
+      "chrome": "On a computer, the <link>{chrome} extension</link>.",
+      "safari": "On an {iphone}, {ipad} or {mac}, the <link>{safari} Shortcut</link>.",
+      "android": "On {android}, <link>install the app</link> and use Share.",
+      "paste": "Anywhere, paste a link at the top of the Inbox.",
+      "read": "<strong>Read.</strong> A new article shows its summary within about half a minute. <link>Reading and organizing</link> explains the rest."
+    },
+    "chrome": {
+      "title": "{chrome} extension",
+      "intro": "A toolbar button, a keyboard shortcut and a right-click menu item that save to {app}."
+    },
+    "safari": {
+      "title": "{safari} Shortcut",
+      "intro": "Save from the Share menu on {iphone}, {ipad} and {mac}. You build it once, and it syncs through iCloud."
+    },
+    "android": {
+      "title": "{android}",
+      "intro": "Install {app} from {chrome}, and it appears in every app’s Share menu."
+    },
+    "using": {
+      "title": "Reading and organizing",
+      "intro": "What you can do with an article once it is saved.",
+      "summaries": {
+        "heading": "Summaries and translations",
+        "text": "Every article opens with a one-sentence TL;DR and its key points, in the article’s own language. Under the summary, <strong>Translate into</strong> shows it in another language, and suggested tags are one tap away. The <strong>Aa</strong> button sets the theme, colors and font."
+      },
+      "preview": {
+        "heading": "“Preview only”",
+        "text": "Some sites show an article only to readers who are signed in or subscribe. Saved from a link alone, {app} gets just the beginning and marks it “Preview only”; it never gets around a paywall. Open the article signed in to the site and save it again with the extension or the {safari} Shortcut, and the full copy replaces the preview."
+      },
+      "organize": {
+        "heading": "Keeping things in order",
+        "text": "<strong>Triage</strong> shows unread articles one at a time: read now, later, or archive. <strong>Favorites</strong> and the <strong>Archive</strong> keep what you mark, folders and tags group articles, and search looks through titles, summaries and text."
+      },
+      "data": {
+        "heading": "Your data",
+        "text": "In Settings, <strong>Export</strong> downloads everything as JSON or Markdown. You can delete any article at any time."
+      }
+    }
+  }
+}

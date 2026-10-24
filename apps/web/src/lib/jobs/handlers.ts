@@ -14,6 +14,7 @@ import { FetchError, safeFetch, type SafeFetchResponse } from "@/lib/net/safe-fe
 import { refreshSearchVector } from "@/lib/search-index";
 import { getSettings, modelsForNewSave } from "@/lib/settings";
 import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
+import { SUMMARY_TAG_LIMIT } from "@/lib/summarize/prompt";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
 import { retranslate } from "@/lib/translations";
 import { recordUsage } from "@/lib/usage";
@@ -305,7 +306,7 @@ export async function summarize(db: Db, job: Job): Promise<void> {
     .from(tags)
     .where(eq(tags.userId, job.userId))
     .orderBy(asc(tags.name))
-    .limit(200);
+    .limit(SUMMARY_TAG_LIMIT);
 
   let result;
   try {

@@ -1,0 +1,51 @@
+{
+  "Help": {
+    "title": "說明",
+    "menuLabel": "說明主題",
+    "pagerLabel": "更多說明",
+    "signInFirst": "你需要在「設定」中建立存取權杖，請先<link>登入</link>。",
+    "start": {
+      "title": "入門",
+      "intro": "{app} 為你保存想稍後閱讀的文章，每篇都附有簡潔的閱讀版本和簡短摘要。設定只需幾分鐘。",
+      "token": "在<link>設定</link>中<strong>建立存取權杖</strong>。{chrome} 擴充功能和 {safari} 捷徑會用它把文章儲存到你的帳戶。",
+      "save": "<strong>選擇儲存方式：</strong>",
+      "chrome": "在電腦上，使用 <link>{chrome} 擴充功能</link>。",
+      "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 捷徑</link>。",
+      "android": "在 {android} 上，<link>安裝 App</link> 後使用「分享」。",
+      "paste": "在任何裝置上，都可以把連結貼到收件匣頂端。",
+      "read": "<strong>閱讀。</strong>新文章大約半分鐘內就會顯示摘要。其他功能請參閱<link>閱讀與整理</link>。"
+    },
+    "chrome": {
+      "title": "{chrome} 擴充功能",
+      "intro": "透過工具列按鈕、鍵盤快速鍵和右鍵選單儲存到 {app}。"
+    },
+    "safari": {
+      "title": "{safari} 捷徑",
+      "intro": "在 {iphone}、{ipad} 和 {mac} 上從「分享」選單儲存。只需建立一次，之後會透過 iCloud 同步。"
+    },
+    "android": {
+      "title": "{android}",
+      "intro": "從 {chrome} 安裝 {app}，它就會出現在所有 App 的分享選單中。"
+    },
+    "using": {
+      "title": "閱讀與整理",
+      "intro": "文章儲存後可以做什麼。",
+      "summaries": {
+        "heading": "摘要與翻譯",
+        "text": "每篇文章都以一句話的 TL;DR 和重點開頭，使用文章本身的語言。在摘要下方，<strong>翻譯成</strong>可以用其他語言顯示摘要，建議的標籤輕點即可加入。<strong>Aa</strong> 按鈕用來設定主題、配色和字型。"
+      },
+      "preview": {
+        "heading": "「僅預覽」",
+        "text": "有些網站只向已登入或已訂閱的讀者顯示文章。只憑連結儲存時，{app} 只能取得開頭部分，並標示為「僅預覽」；它絕不繞過付費牆。請在登入該網站後開啟文章，再用擴充功能或 {safari} 捷徑重新儲存，完整版本就會取代預覽。"
+      },
+      "organize": {
+        "heading": "保持井然有序",
+        "text": "<strong>整理</strong>一次顯示一篇未讀文章：立即閱讀、稍後閱讀或封存。<strong>我的最愛</strong>和<strong>封存</strong>保存你標記的文章，資料夾和標籤用於分組，搜尋會查找標題、摘要和內文。"
+      },
+      "data": {
+        "heading": "你的資料",
+        "text": "在「設定」中，<strong>匯出</strong>可以把所有內容下載為 JSON 或 Markdown。你可以隨時刪除任何文章。"
+      }
+    }
+  }
+}

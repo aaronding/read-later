@@ -25,6 +25,11 @@
     "queued": "En file d’attente…",
     "allowanceNearing": "Vous avez utilisé {share, number, percent} de l’allocation IA de ce mois-ci pour les résumés et les traductions. Elle se renouvelle le {date}.",
     "allowanceReached": "L’allocation IA de ce mois-ci est épuisée. Vous pouvez toujours enregistrer et lire. Les résumés et les traductions reprennent le {date} ; utilisez alors Réessayer sur les articles enregistrés entre-temps.",
-    "feedback": "Commentaires"
+    "about": "À propos",
+    "privacy": "Confidentialité",
+    "feedback": "Commentaires",
+    "help": "Aide",
+    "footerLabel": "Site",
+    "language": "Langue"
   }
 }

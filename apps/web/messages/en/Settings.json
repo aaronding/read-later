@@ -27,12 +27,6 @@
     },
     "copy": "Copy",
     "copied": "Copied",
-    "guides": {
-      "chromeHeading": "Save from {chrome}",
-      "shortcutHeading": "Save from {safari} ({iphone}, {ipad} and {mac})",
-      "shortcutSummary": "Step-by-step instructions for the {apple} Shortcuts",
-      "androidHeading": "Save from {android}"
-    },
     "folders": {
       "heading": "Folders",
       "empty": "No folders yet. Choose or create one at the bottom of an article.",
@@ -48,6 +42,13 @@
       "heading": "Account",
       "signedInAs": "Signed in as <strong>{email}</strong>."
     },
-    "appearanceIntro": "Colors and a font for reading. {system} follows your device’s light or dark mode. The choice is saved to your account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page changes it while you read."
+    "appearanceIntro": "Colors and a font for reading. {system} follows your device’s light or dark mode. The choice is saved to your account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page changes it while you read.",
+    "devices": {
+      "heading": "Save from your devices",
+      "intro": "Each takes a few minutes, with the access token above.",
+      "chrome": "{chrome} extension",
+      "safari": "{safari} Shortcut ({iphone}, {ipad} and {mac})",
+      "android": "{android}"
+    }
   }
 }
