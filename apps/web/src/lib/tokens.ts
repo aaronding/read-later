@@ -51,8 +51,8 @@ export async function revokeApiToken(db: Db, userId: string, tokenId: string): P
 
 /**
  * Resolves "Authorization: Bearer <token>" to a user id. Returns null for a
- * missing, unknown or revoked token, or for a user no longer in
- * ALLOWED_EMAILS.
+ * missing, unknown or revoked token, or for a user who is no longer let in
+ * (isEmailAllowed).
  */
 export async function authenticateBearer(db: Db, authorization: string | null): Promise<string | null> {
   const match = /^Bearer\s+(\S+)\s*$/i.exec(authorization ?? "");

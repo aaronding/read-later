@@ -39,7 +39,7 @@ export interface ProcessStats {
   failed: number;
 }
 
-/** Whether the job's owner may still use the app: a blocked account's downloads and summaries stop. */
+/** Whether the job's owner may still use the app: an account blocked, or no longer let in, has its downloads, summaries and translations stop. */
 async function ownerAllowed(db: Db, job: Job): Promise<boolean> {
   const [owner] = await db.select({ email: users.email }).from(users).where(eq(users.id, job.userId)).limit(1);
   return isEmailAllowed(owner?.email);

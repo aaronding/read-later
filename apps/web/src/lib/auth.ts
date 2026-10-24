@@ -53,7 +53,8 @@ function createAuth() {
     databaseHooks: {
       user: {
         create: {
-          // Only emails in ALLOWED_EMAILS get an account.
+          // Only emails isEmailAllowed lets in get an account: those in
+          // ALLOWED_EMAILS, or anyone when it is *, never those in BLOCKED_EMAILS.
           before: async (user) => {
             if (!isEmailAllowed(user.email)) throw notAllowedError();
           },
@@ -61,8 +62,8 @@ function createAuth() {
       },
       session: {
         create: {
-          // Checked again at every sign-in, so removing an email from
-          // ALLOWED_EMAILS locks that account out.
+          // Checked again at every sign-in, so taking an email off
+          // ALLOWED_EMAILS, or adding it to BLOCKED_EMAILS, locks that account out.
           before: async (session) => {
             const [owner] = await db
               .select({ email: users.email })
