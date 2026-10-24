@@ -7,7 +7,7 @@ Safari has no extension for this app yet (that needs the paid Apple developer me
 | **Save to ReadSooner** | Safari's Share menu | The page's URL and its full HTML as you see it, so paywalled articles you're subscribed to are saved in full |
 | **Save link to ReadSooner** | Any other app's Share menu (Chrome on iPhone, Mail, Messages…) | Only the link; the server downloads the page itself |
 
-The same steps are in the web app under **Settings → Save from Safari**, with your own server address filled in and a button to copy the script.
+The same steps are in the web app under **Help → Safari Shortcut** (`/help/safari`), with your own server address filled in and a button to copy the script.
 
 ## Before you start
 
