@@ -7,6 +7,7 @@ import { loadMessages } from "@/i18n/messages";
 import { createTestDb, createTestUser } from "@/test/db";
 import { exportToMarkdown, loadExport, type ExportData } from "./export";
 import { findOrCreateFolder, setArticleFolder } from "./folders";
+import { sendFeedback } from "./feedback";
 import { addTag } from "./tags";
 
 let db: Db;
@@ -44,6 +45,8 @@ beforeAll(async () => {
   await addTag(db, "user-1", article!.id, "gardening");
   await setArticleFolder(db, "user-1", article!.id, await findOrCreateFolder(db, "user-1", "Long reads"));
   await db.insert(articles).values({ userId: "user-2", url: "https://example.com/x", normalizedUrl: "https://example.com/x", title: "Not mine" });
+  await sendFeedback(db, "user-1", "Thanks for the app.");
+  await sendFeedback(db, "user-2", "Not my feedback");
 });
 afterAll(() => close());
 
@@ -69,7 +72,9 @@ describe("export", () => {
       html: "<p>Volunteers plant apple trees.</p>",
     });
     expect(data.articles[0]!.summaries[0]).toMatchObject({ model: "claude-opus-5-5", tldr: "Towns plant fruit trees.", costUsd: 0.012 });
+    expect(data.feedback.map((row) => row.message)).toEqual(["Thanks for the app."]);
     expect(JSON.stringify(data)).not.toContain("Not mine");
+    expect(JSON.stringify(data)).not.toContain("Not my feedback");
   });
 
   it("writes readable Markdown", async () => {

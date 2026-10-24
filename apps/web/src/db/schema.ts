@@ -429,6 +429,21 @@ export const articleTags = pgTable(
   (t) => [primaryKey({ columns: [t.articleId, t.tagId] }), index("article_tags_tag_id_idx").on(t.tagId)],
 );
 
+// What a user sent from the About page's feedback form, for the admins to
+// read in /admin/feedback. It goes with its user.
+export const feedback = pgTable(
+  "feedback",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    message: text("message").notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [index("feedback_user_created_idx").on(t.userId, t.createdAt), index("feedback_created_idx").on(t.createdAt)],
+);
+
 export type Article = typeof articles.$inferSelect;
 export type Summary = typeof summaries.$inferSelect;
 export type SummaryTranslation = typeof summaryTranslations.$inferSelect;

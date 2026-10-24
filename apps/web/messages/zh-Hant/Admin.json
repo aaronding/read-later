@@ -18,6 +18,12 @@
       "empty": "{period, select, week {最近 12 週沒有 Claude 的回答。} month {最近 12 個月沒有 Claude 的回答。} other {還沒有 Claude 的回答。}}",
       "ofLimit": "占每月上限的 {share, number, percent}",
       "noLimit": "無每月上限"
+    },
+    "feedback": {
+      "title": "意見回饋",
+      "intro": "使用者從「關於」頁面傳送的留言，最新的在前。請透過電子郵件回覆。",
+      "empty": "目前沒有意見回饋。",
+      "from": "來自 {name} <email></email>"
     }
   }
 }

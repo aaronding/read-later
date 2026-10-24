@@ -18,6 +18,12 @@
       "empty": "{period, select, week {No answers from Claude in the last 12 weeks.} month {No answers from Claude in the last 12 months.} other {No answers from Claude yet.}}",
       "ofLimit": "{share, number, percent} of the monthly limit",
       "noLimit": "No monthly limit"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "intro": "What users sent from the About page, newest first. Reply to them by email.",
+      "empty": "No feedback yet.",
+      "from": "From {name} <email></email>"
     }
   }
 }

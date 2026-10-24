@@ -24,6 +24,7 @@
     "tryAgain": "重试",
     "queued": "已加入队列…",
     "allowanceNearing": "本月用于摘要和翻译的 AI 额度已用掉 {share, number, percent}，将于 {date} 恢复。",
-    "allowanceReached": "本月的 AI 额度已用完。保存和阅读不受影响。摘要和翻译将于 {date} 恢复，届时可对期间保存的文章点“重试”。"
+    "allowanceReached": "本月的 AI 额度已用完。保存和阅读不受影响。摘要和翻译将于 {date} 恢复，届时可对期间保存的文章点“重试”。",
+    "feedback": "反馈"
   }
 }
