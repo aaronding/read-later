@@ -24,7 +24,7 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 12. **A re-save with full HTML replaces the stored copy when that copy is "Preview only", failed or still empty,** and a re-save by its address downloads such a copy again (114). A re-save never replaces a complete copy, and a preview saved again gets new summaries only when the new copy is better, so nothing is summarized twice by accident.
 13. **`POST /api/save` allows any origin (CORS `*`).** It authenticates with a bearer token, not cookies, so other sites can't use the owner's session.
 14. **Access tokens are `rl_` followed by 256 random bits, stored as a SHA-256 hash.** That is enough for random tokens; password-style hashing is for low-entropy secrets.
-15. **Removing an email from `ALLOWED_EMAILS` locks that person out everywhere**: pages, new sign-ins, and their access tokens.
+15. **Removing an email from `ALLOWED_EMAILS` locks that person out everywhere**: pages, new sign-ins, their access tokens, and their queued downloads, summaries and translations, which stop without running (124).
 16. **Submitted HTML is limited to 4 MB** (`SAVE_MAX_HTML_BYTES`), under Vercel's 4.5 MB request body limit.
 
 ## Downloads and the paywall rules
@@ -166,7 +166,7 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 
 ## Admins
 
-108. **Admins are the emails in `ADMIN_EMAILS`,** who must be in `ALLOWED_EMAILS` too. Only they see a summary's cost and time in the app, Compare models, writing a summary again with another model, comparison mode in Settings and the AI usage report. For everyone else those are gone: Compare and the report answer 404 (their page titles too), the actions behind them refuse, and comparison mode is ignored even if it was saved. A save or Retry of theirs runs only the summary they are shown, never again the other models of an earlier copy, so only an admin's saves pay for every model. Each user's JSON export still has the costs of their own summaries (41). A variable, like `ALLOWED_EMAILS`, is enough for an owner and a few readers; a role in the database would need a screen to manage it.
+108. **Admins are the emails in `ADMIN_EMAILS`,** who must also be let in by `ALLOWED_EMAILS` (anyone, when it is `*`) and not be in `BLOCKED_EMAILS`. Only they see a summary's cost and time in the app, Compare models, writing a summary again with another model, comparison mode in Settings and the AI usage report. For everyone else those are gone: Compare and the report answer 404 (their page titles too), the actions behind them refuse, and comparison mode is ignored even if it was saved. A save or Retry of theirs runs only the summary they are shown, never again the other models of an earlier copy, so only an admin's saves pay for every model. Each user's JSON export still has the costs of their own summaries (41). A variable, like `ALLOWED_EMAILS`, is enough for an owner and a few readers; a role in the database would need a screen to manage it.
 109. **The AI usage report (`/admin/usage`) adds up `ai_usage` for each user by week, month or year:** answers (summaries and translations), tokens, estimated cost, how many answers have no known price (a model the app has no price for, or a run still under way), and time, in minutes or hours once it adds up. Periods are in UTC and weeks start on Monday, whatever the database's own time zone, so every admin sees the same totals. It covers the last 12 weeks, the last 12 months, or every year, newest first and the costliest user first.
 
 ## Colors
@@ -209,7 +209,7 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 
 ## Opening sign-in
 
-124. **Sign-in is opened to everyone by setting `ALLOWED_EMAILS` to `*`, and `BLOCKED_EMAILS` keeps particular accounts out.** An empty or missing `ALLOWED_EMAILS` still lets no one in, so a mistake in the settings closes the app rather than opening it. A blocked account is locked out as one taken off the list is (15), from pages, sign-ins and access tokens, and its queued downloads, summaries and translations stop without running, so blocking an account also stops what it costs. The owner opened sign-in before stage 2's monthly summary limit and stage 3's privacy page, terms and account deletion, watching the AI usage report (109) instead and adding the limit when it is needed. Admins still come only from `ADMIN_EMAILS` (108).
+124. **Sign-in is opened to everyone by setting `ALLOWED_EMAILS` to `*`, and `BLOCKED_EMAILS` keeps particular accounts out.** An empty or missing `ALLOWED_EMAILS` still lets no one in, so a mistake in the settings closes the app rather than opening it. A blocked account is locked out as one taken off the list is (15), from pages, sign-ins and access tokens, and its queued downloads, summaries and translations stop without running, so blocking an account also stops what it costs. Going back from `*` to a list stops the queued work of everyone the list leaves out in the same way. The owner opened sign-in before stage 2's monthly summary limit and stage 3's privacy page, terms and account deletion, watching the AI usage report (109) instead and adding the limit when it is needed. Admins still come only from `ADMIN_EMAILS` (108).
 
 ## The site: homepage, About, Privacy and Help
 

@@ -3,7 +3,7 @@
     "pageTooLarge": "网页太大，无法保存。",
     "job": {
       "tooManyAttempts": "尝试次数过多，已放弃。",
-      "accountLockedOut": "已停止：保存此内容的账号已无法登录。",
+      "accountLockedOut": "在你的账号无法登录期间已停止。选择“重试”即可再次运行。",
       "unexpected": "发生意外错误：{detail}"
     },
     "download": {

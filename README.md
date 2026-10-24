@@ -136,7 +136,7 @@ When the free plans stop being enough: [Move to one server](docs/move-to-server.
 
 ## Security notes
 
-- Only the Google accounts in `ALLOWED_EMAILS` can sign in, or any account when it is `*`, never those in `BLOCKED_EMAILS`; and every database query is scoped to the signed-in user. A blocked account's queued downloads and summaries stop. Only those also in `ADMIN_EMAILS` see costs in the app, Compare and the AI usage report, which covers every user; each user's own JSON export still has their summaries' costs.
+- Only the Google accounts in `ALLOWED_EMAILS` can sign in, or any account when it is `*`, never those in `BLOCKED_EMAILS`; and every database query is scoped to the signed-in user. An account that is blocked, or no longer let in, also has its queued downloads, summaries and translations stop. Only those also in `ADMIN_EMAILS` see costs in the app, Compare and the AI usage report, which covers every user; each user's own JSON export still has their summaries' costs.
 - Access tokens are stored only as SHA-256 hashes and shown once. Revoke them in Settings.
 - Server-side downloads refuse private, loopback and link-local addresses, also after redirects, so the server can't be pointed at internal services.
 - Saved HTML is sanitized before it is stored, and every page gets a nonce-based Content Security Policy, so even a script that got past the sanitizer would not run.
