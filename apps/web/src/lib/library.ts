@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNotNull, isNull, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, count, desc, eq, isNotNull, isNull, or, sql, type SQL } from "drizzle-orm";
 import { isSummaryModel, type SummaryModel } from "@/config/models";
 import type { Db } from "@/db";
 import { articles, jobs, summaries, type Article, type Summary } from "@/db/schema";
@@ -95,11 +95,8 @@ export interface ListOptions {
   tag?: string;
 }
 
-export async function listArticles(
-  db: Db,
-  userId: string,
-  { view, query, page = 0, folderId, tag }: ListOptions,
-): Promise<{ items: ArticleListItem[]; hasMore: boolean }> {
+/** Which of the user's articles a list holds, and, for a search, how well each matches. */
+function listFilter(userId: string, { view, query, folderId, tag }: ListOptions): { where: SQL | undefined; rank: SQL | undefined } {
   const filters: (SQL | undefined)[] = [eq(articles.userId, userId)];
   if (view === "inbox") filters.push(isNull(articles.archivedAt));
   if (view === "favorites") filters.push(eq(articles.favorite, true));
@@ -112,9 +109,18 @@ export async function listArticles(
   }
   const search = query?.trim() ? searchCondition(query) : undefined;
   if (search) filters.push(search.where);
+  return { where: and(...filters), rank: search?.rank };
+}
 
+export async function listArticles(
+  db: Db,
+  userId: string,
+  { page = 0, ...options }: ListOptions,
+): Promise<{ items: ArticleListItem[]; hasMore: boolean }> {
+  const { view } = options;
+  const { where, rank } = listFilter(userId, options);
   const order = [
-    ...(search?.rank ? [desc(search.rank)] : []),
+    ...(rank ? [desc(rank)] : []),
     view === "archive" ? desc(articles.archivedAt) : desc(articles.savedAt),
     desc(articles.createdAt),
   ];
@@ -141,11 +147,17 @@ export async function listArticles(
       summaryErrorMessage: shownSummaryErrorMessage,
     })
     .from(articles)
-    .where(and(...filters))
+    .where(where)
     .orderBy(...order)
     .limit(PAGE_SIZE + 1)
     .offset(page * PAGE_SIZE);
   return { items: rows.slice(0, PAGE_SIZE), hasMore: rows.length > PAGE_SIZE };
+}
+
+/** The last page of a list that has articles on it, or the first page when it has none. */
+export async function lastPage(db: Db, userId: string, options: Omit<ListOptions, "page">): Promise<number> {
+  const [row] = await db.select({ total: count() }).from(articles).where(listFilter(userId, options).where);
+  return Math.max(0, Math.ceil((row?.total ?? 0) / PAGE_SIZE) - 1);
 }
 
 export async function getArticle(db: Db, userId: string, id: string) {
