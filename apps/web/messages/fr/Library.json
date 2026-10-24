@@ -13,7 +13,7 @@
     "filterSummary": "{filters, select, q {« {query} »} f {dans {folder}} t {avec l’étiquette #{tag}} qf {« {query} », dans {folder}} qt {« {query} », avec l’étiquette #{tag}} ft {dans {folder}, avec l’étiquette #{tag}} qft {« {query} », dans {folder}, avec l’étiquette #{tag}} other {}} · <clear>Effacer</clear>",
     "filtersLabel": "Dossiers et étiquettes",
     "empty": {
-      "inbox": "Aucun article enregistré pour l’instant. Collez un lien ci-dessus, ou enregistrez une page avec l’extension {chrome} ou le raccourci {safari}.",
+      "inbox": "Aucun article enregistré pour l’instant. Collez un lien ci-dessus, ou enregistrez avec l’<chromeGuide>extension {chrome}</chromeGuide>, le <safariGuide>raccourci {safari}</safariGuide> ou <androidGuide>{android}</androidGuide>. Première visite ? Voir <start>Premiers pas</start>.",
       "favorites": "Aucun favori pour l’instant. Touchez « {favorite} » sur un article pour le retrouver ici.",
       "archive": "Aucun article archivé pour l’instant.",
       "noMatch": "Aucun article ne correspond."
