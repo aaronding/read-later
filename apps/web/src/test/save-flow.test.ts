@@ -796,8 +796,8 @@ describe("failures", () => {
       expect(stats.retrying).toBe(1);
       expect((await summariesFor(id))[0]).toMatchObject({
         status: "pending",
-        error: "Claude took too long to answer.",
-        errorMessage: { key: "summary.timeout", values: { claude: "Claude" } },
+        error: "The AI took too long to answer.",
+        errorMessage: { key: "summary.timeout" },
       });
     } finally {
       delete process.env.SUMMARY_TIMEOUT_MS;
@@ -821,8 +821,8 @@ describe("failures", () => {
     expect(summary).toMatchObject({
       status: "failed",
       stopReason: "refusal",
-      error: "Claude declined to summarize this article (cyber).",
-      errorMessage: { key: "summary.declinedCategory", values: { claude: "Claude", category: "cyber" } },
+      error: "The AI declined to summarize this article (cyber).",
+      errorMessage: { key: "summary.declinedCategory", values: { category: "cyber" } },
     });
   });
 

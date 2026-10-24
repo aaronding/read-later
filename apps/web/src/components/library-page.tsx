@@ -39,8 +39,18 @@ export async function LibraryPage({
   const from = `/${view}${here ? `?${here}` : ""}`;
   const busy = items.some((item) => isBusy(item.status, item.summaryStatus));
   const [t, tCommon, format] = await Promise.all([getTranslations("Library"), getTranslations("Common"), getFormatter()]);
-  const empty: Record<LibraryView, string> = {
-    inbox: t("empty.inbox", { chrome: "Chrome", safari: "Safari" }),
+  const help = (href: string) => (chunks: React.ReactNode) => <Link href={href}>{chunks}</Link>;
+  const empty: Record<LibraryView, React.ReactNode> = {
+    // A new account starts here, so it points to the setup guides in Help.
+    inbox: t.rich("empty.inbox", {
+      chrome: "Chrome",
+      safari: "Safari",
+      android: "Android",
+      chromeGuide: help("/help/chrome"),
+      safariGuide: help("/help/safari"),
+      androidGuide: help("/help/android"),
+      start: help("/help"),
+    }),
     favorites: t("empty.favorites", { favorite: tCommon("favorite") }),
     archive: t("empty.archive"),
   };

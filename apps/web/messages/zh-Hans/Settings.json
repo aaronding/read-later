@@ -9,7 +9,7 @@
       "defaultModel": "默认模型",
       "comparisonMode": "<strong>比较模式：</strong>每次新保存文章时，都用全部 {count, number} 个模型生成摘要，以便在每篇文章的“比较摘要”页面中进行比较。费用约为平时的 {count, number} 倍。",
       "allowance": "本月你已用掉 {share, number, percent} 的 AI 额度（用于摘要和翻译），将于 {date} 恢复。",
-      "allowanceModels": "每篇摘要用 Claude Haiku 会少用一些额度，用 Claude Opus 则会多用一些。"
+      "allowanceModels": "每篇摘要用 Haiku 会少用一些额度，用 Opus 则会多用一些。"
     },
     "tokens": {
       "heading": "访问令牌",
@@ -27,12 +27,6 @@
     },
     "copy": "复制",
     "copied": "已复制",
-    "guides": {
-      "chromeHeading": "从 {chrome} 保存",
-      "shortcutHeading": "从 {safari} 浏览器保存（{iphone}、{ipad} 和 {mac}）",
-      "shortcutSummary": "{apple} 快捷指令的分步说明",
-      "androidHeading": "从 {android} 保存"
-    },
     "folders": {
       "heading": "文件夹",
       "empty": "还没有文件夹。可以在文章底部选择或新建文件夹。",
@@ -48,6 +42,13 @@
       "heading": "账号",
       "signedInAs": "当前登录账号：<strong>{email}</strong>"
     },
-    "appearanceIntro": "阅读时使用的配色和字体。选择“{system}”时，会与设备的浅色或深色模式保持一致。你的选择会保存到账号中，因此在你登录的每个设备上都会生效；阅读时，也可以用每个页面顶部的 <strong>Aa</strong> 按钮随时更改。"
+    "appearanceIntro": "阅读时使用的配色和字体。选择“{system}”时，会与设备的浅色或深色模式保持一致。你的选择会保存到账号中，因此在你登录的每个设备上都会生效；阅读时，也可以用每个页面顶部的 <strong>Aa</strong> 按钮随时更改。",
+    "devices": {
+      "heading": "从你的设备保存",
+      "intro": "每种只需几分钟，需要用到上方的访问令牌。",
+      "chrome": "{chrome} 扩展程序",
+      "safari": "{safari} 快捷指令（{iphone}、{ipad} 和 {mac}）",
+      "android": "{android}"
+    }
   }
 }

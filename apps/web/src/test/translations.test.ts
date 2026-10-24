@@ -293,8 +293,8 @@ describe("a translation that fails", () => {
     expect(await translationRows()).toMatchObject([
       {
         status: "pending",
-        error: "Claude’s translation was not in the expected format.",
-        errorMessage: { key: "translation.badFormat", values: { claude: "Claude" } },
+        error: "The AI’s translation was not in the expected format.",
+        errorMessage: { key: "translation.badFormat" },
       },
     ]);
   });

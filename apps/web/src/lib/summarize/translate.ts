@@ -51,7 +51,7 @@ export async function translateSummary({ model, summary, target, onAnswer }: Tra
   const parsed = TranslationOutput.safeParse(json);
   // A point missing or added would no longer line up with the original's.
   if (!parsed.success || parsed.data.key_points.length !== summary.keyPoints.length) {
-    throw new SummaryError(errorMessage("translation.badFormat", { claude: "Claude" }), true, call.stopReason);
+    throw new SummaryError(errorMessage("translation.badFormat"), true, call.stopReason);
   }
   return { ...call, tldr: parsed.data.tldr, keyPoints: parsed.data.key_points };
 }

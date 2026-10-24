@@ -21,7 +21,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
   const error = params.error;
   const [t, tCommon] = await Promise.all([getTranslations("Auth"), getTranslations("Common")]);
   return (
-    <main className="centered">
+    <div className="sign-in-page">
       <div className="card sign-in">
         <Logo size={56} />
         <h1>{APP_NAME}</h1>
@@ -37,6 +37,6 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         )}
         <SignInButton next={next} />
       </div>
-    </main>
+    </div>
   );
 }

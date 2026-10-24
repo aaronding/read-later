@@ -135,8 +135,10 @@ export async function hasLiveJob(db: Db, articleId: string, type: JobType, match
 }
 
 /** Finished jobs are kept for a week for debugging, then deleted. */
+export const FINISHED_JOB_DAYS = 7;
+
 export async function pruneFinishedJobs(db: Db): Promise<void> {
   await db
     .delete(jobs)
-    .where(and(inArray(jobs.status, ["done", "failed"]), lt(jobs.finishedAt, new Date(Date.now() - 7 * 24 * 3600 * 1000))));
+    .where(and(inArray(jobs.status, ["done", "failed"]), lt(jobs.finishedAt, new Date(Date.now() - FINISHED_JOB_DAYS * 24 * 3600 * 1000))));
 }

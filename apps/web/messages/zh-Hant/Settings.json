@@ -9,7 +9,7 @@
       "defaultModel": "預設模型",
       "comparisonMode": "<strong>比較模式：</strong>每次新儲存文章時，都用全部 {count, number} 個模型產生摘要，方便在各篇文章的「比較摘要」頁面中比較。費用約為平常的 {count, number} 倍。",
       "allowance": "本月你已用掉 {share, number, percent} 的 AI 額度（用於摘要和翻譯），將於 {date} 恢復。",
-      "allowanceModels": "每篇摘要用 Claude Haiku 會少用一些額度，用 Claude Opus 則會多用一些。"
+      "allowanceModels": "每篇摘要用 Haiku 會少用一些額度，用 Opus 則會多用一些。"
     },
     "tokens": {
       "heading": "存取權杖",
@@ -27,12 +27,6 @@
     },
     "copy": "複製",
     "copied": "已複製",
-    "guides": {
-      "chromeHeading": "從 {chrome} 儲存",
-      "shortcutHeading": "從 {safari} 儲存 ({iphone}、{ipad} 和 {mac})",
-      "shortcutSummary": "{apple} 捷徑的逐步說明",
-      "androidHeading": "從 {android} 儲存"
-    },
     "folders": {
       "heading": "資料夾",
       "empty": "還沒有資料夾。你可以在文章底部選擇或新增資料夾。",
@@ -48,6 +42,13 @@
       "heading": "帳號",
       "signedInAs": "目前登入帳號：<strong>{email}</strong>"
     },
-    "appearanceIntro": "閱讀時使用的配色和字型。「{system}」會依照裝置的淺色或深色模式切換。你的選擇會儲存到帳號中，因此你登入的每個裝置都會套用；閱讀時，也可以用每個頁面頂端的 <strong>Aa</strong> 按鈕隨時變更。"
+    "appearanceIntro": "閱讀時使用的配色和字型。「{system}」會依照裝置的淺色或深色模式切換。你的選擇會儲存到帳號中，因此你登入的每個裝置都會套用；閱讀時，也可以用每個頁面頂端的 <strong>Aa</strong> 按鈕隨時變更。",
+    "devices": {
+      "heading": "從你的裝置儲存",
+      "intro": "每種只需幾分鐘，需要用到上方的存取權杖。",
+      "chrome": "{chrome} 擴充功能",
+      "safari": "{safari} 捷徑 ({iphone}、{ipad} 和 {mac})",
+      "android": "{android}"
+    }
   }
 }

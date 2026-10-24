@@ -13,7 +13,7 @@
     "filterSummary": "{filters, select, q {“{query}”} f {in {folder}} t {tagged #{tag}} qf {“{query}”, in {folder}} qt {“{query}”, tagged #{tag}} ft {in {folder}, tagged #{tag}} qft {“{query}”, in {folder}, tagged #{tag}} other {}} · <clear>Clear</clear>",
     "filtersLabel": "Folders and tags",
     "empty": {
-      "inbox": "Nothing saved yet. Paste a link above, or save from the {chrome} extension or the {safari} Shortcut.",
+      "inbox": "Nothing saved yet. Paste a link above, or save from the <chromeGuide>{chrome} extension</chromeGuide>, the <safariGuide>{safari} Shortcut</safariGuide> or <androidGuide>{android}</androidGuide>. New here? See <start>Getting started</start>.",
       "favorites": "No favorites yet. Tap {favorite} on an article to keep it here.",
       "archive": "Nothing archived yet.",
       "noMatch": "No articles match."

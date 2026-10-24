@@ -24,6 +24,9 @@ export function notAllowedError(): APIError {
   });
 }
 
+/** How long a sign-in lasts after it was last used (the privacy policy says so). */
+export const SESSION_DAYS = 60;
+
 function createAuth() {
   const db = getDb();
   return betterAuth({
@@ -43,7 +46,7 @@ function createAuth() {
       },
     },
     session: {
-      expiresIn: 60 * 60 * 24 * 60, // 60 days
+      expiresIn: 60 * 60 * 24 * SESSION_DAYS,
       updateAge: 60 * 60 * 24, // refresh the expiry at most daily
     },
     onAPIError: { errorURL: "/sign-in" },

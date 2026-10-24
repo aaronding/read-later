@@ -1,0 +1,59 @@
+{
+  "Privacy": {
+    "title": "Politique de confidentialité",
+    "effective": "En vigueur depuis {date}",
+    "glance": {
+      "heading": "En bref",
+      "kept": "{app} conserve le nom et l’adresse e-mail de votre compte Google, et ce que vous enregistrez.",
+      "ai": "<strong>Pour résumer un article, {app} envoie son texte, son titre et son adresse à un service d’IA</strong>, avec les noms de {tags, number} de vos tags au plus. Jamais votre nom ni votre e-mail.",
+      "tracking": "Ni publicité, ni statistiques d’audience, ni pistage. Rien n’est vendu, et ce que vous enregistrez n’est jamais montré à personne d’autre.",
+      "choices": "Exportez tout à tout moment, et demandez la suppression de votre compte depuis la page <link>À propos</link>."
+    },
+    "kept": {
+      "heading": "Ce que {app} conserve",
+      "account": "<strong>Votre compte Google :</strong> votre nom, votre adresse e-mail, l’adresse de votre photo de profil et les jetons de connexion que Google renvoie. Rien d’autre de Google.",
+      "sessions": "<strong>Connexions :</strong> l’adresse IP et le navigateur de chaque session connectée.",
+      "saved": "<strong>Ce que vous enregistrez :</strong> l’adresse de chaque page, la page telle qu’elle a été enregistrée, sa copie épurée, ses résumés et ses traductions.",
+      "library": "<strong>Votre bibliothèque :</strong> paramètres, dossiers, tags, et quels articles sont lus, en favori ou archivés.",
+      "tokens": "<strong>Jetons d’accès :</strong> un nom et une empreinte ; le jeton lui-même n’est affiché qu’une fois et n’est jamais conservé.",
+      "usage": "<strong>Utilisation de l’IA :</strong> le modèle, les tokens, le coût estimé et la durée de chaque réponse de l’IA.",
+      "feedback": "<strong>Les messages</strong> que vous envoyez depuis la page À propos."
+    },
+    "cookies": {
+      "heading": "Cookies",
+      "intro": "Uniquement les cookies nécessaires à l’application, aucun pour le pistage :",
+      "session": {
+        "purpose": "Vous garde connecté",
+        "duration": "{days, number} jours"
+      },
+      "state": {
+        "purpose": "Connexion avec Google",
+        "duration": "Quelques minutes"
+      },
+      "locale": {
+        "purpose": "Votre langue, si vous en choisissez une",
+        "duration": "1 an"
+      },
+      "theme": {
+        "purpose": "Votre thème, si vous en choisissez un sans être connecté",
+        "duration": "1 an"
+      }
+    },
+    "retention": {
+      "heading": "Combien de temps c’est conservé",
+      "library": "Votre bibliothèque reste jusqu’à ce que vous la supprimiez, ou votre compte.",
+      "usage": "Les relevés d’utilisation de l’IA restent après la suppression d’un article, jusqu’à celle de votre compte.",
+      "submitted": "Une page envoyée par l’extension ou le raccourci est supprimée dès que sa copie épurée est faite ; si cela échoue, elle reste avec l’article.",
+      "short": "Tâches de fond terminées : {jobs, number} jours. Sauvegardes nocturnes : {backups, number} jours."
+    },
+    "choices": {
+      "heading": "Vos choix",
+      "export": "<strong>Exportez</strong> tout en JSON ou en Markdown dans les <link>Paramètres</link>.",
+      "delete": "<strong>Supprimez</strong> vous-même n’importe quel article ou jeton d’accès. Pour supprimer votre compte, envoyez une demande depuis la page <link>À propos</link> ; vos données quittent ensuite les sauvegardes sous {days, number} jours."
+    },
+    "changes": {
+      "heading": "Modifications",
+      "text": "Cette page change avec la politique, et la date ci-dessus indique quand."
+    }
+  }
+}

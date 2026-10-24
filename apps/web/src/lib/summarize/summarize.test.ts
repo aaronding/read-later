@@ -14,9 +14,9 @@ describe("describeApiError", () => {
     const error = Anthropic.APIError.generate(400, body("invalid_request_error", "max_tokens: too large"), undefined, headers);
     expect(describeApiError(error)).toEqual({
       key: "summary.apiErrorStatusWithDetail",
-      values: { claude: "Claude", status: "400", detail: "max_tokens: too large" },
+      values: { status: "400", detail: "max_tokens: too large" },
     });
-    expect(await inEnglish(error)).toBe("Claude API error 400: max_tokens: too large");
+    expect(await inEnglish(error)).toBe("AI service error 400: max_tokens: too large");
   });
 
   it("says what to do about a refused key", async () => {
@@ -25,18 +25,18 @@ describe("describeApiError", () => {
       key: "summary.apiKeyRejectedWithDetail",
       values: { detail: "invalid x-api-key", variable: "ANTHROPIC_API_KEY" },
     });
-    expect(await inEnglish(error)).toMatch(/^The Claude API didn’t accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
+    expect(await inEnglish(error)).toMatch(/^The AI service didn’t accept the API key \(invalid x-api-key\)\. Check ANTHROPIC_API_KEY/);
   });
 
   it("leaves out a body that isn't the API's JSON, such as a proxy's HTML page", async () => {
     const error = Anthropic.APIError.generate(502, undefined, "<html><body>Bad gateway</body></html>", headers);
-    expect(await inEnglish(error)).toBe("Claude API error 502.");
+    expect(await inEnglish(error)).toBe("AI service error 502.");
   });
 
   it("describes connection failures and errors in the middle of a stream", async () => {
-    expect(await inEnglish(new Anthropic.APIConnectionError({ message: "socket hang up" }))).toBe("Claude API error: socket hang up");
+    expect(await inEnglish(new Anthropic.APIConnectionError({ message: "socket hang up" }))).toBe("AI service error: socket hang up");
     const midStream = new Anthropic.APIError(undefined, body("overloaded_error", "Overloaded"), undefined, headers, "overloaded_error");
-    expect(await inEnglish(midStream)).toBe("Claude API error: Overloaded");
+    expect(await inEnglish(midStream)).toBe("AI service error: Overloaded");
   });
 
   it("keeps a long message short", async () => {

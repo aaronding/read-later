@@ -210,19 +210,25 @@ label.checkbox input {
 .logo {
   display: inline-flex;
 }
-/* The dark logo wherever the dark colors apply, by the same rule as appearanceCss(). */
+/* The dark logo, and the homepage's dark screenshots, wherever the dark
+   colors apply, by the same rule as appearanceCss(). */
 .logo-dark,
-:root[data-theme="dark"] .logo-light {
+.theme-dark-only,
+:root[data-theme="dark"] .logo-light,
+:root[data-theme="dark"] .theme-light-only {
   display: none;
 }
-:root[data-theme="dark"] .logo-dark {
+:root[data-theme="dark"] .logo-dark,
+:root[data-theme="dark"] .theme-dark-only {
   display: block;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .logo-light {
+  :root:not([data-theme="light"]) .logo-light,
+  :root:not([data-theme="light"]) .theme-light-only {
     display: none;
   }
-  :root:not([data-theme="light"]) .logo-dark {
+  :root:not([data-theme="light"]) .logo-dark,
+  :root:not([data-theme="light"]) .theme-dark-only {
     display: block;
   }
 }
@@ -1348,4 +1354,401 @@ details summary {
 .usage-table tfoot td {
   font-weight: 600;
   border-bottom: none;
+}
+
+/* ---------- The site: homepage, About, Privacy, Help, sign-in ---------- */
+
+/* The header for visitors who aren't signed in. */
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* The language and theme, for visitors: a globe beside the language, and
+   three icon buttons for System, Light and Dark. */
+.visitor-preferences {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.language-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+.language-picker svg {
+  color: var(--muted);
+  flex: none;
+}
+.language-picker:hover {
+  background: var(--surface-2);
+}
+.language-picker:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* Invisible but clickable over the whole control; the browser draws its list. */
+.language-picker select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.theme-picker {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+}
+.theme-picker button {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--muted);
+}
+.theme-picker button:hover {
+  color: var(--text);
+}
+/* The chosen theme in the accent, as the primary button is, so it stands out in dark too. */
+.theme-picker button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+}
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+.site-footer a {
+  color: var(--muted);
+}
+/* About, Privacy and Help: one readable column. */
+.info {
+  max-width: 42rem;
+  padding-top: 28px;
+}
+.info h1 {
+  font-size: 1.75rem;
+  margin: 0 0 4px;
+}
+.info h2 {
+  font-size: 1.1rem;
+  margin: 28px 0 8px;
+}
+.info .lede {
+  font-size: 1.1rem;
+  margin: 12px 0;
+}
+.info ul li,
+.info ol li {
+  margin: 6px 0;
+}
+.glance {
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-top: 20px;
+}
+.glance h2 {
+  margin: 0 0 4px;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.glance ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.table-scroll {
+  overflow-x: auto;
+}
+.plain-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+.plain-table td {
+  padding: 8px 12px 8px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.plain-table code {
+  overflow-wrap: anywhere;
+}
+.plain-table td:last-child {
+  white-space: nowrap;
+  padding-right: 0;
+}
+.admin-only {
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-top: 32px;
+}
+.admin-only h2 {
+  font-size: 0.95rem;
+  margin: 0 0 6px;
+}
+.admin-only h2 span {
+  font-weight: 400;
+}
+.details-list {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 16px;
+  margin: 0;
+  font-size: 0.93rem;
+}
+.details-list dt {
+  color: var(--muted);
+}
+.details-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.feedback-form {
+  display: grid;
+  gap: 10px;
+}
+.feedback-form .notice,
+.feedback-form .status {
+  margin: 0;
+}
+textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6em 0.8em;
+  width: 100%;
+  resize: vertical;
+}
+.feedback-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.feedback-item {
+  padding: 14px 18px;
+  margin-bottom: 12px;
+}
+.feedback-item .meta {
+  margin-top: 0;
+}
+
+/* The homepage. */
+.hero {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 40px;
+  align-items: center;
+  padding: 48px 0 40px;
+}
+.hero h1 {
+  font-family: var(--font-brand);
+  font-size: 2.5rem;
+  line-height: 1.12;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+.hero-lead {
+  font-size: 1.12rem;
+  color: var(--muted);
+  margin: 0 0 22px;
+}
+.hero .button {
+  min-height: 44px;
+  padding-inline: 1.4em;
+}
+/* The Inbox screenshot, with the phone overlapping its lower corner. */
+.hero-shots {
+  position: relative;
+  padding: 0 28px 48px 0;
+}
+.hero-shots img {
+  display: block;
+  height: auto;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.12);
+}
+.hero-shot-desktop {
+  width: 100%;
+  border-radius: 10px;
+}
+.hero-shot-phone {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 32%;
+  border-radius: 18px;
+  outline: 5px solid var(--text);
+  outline-offset: -1px;
+}
+.band {
+  padding: 32px 0;
+  border-top: 1px solid var(--border);
+}
+.band h2 {
+  font-size: 1.3rem;
+  margin: 0 0 16px;
+}
+.tiles {
+  display: grid;
+  gap: 14px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.tiles-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.tiles-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+.tile {
+  padding: 16px 18px;
+}
+.tile h3 {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+.tile p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+.tile a {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.9rem;
+}
+.tile-number {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+/* Help: the topics beside the page, or above it on phones. */
+.help {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 32px;
+}
+.help-menu {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+  padding-top: 28px;
+  font-size: 0.93rem;
+}
+.help-menu a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.help-menu a:hover {
+  color: var(--text);
+}
+.help-menu a[aria-current="page"] {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 600;
+}
+.help-steps > li {
+  margin: 12px 0;
+}
+.help-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 32px;
+  font-size: 0.93rem;
+}
+
+.sign-in-page {
+  display: grid;
+  place-items: center;
+  padding: 48px 0 24px;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 28px 0 28px;
+    gap: 24px;
+  }
+  .hero h1 {
+    font-size: 1.95rem;
+  }
+  .tiles-3 {
+    grid-template-columns: 1fr;
+  }
+  .tiles-4 {
+    grid-template-columns: 1fr 1fr;
+  }
+  .help {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  /* Room for the language and theme: the logo alone names the site. */
+  .site-header .brand-name {
+    display: none;
+  }
+  .help-menu {
+    position: static;
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    padding: 12px 0 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .info {
+    padding-top: 20px;
+  }
+  .info h1 {
+    font-size: 1.5rem;
+  }
 }

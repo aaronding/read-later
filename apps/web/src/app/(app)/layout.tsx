@@ -1,35 +1,13 @@
-import Link from "next/link";
-import { APP_NAME } from "@/config/app";
 import { AllowanceNotice } from "@/components/allowance-notice";
-import { AppearanceMenu } from "@/components/appearance-menu";
-import { Logo } from "@/components/logo";
-import { NavTabs } from "@/components/nav-tabs";
-import { SearchForm } from "@/components/search-form";
-import { isAdmin, requireUser } from "@/lib/auth";
-import { getSavedAppearance } from "@/lib/saved-appearance";
+import { AppShell } from "@/components/app-shell";
+import { requireUser } from "@/lib/auth";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
-  const appearance = await getSavedAppearance();
   return (
-    <div className="shell">
-      <header className="topbar">
-        <div className="topbar-row">
-          <Link href="/inbox" className="brand">
-            <Logo size={28} />
-            {APP_NAME}
-          </Link>
-          <div className="search">
-            <SearchForm />
-          </div>
-          <AppearanceMenu saved={appearance} />
-        </div>
-        <NavTabs admin={isAdmin(user)} />
-      </header>
-      <main>
-        <AllowanceNotice userId={user.id} />
-        {children}
-      </main>
-    </div>
+    <AppShell user={user}>
+      <AllowanceNotice userId={user.id} />
+      {children}
+    </AppShell>
   );
 }

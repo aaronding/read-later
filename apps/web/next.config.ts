@@ -1,5 +1,6 @@
 import { readdirSync } from "node:fs";
 import type { NextConfig } from "next";
+import { PHASE_PRODUCTION_BUILD } from "next/constants";
 import createNextIntlPlugin from "next-intl/plugin";
 import { loadRootEnv } from "./src/config/root-env";
 
@@ -35,4 +36,11 @@ const withNextIntl = createNextIntlPlugin({
   },
 });
 
-export default withNextIntl(nextConfig);
+// When this build was made, for the About page (src/lib/deployment.ts). Only
+// `next build` records it; `next dev` leaves it out.
+export default function config(phase: string): NextConfig {
+  return withNextIntl({
+    ...nextConfig,
+    env: phase === PHASE_PRODUCTION_BUILD ? { APP_BUILT_AT: new Date().toISOString() } : {},
+  });
+}

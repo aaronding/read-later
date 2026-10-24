@@ -2,7 +2,7 @@
   "Admin": {
     "usage": {
       "title": "AI usage",
-      "intro": "What Claude did for each user and what it cost, from every answer it gave, usable or not. Weeks start on Monday, and every period is in UTC.",
+      "intro": "What AI did for each user and what it cost, from every answer, usable or not. Weeks start on Monday, and every period is in UTC.",
       "periodsLabel": "Period",
       "period": "{period, select, week {By week} month {By month} year {By year} other {{period}}}",
       "range": "{period, select, week {The last 12 weeks.} month {The last 12 months.} year {Every year.} other {}}",
@@ -15,9 +15,15 @@
       "time": "Time",
       "total": "Total",
       "unpriced": "{count, plural, one {# answer} other {# answers}} without a known price",
-      "empty": "{period, select, week {No answers from Claude in the last 12 weeks.} month {No answers from Claude in the last 12 months.} other {No answers from Claude yet.}}",
+      "empty": "{period, select, week {No AI answers in the last 12 weeks.} month {No AI answers in the last 12 months.} other {No AI answers yet.}}",
       "ofLimit": "{share, number, percent} of the monthly limit",
       "noLimit": "No monthly limit"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "intro": "What users sent from the About page, newest first. Reply to them by email.",
+      "empty": "No feedback yet.",
+      "from": "From {name} <email></email>"
     }
   }
 }

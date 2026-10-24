@@ -14,8 +14,11 @@ const TABS = [
   { href: "/settings", label: "settings" },
 ] as const;
 
-/** Only admins (ADMIN_EMAILS) see the AI usage report. */
-const ADMIN_TABS = [{ href: "/admin/usage", label: "usage" }] as const;
+/** Only admins (ADMIN_EMAILS) see the AI usage report and the feedback. */
+const ADMIN_TABS = [
+  { href: "/admin/usage", label: "usage" },
+  { href: "/admin/feedback", label: "feedback" },
+] as const;
 
 export function NavTabs({ admin = false }: { admin?: boolean }) {
   const pathname = usePathname();

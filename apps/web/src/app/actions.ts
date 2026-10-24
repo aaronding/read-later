@@ -7,7 +7,8 @@ import { getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/config/app";
 import { isSummaryModel } from "@/config/models";
 import { getDb } from "@/db";
-import { LOCALE_COOKIE, isLocale } from "@/i18n/locales";
+import { LOCALE_COOKIE, isLocale, type AppLocale } from "@/i18n/locales";
+import { PREFERENCE_COOKIE, THEME_COOKIE, isThemeMode } from "@/lib/visitor-preferences";
 import { isAdmin, requireAdmin, requireUser } from "@/lib/auth";
 import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
@@ -26,6 +27,7 @@ import { toAppearance, type Appearance } from "@/lib/appearance";
 import { SaveError, saveArticle, saveNotice } from "@/lib/save";
 import { saveAppearance, updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
+import { MAX_FEEDBACK_LENGTH, MAX_FEEDBACK_PER_DAY, sendFeedback } from "@/lib/feedback";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
 import { deleteTranslation, requestTranslation } from "@/lib/translations";
@@ -211,18 +213,30 @@ export async function updateLocaleAction(formData: FormData) {
   const locale = isLocale(value) ? value : null;
   if (!locale && value !== "auto") throw new Error("Unknown language.");
   await updateSettings(getDb(), user.id, { locale });
-  const jar = await cookies();
-  if (!locale) jar.delete(LOCALE_COOKIE);
-  else {
-    jar.set(LOCALE_COOKIE, locale, {
-      path: "/",
-      maxAge: 365 * 24 * 3600,
-      sameSite: "lax",
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-    });
-  }
+  await rememberLocale(locale);
   refresh();
+}
+
+async function rememberLocale(locale: AppLocale | null) {
+  const jar = await cookies();
+  if (locale) jar.set(LOCALE_COOKIE, locale, PREFERENCE_COOKIE);
+  else jar.delete(LOCALE_COOKIE);
+}
+
+/**
+ * The language picker at the top of the site, for visitors who aren't signed
+ * in. Until they choose, the language is the browser's, or English.
+ */
+export async function setVisitorLocaleAction(value: string) {
+  if (!isLocale(value)) throw new Error("Unknown language.");
+  await rememberLocale(value);
+  refresh();
+}
+
+/** The theme picker at the top of the site, for visitors who aren't signed in. The page has already applied it. */
+export async function setVisitorThemeAction(theme: string) {
+  if (!isThemeMode(theme)) throw new Error("Unknown theme.");
+  (await cookies()).set(THEME_COOKIE, theme, PREFERENCE_COOKIE);
 }
 
 export interface CreateTokenState {
@@ -250,6 +264,24 @@ export async function revokeTokenAction(formData: FormData) {
   if (!UUID.test(id)) throw new Error("Invalid token id.");
   await revokeApiToken(getDb(), user.id, id);
   refresh();
+}
+
+export interface FeedbackState {
+  sent?: boolean;
+  error?: string;
+  // What was written, given back with an error: React empties the form after every action.
+  message?: string;
+}
+
+export async function sendFeedbackAction(_previous: FeedbackState, formData: FormData): Promise<FeedbackState> {
+  const user = await requireUser("/about");
+  const message = String(formData.get("message") ?? "");
+  const result = await sendFeedback(getDb(), user.id, message);
+  if (result.ok) return { sent: true };
+  const t = await getTranslations("About.feedback.errors");
+  if (result.reason === "tooLong") return { error: t("tooLong", { max: MAX_FEEDBACK_LENGTH }), message };
+  if (result.reason === "tooMany") return { error: t("tooMany", { count: MAX_FEEDBACK_PER_DAY }), message };
+  return { error: t("empty"), message };
 }
 
 export async function addTagAction(formData: FormData) {

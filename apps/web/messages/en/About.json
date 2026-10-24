@@ -1,0 +1,28 @@
+{
+  "About": {
+    "title": "About {app}",
+    "intro": "A read-later app in the spirit of Pocket. Save an article, and {app} keeps its link, a clean copy and a short summary written by AI, so you can tell in a moment whether to read it now, later or not at all.",
+    "feedback": {
+      "heading": "Contact",
+      "label": "Your message",
+      "placeholder": "Questions, ideas, problems, or a request to delete your account. Your message is sent with your account’s name and email.",
+      "signedOut": "<link>Sign in</link> to send a message.",
+      "send": "Send",
+      "sending": "Sending…",
+      "sent": "Thank you. Your message was sent.",
+      "errors": {
+        "empty": "Write a message first.",
+        "tooLong": "That message is too long. Please keep it under {max, number} characters.",
+        "tooMany": "You’ve sent {count, plural, one {# message} other {# messages}} today. Please try again tomorrow."
+      }
+    },
+    "deployment": {
+      "heading": "Deployed version",
+      "note": "admins only",
+      "version": "Version",
+      "commit": "Commit",
+      "environment": "Environment",
+      "builtAt": "Built"
+    }
+  }
+}

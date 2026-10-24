@@ -9,7 +9,7 @@
       "defaultModel": "Modèle par défaut",
       "comparisonMode": "<strong>Mode comparaison :</strong> résumer chaque nouvel article enregistré avec les {count, number} modèles, pour les comparer sur la page de comparaison de chaque article. Le coût est environ {count, number} fois plus élevé.",
       "allowance": "Ce mois-ci, vous avez utilisé {share, number, percent} de votre allocation IA pour les résumés et les traductions. Elle se renouvelle le {date}.",
-      "allowanceModels": "Claude Haiku en utilise moins par résumé, et Claude Opus davantage."
+      "allowanceModels": "Haiku en utilise moins par résumé, et Opus davantage."
     },
     "tokens": {
       "heading": "Jetons d’accès",
@@ -27,12 +27,6 @@
     },
     "copy": "Copier",
     "copied": "Copié",
-    "guides": {
-      "chromeHeading": "Enregistrer depuis {chrome}",
-      "shortcutHeading": "Enregistrer depuis {safari} ({iphone}, {ipad} et {mac})",
-      "shortcutSummary": "Instructions pas à pas pour les raccourcis {apple}",
-      "androidHeading": "Enregistrer depuis {android}"
-    },
     "folders": {
       "heading": "Dossiers",
       "empty": "Aucun dossier pour l’instant. Choisissez ou créez un dossier en bas d’un article.",
@@ -48,6 +42,13 @@
       "heading": "Compte",
       "signedInAs": "Compte connecté : <strong>{email}</strong>"
     },
-    "appearanceIntro": "Couleurs et police pour la lecture. « {system} » suit le mode clair ou sombre de votre appareil. Votre choix est enregistré dans votre compte : tous les appareils sur lesquels vous vous connectez l’utilisent, et le bouton <strong>Aa</strong> en haut de chaque page permet de le modifier pendant la lecture."
+    "appearanceIntro": "Couleurs et police pour la lecture. « {system} » suit le mode clair ou sombre de votre appareil. Votre choix est enregistré dans votre compte : tous les appareils sur lesquels vous vous connectez l’utilisent, et le bouton <strong>Aa</strong> en haut de chaque page permet de le modifier pendant la lecture.",
+    "devices": {
+      "heading": "Enregistrer depuis vos appareils",
+      "intro": "Quelques minutes chacun, avec le jeton d’accès ci-dessus.",
+      "chrome": "Extension {chrome}",
+      "safari": "Raccourci {safari} ({iphone}, {ipad} et {mac})",
+      "android": "{android}"
+    }
   }
 }

@@ -1,0 +1,45 @@
+{
+  "Home": {
+    "headline": "L’essentiel tout de suite. L’article entier quand il en vaut la peine.",
+    "lead": "Enregistrez des articles pendant que vous naviguez. Chacun reçoit une copie épurée et un court résumé écrit par l’IA, dans la langue de l’article.",
+    "how": {
+      "heading": "Comment ça marche",
+      "save": {
+        "title": "Enregistrer",
+        "text": "Un clic dans votre navigateur, ou Partager sur votre téléphone."
+      },
+      "gist": {
+        "title": "L’essentiel",
+        "text": "Un TL;DR d’une phrase et les points clés, en une demi-minute environ."
+      },
+      "read": {
+        "title": "Lire, ou pas",
+        "text": "Lisez la copie épurée, gardez-la pour plus tard, ou archivez-la."
+      }
+    },
+    "ways": {
+      "heading": "Enregistrez depuis partout",
+      "setUp": "Configurer →",
+      "chrome": {
+        "title": "{chrome}",
+        "text": "Un bouton dans la barre d’outils, ou Alt+Maj+S."
+      },
+      "safari": {
+        "title": "{safari}",
+        "text": "Un raccourci sur {iphone}, {ipad} et {mac}."
+      },
+      "android": {
+        "title": "{android}",
+        "text": "Installez l’application, puis touchez Partager."
+      },
+      "paste": {
+        "title": "Partout",
+        "text": "Collez un lien dans la boîte de réception."
+      }
+    },
+    "shots": {
+      "inbox": "La boîte de réception, avec un résumé d’une phrase sous chaque article",
+      "reader": "Un article sur un téléphone, son résumé en premier"
+    }
+  }
+}

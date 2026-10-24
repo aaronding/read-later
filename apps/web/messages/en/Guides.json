@@ -3,7 +3,7 @@
     "chrome": {
       "build": "On your computer, in the project folder, run <kbd>pnpm extension:build</kbd>. It creates <code>apps/extension/dist</code>.",
       "load": "In {chrome}, open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click <strong>Load unpacked</strong> and choose the <code>apps/extension/dist</code> folder.",
-      "connect": "Open the extension’s <strong>Options</strong>. Enter the server URL <code>{url}</code> and an access token from above.",
+      "connect": "Open the extension’s <strong>Options</strong>. Enter the server URL <code>{url}</code> and an access token from <tokens>Settings</tokens>.",
       "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t."
     },
     "shortcut": {
@@ -12,7 +12,7 @@
         "heading": "Before you start",
         "scriptsOnIos": "<strong>{iphone} and {ipad}:</strong> Settings → Apps → Shortcuts → Advanced → turn on <strong>Allow Running Scripts</strong> (on {ios} 17 and earlier: Settings → Shortcuts → Advanced).",
         "scriptsOnMac": "<strong>{mac}:</strong> in the Shortcuts app, Shortcuts → Settings → Advanced → turn on <strong>Allow Running Scripts</strong>. If {safari} still refuses to run the script, open {safari} → Settings → Advanced → turn on <strong>Show features for web developers</strong>, then in {safari}’s new <strong>Developer</strong> settings tab turn on <strong>Allow JavaScript from Apple Events</strong>, and restart {safari}.",
-        "token": "Create an access token above for this device and keep it at hand."
+        "token": "Create an access token for this device in <tokens>Settings</tokens> and keep it at hand."
       },
       "page": {
         "name": "Save to {app}",

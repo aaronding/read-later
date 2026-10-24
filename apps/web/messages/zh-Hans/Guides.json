@@ -3,7 +3,7 @@
     "chrome": {
       "build": "在电脑上的项目文件夹中运行 <kbd>pnpm extension:build</kbd>。这会生成 <code>apps/extension/dist</code>。",
       "load": "在 {chrome} 中打开 <code>chrome://extensions</code>，开启“<strong>开发者模式</strong>”，点击“<strong>加载已解压的扩展程序</strong>”，然后选择 <code>apps/extension/dist</code> 文件夹。",
-      "connect": "打开该扩展程序的“<strong>选项</strong>”，输入服务器网址 <code>{url}</code> 和在上方创建的访问令牌。",
+      "connect": "打开该扩展程序的“<strong>选项</strong>”，输入服务器网址 <code>{url}</code> 和在<tokens>设置</tokens>中创建的访问令牌。",
       "use": "使用工具栏按钮或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>（在 {mac} 上为 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>）保存网页。右键点击链接并选择“<strong>将链接保存到 {app}</strong>”，即可只保存链接。徽章显示 ✓ 表示保存成功，显示 ! 表示保存失败。"
     },
     "shortcut": {
@@ -12,7 +12,7 @@
         "heading": "开始之前",
         "scriptsOnIos": "<strong>{iphone} 和 {ipad}：</strong>前往“设置”→“App”→“快捷指令”→“高级”，然后开启“<strong>允许运行脚本</strong>”（在 {ios} 17 及更早版本中：“设置”→“快捷指令”→“高级”）。",
         "scriptsOnMac": "<strong>{mac}：</strong>在“快捷指令” App 中，选取“快捷指令”→“设置”→“高级”，然后开启“<strong>允许运行脚本</strong>”。如果 {safari} 浏览器仍然拒绝运行脚本，请选取“{safari} 浏览器”→“设置”→“高级”，开启“<strong>显示网页开发者功能</strong>”，然后在 {safari} 浏览器设置中新出现的“<strong>开发者</strong>”面板里开启“<strong>允许来自 Apple 事件的 JavaScript</strong>”，再重新启动 {safari} 浏览器。",
-        "token": "在上方为此设备创建一个访问令牌，并放在手边备用。"
+        "token": "在<tokens>设置</tokens>中为此设备创建一个访问令牌，并放在手边备用。"
       },
       "page": {
         "name": "保存到 {app}",

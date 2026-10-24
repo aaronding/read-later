@@ -1,0 +1,59 @@
+{
+  "Privacy": {
+    "title": "隱私權政策",
+    "effective": "自 {date} 起生效",
+    "glance": {
+      "heading": "重點摘要",
+      "kept": "{app} 會保存你的 Google 名稱和電子郵件地址，以及你儲存的內容。",
+      "ai": "<strong>為了替文章撰寫摘要，{app} 會把文章的內文、標題和網址傳送給 AI 服務</strong>，連同你最多 {tags, number} 個標籤的名稱。絕不傳送你的名稱或電子郵件地址。",
+      "tracking": "沒有廣告、流量分析或追蹤。不出售任何資料，你儲存的內容也絕不會顯示給他人。",
+      "choices": "你可以隨時匯出所有內容，並可在<link>關於</link>頁面要求刪除帳戶。"
+    },
+    "kept": {
+      "heading": "{app} 保存的資料",
+      "account": "<strong>你的 Google 帳戶：</strong>名稱、電子郵件地址、大頭貼的網址，以及 Google 傳回的登入權杖。不會從 Google 取得其他資料。",
+      "sessions": "<strong>登入紀錄：</strong>每個登入工作階段的 IP 位址和瀏覽器。",
+      "saved": "<strong>你儲存的內容：</strong>每個網頁的網址、儲存時的網頁、簡潔的閱讀版本，以及它的摘要和翻譯。",
+      "library": "<strong>你的資料庫：</strong>設定、資料夾、標籤，以及哪些文章已讀、已加入我的最愛或已封存。",
+      "tokens": "<strong>存取權杖：</strong>名稱和雜湊值；權杖本身只顯示一次，從不保存。",
+      "usage": "<strong>AI 用量：</strong>AI 每次回答使用的模型、token 數、估計費用和耗時。",
+      "feedback": "你從「關於」頁面傳送的<strong>留言</strong>。"
+    },
+    "cookies": {
+      "heading": "Cookie",
+      "intro": "只使用 App 必要的 Cookie，不用於追蹤：",
+      "session": {
+        "purpose": "保持登入",
+        "duration": "{days, number} 天"
+      },
+      "state": {
+        "purpose": "Google 登入",
+        "duration": "幾分鐘"
+      },
+      "locale": {
+        "purpose": "你選擇的語言",
+        "duration": "1 年"
+      },
+      "theme": {
+        "purpose": "未登入時選擇的主題",
+        "duration": "1 年"
+      }
+    },
+    "retention": {
+      "heading": "保存多久",
+      "library": "你的資料庫會一直保留，直到你刪除它或刪除帳戶。",
+      "usage": "刪除文章後，AI 用量紀錄仍會保留，直到帳戶被刪除。",
+      "submitted": "擴充功能或捷徑傳送的網頁，在產生簡潔版本後即被刪除；如果產生失敗，它會隨文章一起保留。",
+      "short": "已完成的背景工作：{jobs, number} 天。每日備份：{backups, number} 天。"
+    },
+    "choices": {
+      "heading": "你的選擇",
+      "export": "在<link>設定</link>中把所有內容<strong>匯出</strong>為 JSON 或 Markdown。",
+      "delete": "你可以自行<strong>刪除</strong>任何文章或存取權杖。如需刪除帳戶，請在<link>關於</link>頁面傳送要求；之後你的資料會在 {days, number} 天內從備份中刪除。"
+    },
+    "changes": {
+      "heading": "變更",
+      "text": "政策變更時本頁會隨之更新，上方的日期會註明變更時間。"
+    }
+  }
+}

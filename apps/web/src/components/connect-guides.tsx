@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { APP_NAME } from "@/config/app";
 import { SHORTCUT_SCRIPT } from "@/lib/shortcut";
 import { CopyButton } from "./copy-button";
@@ -8,6 +9,7 @@ const markup = {
   strong: (chunks: React.ReactNode) => <strong>{chunks}</strong>,
   code: (chunks: React.ReactNode) => <code>{chunks}</code>,
   kbd: (chunks: React.ReactNode) => <kbd>{chunks}</kbd>,
+  tokens: (chunks: React.ReactNode) => <Link href="/settings#tokens-heading">{chunks}</Link>,
 };
 
 // Product names are the same in every language, so the messages take them as values.
@@ -50,7 +52,7 @@ export function ShortcutGuide({ saveUrl }: { saveUrl: string }) {
       <ul>
         <li>{t.rich("before.scriptsOnIos", values)}</li>
         <li>{t.rich("before.scriptsOnMac", values)}</li>
-        <li>{t("before.token")}</li>
+        <li>{t.rich("before.token", values)}</li>
       </ul>
 
       <h3>{t("page.heading", { ...products, name: pageName })}</h3>

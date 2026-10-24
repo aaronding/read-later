@@ -16,6 +16,7 @@ You can redo the redirect addresses at any time, so if you don't have your final
 3. **Audience:** choose **External**.
 4. **Contact information:** your email. Agree to the policy and click **Create**.
 5. Open **Audience** and, under **Test users**, click **Add users** and add your own Gmail address.
+6. Open **Branding** and, under **App domain**, set the application home page to `https://www.readsooner.com` and the privacy policy link to `https://www.readsooner.com/privacy`. Both pages can be read without signing in. Click **Save**.
 
 Leave the app in **Testing** while only the addresses in `ALLOWED_EMAILS` use it. The app only asks for your name, email address and profile picture. Google treats these as basic scopes: they need no review, and **Google doesn't limit them to your test users**, so any Google account could reach the consent screen. What keeps everyone else out is the app's own check, `ALLOWED_EMAILS`. Only the addresses listed there get an account.
 

@@ -77,6 +77,9 @@ function neutralizeTags(value: string): string {
   return value.replace(/<(\/?)(article_text|article_metadata|existing_tags)\b/gi, "‹$1$2");
 }
 
+/** How many of the user's tags a summary request names, for Claude to prefer. */
+export const SUMMARY_TAG_LIMIT = 200;
+
 export function buildUserMessage(
   article: PromptArticle,
   prepared: PreparedText,

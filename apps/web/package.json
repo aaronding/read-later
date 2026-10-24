@@ -16,7 +16,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "mock-claude": "tsx scripts/mock-claude.ts",
-    "icons": "tsx scripts/icons.ts"
+    "icons": "tsx scripts/icons.ts",
+    "home-images": "tsx scripts/home-images.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.133.0",
@@ -47,6 +48,7 @@
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "drizzle-kit": "0.31.11",
+    "playwright-core": "1.63.0",
     "sharp": "0.35.5",
     "typescript": "5.9.3",
     "vitest": "5.0.4"
