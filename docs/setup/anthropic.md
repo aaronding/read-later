@@ -35,6 +35,18 @@ The default for new saves is Claude Sonnet 5.5, for everyone who hasn't chosen a
 
 As an admin you can always re-run one article with another model with **Re-summarize** under its summary. Everyone else gets summaries from their default model only.
 
+## 4. Each user's monthly limit
+
+Every user but the admins may spend up to **$1 a month** on summaries and translations, about 50 to 100 summaries with Sonnet. The month is the calendar month in UTC.
+
+- Users never see dollars. Settings shows the share they have used and when it renews, and from 80% every page says how close they are, as do the replies the extension and Shortcuts show after saving.
+- Once it is used up, saving and reading still work, but new articles aren't summarized and nothing can be translated. Each such article says so and offers **Retry**, which summarizes it once the new month starts.
+- Change the limit for everyone with `AI_MONTHLY_LIMIT_USD` (a number, or `none`), and for particular people with `AI_MONTHLY_LIMIT_EXCEPTIONS`, for example `friend@example.com=5, family@example.com=none`. Redeploy after changing either in Vercel.
+- **Usage**, by month, shows each user's share of their limit under their cost.
+- To stop someone using the app at all, put them in `BLOCKED_EMAILS` instead. A limit of `0` keeps their account working without any summaries.
+
+Keep a monthly spend limit in the Claude Console too: it caps everything, admins included, if something goes wrong.
+
 ## Good to know
 
 - Summaries are written in the article's own language, whatever the language of the app.

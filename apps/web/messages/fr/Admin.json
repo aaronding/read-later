@@ -15,7 +15,9 @@
       "time": "Durée",
       "total": "Total",
       "unpriced": "{count, plural, one {# réponse} other {# réponses}} sans prix connu",
-      "empty": "{period, select, week {Aucune réponse de Claude ces 12 dernières semaines.} month {Aucune réponse de Claude ces 12 derniers mois.} other {Aucune réponse de Claude pour l’instant.}}"
+      "empty": "{period, select, week {Aucune réponse de Claude ces 12 dernières semaines.} month {Aucune réponse de Claude ces 12 derniers mois.} other {Aucune réponse de Claude pour l’instant.}}",
+      "ofLimit": "{share, number, percent} de la limite mensuelle",
+      "noLimit": "Pas de limite mensuelle"
     }
   }
 }

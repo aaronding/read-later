@@ -17,6 +17,7 @@ import { SummaryError, summarizeArticle } from "@/lib/summarize/summarize";
 import { trustedCanonicalUrl, normalizeUrl } from "@/lib/urls";
 import { retranslate } from "@/lib/translations";
 import { recordUsage } from "@/lib/usage";
+import { getAllowance } from "@/lib/allowance";
 import { rememberUrls } from "@/lib/save";
 import { JobError, type JobFailure } from "./errors";
 import { enqueueJob, hasQueuedJob } from "./queue";
@@ -289,6 +290,8 @@ export async function summarize(db: Db, job: Job): Promise<void> {
   const article = await loadArticle(db, job);
   if (!article) return;
   if (!article.textContent) throw new JobError(errorMessage("summary.noText"), false);
+  // Used up: the summary waits for Retry next month. Answers already under way finish.
+  if ((await getAllowance(db, job.userId)).reached) throw new JobError(errorMessage("summary.monthlyLimit"), false);
 
   const summaryWhere = and(eq(summaries.articleId, article.id), eq(summaries.model, model), eq(summaries.userId, job.userId));
   const [running] = await db

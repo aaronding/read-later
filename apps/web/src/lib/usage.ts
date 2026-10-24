@@ -1,6 +1,7 @@
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import type { Db } from "@/db";
 import { aiUsage, users, type AiUsageKind } from "@/db/schema";
+import { HIGHEST_PRICE } from "@/config/models";
 import type { ClaudeUsage } from "@/lib/summarize/summarize";
 
 // What each answer from Claude used, whoever asked for it. The rows of
@@ -72,6 +73,14 @@ export async function translationRuns(db: Db, summaryId: string): Promise<number
   return row?.runs ?? 0;
 }
 
+/**
+ * What a row counts toward a user's monthly limit (lib/allowance.ts): its
+ * estimated cost, or, for a model without a known price, its tokens at the
+ * highest price. A run still waiting on Claude has no tokens yet, so it
+ * counts once it is answered.
+ */
+export const chargedUsd = sql<number>`coalesce(${aiUsage.costUsd}, (${aiUsage.inputTokens} * ${HIGHEST_PRICE.input} + ${aiUsage.outputTokens} * ${HIGHEST_PRICE.output}) / 1000000.0)`;
+
 export const USAGE_PERIODS = ["week", "month", "year"] as const;
 export type UsagePeriod = (typeof USAGE_PERIODS)[number];
 
@@ -104,6 +113,8 @@ export interface UsageReportRow {
   outputTokens: number;
   /** The estimated cost of the answers whose price is known. */
   costUsd: number;
+  /** What the answers count toward a monthly limit: unpriced ones at the highest price. */
+  chargedUsd: number;
   /** How many answers came from a model whose price isn't known, or are still under way. */
   unpricedAnswers: number;
   durationMs: number;
@@ -132,6 +143,7 @@ export async function usageReport(db: Db, period: UsagePeriod, now = new Date())
       inputTokens: sql<number>`sum(${aiUsage.inputTokens})`.mapWith(Number),
       outputTokens: sql<number>`sum(${aiUsage.outputTokens})`.mapWith(Number),
       costUsd: cost,
+      chargedUsd: sql<number>`coalesce(sum(${chargedUsd}), 0)`.mapWith(Number),
       unpricedAnswers: sql<number>`count(*) filter (where ${aiUsage.costUsd} is null)`.mapWith(Number),
       durationMs: sql<number>`sum(${aiUsage.durationMs})`.mapWith(Number),
     })

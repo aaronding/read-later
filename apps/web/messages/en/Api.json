@@ -6,6 +6,9 @@
     "alreadySaved": "Already in {app}, moved to the top",
     "alreadySavedRefetching": "Already in {app}, downloading it again",
     "badRequest": "Send JSON like {example}, optionally with {html} and {title}.",
-    "serverError": "Something went wrong while saving. Please try again."
+    "serverError": "Something went wrong while saving. Please try again.",
+    "allowanceNearing": "You’ve used {share, number, percent} of this month’s AI allowance.",
+    "allowanceReached": "This month’s AI allowance is used up, so it won’t be summarized until {date}.",
+    "savedWithAllowance": "{saved}. {note}"
   }
 }

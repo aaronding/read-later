@@ -6,6 +6,9 @@
     "alreadySaved": "Déjà dans {app}, remonté en haut de la liste",
     "alreadySavedRefetching": "Déjà dans {app}, nouveau téléchargement en cours",
     "badRequest": "Envoyez un objet JSON de la forme {example}, avec éventuellement {html} et {title}.",
-    "serverError": "Un problème est survenu lors de l’enregistrement. Réessayez."
+    "serverError": "Un problème est survenu lors de l’enregistrement. Réessayez.",
+    "allowanceNearing": "Vous avez utilisé {share, number, percent} de l’allocation IA de ce mois-ci.",
+    "allowanceReached": "L’allocation IA de ce mois-ci est épuisée : pas de résumé avant le {date}.",
+    "savedWithAllowance": "{saved}. {note}"
   }
 }

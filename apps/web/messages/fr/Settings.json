@@ -7,7 +7,9 @@
     "summaries": {
       "heading": "Résumés",
       "defaultModel": "Modèle par défaut",
-      "comparisonMode": "<strong>Mode comparaison :</strong> résumer chaque nouvel article enregistré avec les {count, number} modèles, pour les comparer sur la page de comparaison de chaque article. Le coût est environ {count, number} fois plus élevé."
+      "comparisonMode": "<strong>Mode comparaison :</strong> résumer chaque nouvel article enregistré avec les {count, number} modèles, pour les comparer sur la page de comparaison de chaque article. Le coût est environ {count, number} fois plus élevé.",
+      "allowance": "Ce mois-ci, vous avez utilisé {share, number, percent} de votre allocation IA pour les résumés et les traductions. Elle se renouvelle le {date}.",
+      "allowanceModels": "Claude Haiku en utilise moins par résumé, et Claude Opus davantage."
     },
     "tokens": {
       "heading": "Jetons d’accès",

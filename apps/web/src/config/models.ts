@@ -60,6 +60,15 @@ const PRICES: Record<string, Price> = {
   "claude-sonnet-5": { input: 2, output: 10 },
 };
 
+/**
+ * The highest known price, for answers whose own price isn't known, so a
+ * limit never counts them as free.
+ */
+export const HIGHEST_PRICE = {
+  input: Math.max(...Object.values(PRICES).map((price) => Math.max(price.input, price.longPrompt?.input ?? 0))),
+  output: Math.max(...Object.values(PRICES).map((price) => Math.max(price.output, price.longPrompt?.output ?? 0))),
+};
+
 /** Estimated cost in dollars, or null for a model without a known price. */
 export function estimateCostUsd(model: string, inputTokens: number, outputTokens: number): number | null {
   const price = PRICES[model];

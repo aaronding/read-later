@@ -48,7 +48,8 @@
       "cutOff": "Le résumé a été interrompu avant d’être terminé.",
       "tooLong": "L’article est trop long pour ce modèle.",
       "empty": "{claude} n’a renvoyé aucun résumé.",
-      "badFormat": "Le résumé de {claude} n’était pas au format attendu."
+      "badFormat": "Le résumé de {claude} n’était pas au format attendu.",
+      "monthlyLimit": "Pas de résumé : l’allocation IA de ce mois-ci est épuisée. Utilisez Réessayer une fois le nouveau mois commencé."
     },
     "save": {
       "invalidUrl": "Le champ {field} doit contenir une URL http ou https absolue.",
@@ -65,7 +66,8 @@
       "empty": "{claude} n’a renvoyé aucune traduction.",
       "badFormat": "La traduction de {claude} n’était pas au format attendu.",
       "apiKeyRejected": "L’API {claude} a refusé la clé d’API. Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez la traduction.",
-      "apiKeyRejectedWithDetail": "L’API {claude} a refusé la clé d’API ({detail}). Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez la traduction."
+      "apiKeyRejectedWithDetail": "L’API {claude} a refusé la clé d’API ({detail}). Vérifiez {variable}, redémarrez l’application (redéployez-la sur {vercel}), puis relancez la traduction.",
+      "monthlyLimit": "l’allocation IA de ce mois-ci est épuisée. Utilisez Réessayer une fois le nouveau mois commencé."
     }
   }
 }

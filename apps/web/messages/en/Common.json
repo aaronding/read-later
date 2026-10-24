@@ -22,6 +22,8 @@
     "retry": "Retry",
     "retrying": "Retrying…",
     "tryAgain": "Try again",
-    "queued": "Queued…"
+    "queued": "Queued…",
+    "allowanceNearing": "You’ve used {share, number, percent} of this month’s AI allowance for summaries and translations. It renews on {date}.",
+    "allowanceReached": "This month’s AI allowance is used up. Saving and reading still work. Summaries and translations resume on {date}; then use Retry on articles saved meanwhile."
   }
 }

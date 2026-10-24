@@ -14,6 +14,7 @@ import { SuggestedTags } from "@/components/suggested-tags";
 import { SummaryTranslations } from "@/components/summary-translations";
 import { getDb } from "@/db";
 import { storedMessageText } from "@/i18n/stored-message";
+import { getAllowance } from "@/lib/allowance";
 import { isAdmin, requireUser } from "@/lib/auth";
 import { listFolders } from "@/lib/folders";
 import { getArticle, shownSummary } from "@/lib/library";
@@ -43,6 +44,7 @@ export default async function ReaderPage({ params, searchParams }: Props) {
   const ready = summary?.status === "ready" ? summary : undefined;
   const translations = ready ? await listTranslations(db, user.id, ready.id) : [];
   const runsLeft = ready ? await translationRunsLeft(db, ready.id) : 0;
+  const allowance = await getAllowance(db, user.id);
   const chosen = found.summaries.find((row) => row.model === article.summaryModel);
   const busy =
     isBusy(article.status, chosen?.status ?? null) ||
@@ -113,7 +115,7 @@ export default async function ReaderPage({ params, searchParams }: Props) {
           articleId={article.id}
           summary={ready}
           admin={admin}
-          translations={<SummaryTranslations summary={ready} translations={translations} runsLeft={runsLeft} />}
+          translations={<SummaryTranslations summary={ready} translations={translations} runsLeft={runsLeft} paused={allowance.reached} />}
         >
           <SuggestedTags articleId={article.id} userId={user.id} suggestions={ready.suggestedTags ?? []} />
         </SummaryCard>

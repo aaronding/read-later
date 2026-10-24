@@ -1,9 +1,10 @@
-import { createTranslator } from "next-intl";
+import { createFormatter, createTranslator } from "next-intl";
 import { z } from "zod";
 import { APP_NAME } from "@/config/app";
 import { getDb, type Db } from "@/db";
 import { preferredLocale, type AppLocale } from "@/i18n/locales";
 import { loadMessages } from "@/i18n/messages";
+import { getAllowance, renewalDate, sharePercent, shareValue } from "@/lib/allowance";
 import { translateError } from "@/lib/error-message";
 import { scheduleJobProcessing } from "@/lib/jobs/schedule";
 import { SaveError, maxHtmlBytes, saveArticle, saveNotice, type SaveErrorCode } from "@/lib/save";
@@ -44,6 +45,7 @@ async function translators(locale: AppLocale) {
   const messages = await loadMessages(locale);
   return {
     t: createTranslator({ locale, messages, namespace: "Api" }),
+    format: createFormatter({ locale }),
     tErrors: createTranslator({ locale, messages, namespace: "Errors" }),
   };
 }
@@ -93,7 +95,7 @@ const SAVED_MESSAGE = { created: "saved", replaced: "saved", resaved: "alreadySa
 export async function POST(request: Request): Promise<Response> {
   const db = getDb();
   const userId = await authenticateBearer(db, request.headers.get("authorization"));
-  const { t, tErrors } = await translators(await replyLocale(db, request, userId));
+  const { t, tErrors, format } = await translators(await replyLocale(db, request, userId));
   if (!userId) return replyError(401, "unauthorized", t("unauthorized"));
 
   // JSON escaping can make the body somewhat larger than the HTML itself.
@@ -120,14 +122,25 @@ export async function POST(request: Request): Promise<Response> {
       source: body.source ?? "api",
     });
     if (result.queued) scheduleJobProcessing();
+    // Close to or at the month's AI allowance: the extension and Shortcuts say so after "Saved".
+    const allowance = await getAllowance(db, userId);
+    const date = renewalDate(format, allowance);
+    const note = allowance.reached
+      ? result.queued && t("allowanceReached", { date })
+      : allowance.nearing && t("allowanceNearing", { share: shareValue(allowance) });
+    const saved = t(SAVED_MESSAGE[saveNotice(result)], { app: APP_NAME });
     return reply(result.outcome === "created" ? 201 : 200, {
       ok: true,
       status: "saved",
-      message: t(SAVED_MESSAGE[saveNotice(result)], { app: APP_NAME }),
+      message: note ? t("savedWithAllowance", { saved, note }) : saved,
       id: result.articleId,
       outcome: result.outcome,
       // True when the article will be downloaded again.
       queued: result.queued,
+      // The share of the month's AI allowance used, never what it cost; absent with no limit.
+      ...(allowance.limitUsd === null
+        ? {}
+        : { aiAllowance: { usedPercent: sharePercent(allowance), renewsOn: allowance.renewsAt.toISOString().slice(0, 10) } }),
     });
   } catch (error) {
     if (error instanceof SaveError) {

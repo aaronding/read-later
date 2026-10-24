@@ -48,7 +48,8 @@
       "cutOff": "摘要在完成前就被截斷了。",
       "tooLong": "文章太長，這個模型無法處理。",
       "empty": "{claude} 沒有傳回摘要。",
-      "badFormat": "{claude} 傳回的摘要格式不符合預期。"
+      "badFormat": "{claude} 傳回的摘要格式不符合預期。",
+      "monthlyLimit": "未產生摘要：本月的 AI 額度已用完。新的月份開始後，請點「重試」。"
     },
     "save": {
       "invalidUrl": "{field} 必須是以 http 或 https 開頭的絕對 URL。",
@@ -65,7 +66,8 @@
       "empty": "{claude} 沒有傳回翻譯。",
       "badFormat": "{claude} 傳回的翻譯格式不符合預期。",
       "apiKeyRejected": "{claude} API 不接受這個 API 金鑰。請檢查 {variable}，重新啟動應用程式 (在 {vercel} 上則重新部署)，然後重新翻譯。",
-      "apiKeyRejectedWithDetail": "{claude} API 不接受這個 API 金鑰 ({detail})。請檢查 {variable}，重新啟動應用程式 (在 {vercel} 上則重新部署)，然後重新翻譯。"
+      "apiKeyRejectedWithDetail": "{claude} API 不接受這個 API 金鑰 ({detail})。請檢查 {variable}，重新啟動應用程式 (在 {vercel} 上則重新部署)，然後重新翻譯。",
+      "monthlyLimit": "本月的 AI 額度已用完。新的月份開始後，請點「重試」。"
     }
   }
 }
