@@ -27,7 +27,7 @@ Comparison mode runs all three on every save, so it costs about as much as the t
 
 ## 3. Choosing the default model
 
-The default for new saves is Claude Opus 5.5. Comparison mode, Compare models and Re-summarize are for admins, so first put your own email in `ADMIN_EMAILS` (in Vercel and your `.env`). Then, to pick your own default:
+The default for new saves is Claude Sonnet 5.5, for everyone who hasn't chosen a model in Settings. Comparison mode, Compare models and Re-summarize are for admins, so first put your own email in `ADMIN_EMAILS` (in Vercel and your `.env`). Then, to pick your own default:
 
 1. Turn on **Settings → Comparison mode** for a few days, or open an article and click **Compare models** to run the others on it.
 2. On each article's **Compare** page, read the three summaries side by side, with their cost and time.

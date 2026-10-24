@@ -28,8 +28,8 @@ export function isSummaryModel(value: unknown): value is SummaryModel {
 
 /** The default for new users, until they pick one in Settings. */
 export function initialDefaultModel(): SummaryModel {
-  const fromEnv = envString("DEFAULT_SUMMARY_MODEL", "claude-opus-5-5");
-  return isSummaryModel(fromEnv) ? fromEnv : "claude-opus-5-5";
+  const fromEnv = envString("DEFAULT_SUMMARY_MODEL", "claude-sonnet-5-5");
+  return isSummaryModel(fromEnv) ? fromEnv : "claude-sonnet-5-5";
 }
 
 export function modelLabel(model: string): string {
