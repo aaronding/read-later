@@ -207,7 +207,7 @@ describe("save -> job -> summary", () => {
     expect(pending.status).toBe("pending");
     expect(pending.url).toBe(`${ARTICLE_URL}?utm_source=x`); // exactly as saved
     expect(pending.saveSource).toBe("extension");
-    expect(pending.summaryModel).toBe("claude-opus-5-5");
+    expect(pending.summaryModel).toBe("claude-sonnet-5-5");
     expect(requests).toHaveLength(0); // nothing slow happened during the request
 
     const stats = await processJobs({ db });
@@ -230,19 +230,20 @@ describe("save -> job -> summary", () => {
 
     const [summary] = await summariesFor(article.id);
     expect(summary).toMatchObject({
-      model: "claude-opus-5-5",
-      servedModel: "claude-opus-5-5",
+      model: "claude-sonnet-5-5",
+      servedModel: "claude-sonnet-5-5",
       status: "ready",
       language: "en",
-      tldr: "Community orchards are returning to public land (claude-opus-5-5).",
+      tldr: "Community orchards are returning to public land (claude-sonnet-5-5).",
       inputTokens: 2_000,
       outputTokens: 400,
       partial: false,
       effort: "low",
     });
-    expect(summary!.keyPoints).toHaveLength(5);
+    // A short article gets three points, and the answer's extra ones are dropped.
+    expect(summary!.keyPoints).toHaveLength(3);
     expect(summary!.suggestedTags).toEqual(["Gardening", "community", "local government"]);
-    expect(summary!.costUsd).toBeCloseTo((2_000 * 4 + 400 * 20) / 1e6, 6);
+    expect(summary!.costUsd).toBeCloseTo((2_000 * 2 + 400 * 10) / 1e6, 6);
     expect(summary!.durationMs).toBeGreaterThanOrEqual(0);
   });
 
@@ -252,7 +253,7 @@ describe("save -> job -> summary", () => {
     expect(response.status).toBe(201);
     const [params] = requests;
     expect(params).toMatchObject({
-      model: "claude-opus-5-5",
+      model: "claude-sonnet-5-5",
       thinking: { type: "adaptive" },
       output_config: { effort: "low", format: { type: "json_schema" } },
       betas: ["server-side-fallback-2026-07-01"],
@@ -264,6 +265,7 @@ describe("save -> job -> summary", () => {
     expect(userMessage).toContain("<article_text>");
     expect(userMessage).toContain("forty young apple trees");
     expect(userMessage).toContain("Title: The quiet return of community orchards");
+    expect(userMessage).toContain("Summarize this article in 3 key points.");
   });
 
   it("runs all three models in comparison mode, without fallbacks on Haiku", async () => {

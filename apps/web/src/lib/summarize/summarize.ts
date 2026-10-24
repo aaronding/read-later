@@ -8,6 +8,7 @@ import {
   SUMMARY_JSON_SCHEMA,
   SUMMARY_SYSTEM_PROMPT,
   buildUserMessage,
+  keyPointCount,
   prepareArticleText,
   type PromptArticle,
 } from "./prompt";
@@ -347,10 +348,12 @@ export interface SummarizeInput {
 
 export async function summarizeArticle({ model, article, existingTags, onAnswer }: SummarizeInput): Promise<SummaryResult> {
   const prepared = prepareArticleText(article.text, maxInputChars());
+  // From the whole article, so one cut for length still gets a long one's points.
+  const keyPoints = keyPointCount(article.text);
   const answer = await askClaude({
     model,
     system: SUMMARY_SYSTEM_PROMPT,
-    user: buildUserMessage(article, prepared, existingTags),
+    user: buildUserMessage(article, prepared, existingTags, keyPoints),
     schema: SUMMARY_JSON_SCHEMA,
     failures: SUMMARY_FAILURES,
     onAnswer,
@@ -367,7 +370,7 @@ export async function summarizeArticle({ model, article, existingTags, onAnswer 
     language: parsed.data.language?.trim() || null,
     tldr: parsed.data.tldr.trim(),
     // The schema can't enforce the counts, so they are enforced here.
-    keyPoints: dedupe(parsed.data.key_points).slice(0, 5),
+    keyPoints: dedupe(parsed.data.key_points).slice(0, keyPoints),
     suggestedTags: dedupe(parsed.data.suggested_tags.map((tag) => tag.replace(/^#/, ""))).slice(0, 3),
     // Covers only part of the article: cut for length, or only a preview was saved.
     partial: prepared.partial || Boolean(article.previewOnly),
