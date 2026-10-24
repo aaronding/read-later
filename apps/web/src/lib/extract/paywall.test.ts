@@ -268,6 +268,9 @@ describe("setsCookie, waitsForCookie and movesOn", () => {
     expect(setsCookie(waits)).toBe(false);
     expect(waitsForCookie(waits)).toBe(true);
     expect(waitsForCookie(`if (document["cookie"]) { clearInterval(wait); location['reload'](); }`)).toBe(true);
+    // The reload has to come within 200 characters of the cookie.
+    expect(waitsForCookie(`document.cookie${";".repeat(200)}location.reload()`)).toBe(true);
+    expect(waitsForCookie(`document.cookie${";".repeat(201)}location.reload()`)).toBe(false);
     for (const script of [
       `window.location.reload();`,
       `location.href="/story"`,
