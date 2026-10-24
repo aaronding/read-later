@@ -9,7 +9,7 @@
       "defaultModel": "Default model",
       "comparisonMode": "<strong>Comparison mode:</strong> summarize every new save with all {count, number} models, to compare them on each article’s Compare page. Costs about {count, number} times as much.",
       "allowance": "This month you’ve used {share, number, percent} of your AI allowance for summaries and translations. It renews on {date}.",
-      "allowanceModels": "Claude Haiku uses less of it for each summary, and Claude Opus more."
+      "allowanceModels": "Haiku uses less of it for each summary, and Opus more."
     },
     "tokens": {
       "heading": "Access tokens",

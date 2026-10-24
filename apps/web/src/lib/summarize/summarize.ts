@@ -165,7 +165,6 @@ const TRANSIENT_STREAM_ERRORS = new Set(["overloaded_error", "api_error", "rate_
 const MAX_ERROR_DETAIL = 300;
 
 // Product names go into the messages as values, so they are never translated.
-const CLAUDE = { claude: "Claude" };
 
 /** The messages for each way a request can fail, so they can name what was being done. */
 export interface FailureMessages {
@@ -203,19 +202,19 @@ export function describeApiError(
   const body = error.error as { error?: { message?: unknown } } | undefined;
   const apiMessage = typeof body?.error?.message === "string" ? body.error.message.slice(0, MAX_ERROR_DETAIL) : null;
   if (error instanceof Anthropic.AuthenticationError) {
-    const values = { ...CLAUDE, variable: "ANTHROPIC_API_KEY", vercel: "Vercel" };
+    const values = { variable: "ANTHROPIC_API_KEY", vercel: "Vercel" };
     return apiMessage
       ? errorMessage(failures.apiKeyRejectedWithDetail, { ...values, detail: apiMessage })
       : errorMessage(failures.apiKeyRejected, values);
   }
   if (error.status === undefined) {
     const detail = apiMessage ?? error.message.slice(0, MAX_ERROR_DETAIL);
-    return errorMessage("summary.apiError", { ...CLAUDE, detail });
+    return errorMessage("summary.apiError", { detail });
   }
   const status = String(error.status);
   return apiMessage
-    ? errorMessage("summary.apiErrorStatusWithDetail", { ...CLAUDE, status, detail: apiMessage })
-    : errorMessage("summary.apiErrorStatus", { ...CLAUDE, status });
+    ? errorMessage("summary.apiErrorStatusWithDetail", { status, detail: apiMessage })
+    : errorMessage("summary.apiErrorStatus", { status });
 }
 
 export interface ClaudeRequest {
@@ -293,7 +292,7 @@ export async function askClaude({ model, system, user, schema, failures, onAnswe
     const partial = stream?.currentMessage;
     if (partial) await onAnswer(usageOf(partial));
     if (signal.aborted) {
-      throw new SummaryError(errorMessage("summary.timeout", CLAUDE), true);
+      throw new SummaryError(errorMessage("summary.timeout"), true);
     }
     if (error instanceof Anthropic.APIError) {
       throw new SummaryError(describeApiError(error, failures), isRetryableApiError(error));
@@ -308,7 +307,7 @@ export async function askClaude({ model, system, user, schema, failures, onAnswe
   if (message.stop_reason === "refusal") {
     const category = message.stop_details?.category;
     throw new SummaryError(
-      category ? errorMessage(failures.declinedCategory, { ...CLAUDE, category }) : errorMessage(failures.declined, CLAUDE),
+      category ? errorMessage(failures.declinedCategory, { category }) : errorMessage(failures.declined),
       false,
       "refusal",
     );
@@ -328,13 +327,13 @@ export async function askClaude({ model, system, user, schema, failures, onAnswe
   const lastFallback = message.content.findLastIndex((block) => block.type === "fallback");
   const text = message.content.slice(lastFallback + 1).find((block) => block.type === "text");
   if (!text || text.type !== "text") {
-    throw new SummaryError(errorMessage(failures.empty, CLAUDE), true, message.stop_reason);
+    throw new SummaryError(errorMessage(failures.empty), true, message.stop_reason);
   }
   let json: unknown;
   try {
     json = JSON.parse(text.text);
   } catch {
-    throw new SummaryError(errorMessage(failures.badFormat, CLAUDE), true, message.stop_reason);
+    throw new SummaryError(errorMessage(failures.badFormat), true, message.stop_reason);
   }
   return { json, ...usage };
 }
@@ -360,7 +359,7 @@ export async function summarizeArticle({ model, article, existingTags, onAnswer 
   });
   const parsed = SummaryOutput.safeParse(answer.json);
   if (!parsed.success) {
-    throw new SummaryError(errorMessage("summary.badFormat", CLAUDE), true, answer.stopReason);
+    throw new SummaryError(errorMessage("summary.badFormat"), true, answer.stopReason);
   }
   const { json: _json, ...call } = answer;
 

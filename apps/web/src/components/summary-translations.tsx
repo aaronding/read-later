@@ -14,7 +14,7 @@ const selectKey = (language: string) => language.replace("-", "_");
 /** Longer than any translation takes: something went wrong, so offer Retry. */
 const STALE_MS = 10 * 60_000;
 
-const LIMIT_VALUES = { claude: "Claude", max: MAX_TRANSLATION_RUNS_PER_SUMMARY };
+const LIMIT_VALUES = { max: MAX_TRANSLATION_RUNS_PER_SUMMARY };
 
 function Translation({
   translation,

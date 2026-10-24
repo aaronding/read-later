@@ -9,7 +9,7 @@
       "defaultModel": "默认模型",
       "comparisonMode": "<strong>比较模式：</strong>每次新保存文章时，都用全部 {count, number} 个模型生成摘要，以便在每篇文章的“比较摘要”页面中进行比较。费用约为平时的 {count, number} 倍。",
       "allowance": "本月你已用掉 {share, number, percent} 的 AI 额度（用于摘要和翻译），将于 {date} 恢复。",
-      "allowanceModels": "每篇摘要用 Claude Haiku 会少用一些额度，用 Claude Opus 则会多用一些。"
+      "allowanceModels": "每篇摘要用 Haiku 会少用一些额度，用 Opus 则会多用一些。"
     },
     "tokens": {
       "heading": "访问令牌",

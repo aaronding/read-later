@@ -59,7 +59,7 @@ async function queueTranslation(db: Db, translation: Pick<SummaryTranslation, "i
 }
 
 const limitReached = () =>
-  errorMessage("translation.limitReached", { claude: "Claude", max: MAX_TRANSLATION_RUNS_PER_SUMMARY });
+  errorMessage("translation.limitReached", { max: MAX_TRANSLATION_RUNS_PER_SUMMARY });
 
 /** How many more times Claude may translate this summary; a run still with Claude counts as one. */
 export async function translationRunsLeft(db: Db, summaryId: string): Promise<number> {

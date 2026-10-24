@@ -9,7 +9,7 @@
       "defaultModel": "預設模型",
       "comparisonMode": "<strong>比較模式：</strong>每次新儲存文章時，都用全部 {count, number} 個模型產生摘要，方便在各篇文章的「比較摘要」頁面中比較。費用約為平常的 {count, number} 倍。",
       "allowance": "本月你已用掉 {share, number, percent} 的 AI 額度（用於摘要和翻譯），將於 {date} 恢復。",
-      "allowanceModels": "每篇摘要用 Claude Haiku 會少用一些額度，用 Claude Opus 則會多用一些。"
+      "allowanceModels": "每篇摘要用 Haiku 會少用一些額度，用 Opus 則會多用一些。"
     },
     "tokens": {
       "heading": "存取權杖",
