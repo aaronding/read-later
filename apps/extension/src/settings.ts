@@ -3,8 +3,22 @@ export interface Settings {
   token: string;
 }
 
-/** The app's own address, filled in until another is saved. */
+/** The app's own address, and the only one outside a development install. */
 export const DEFAULT_SERVER_URL = "https://www.readsooner.com";
+
+/**
+ * True when the extension was loaded for development: Load unpacked in Chrome,
+ * a temporary add-on in Firefox. Only then can the server URL be changed, as to
+ * http://localhost:3000; an install from a store or a signed file always uses
+ * DEFAULT_SERVER_URL. getSelf() needs no permission.
+ */
+export async function isDevelopmentInstall(): Promise<boolean> {
+  try {
+    return (await chrome.management.getSelf()).installType === "development";
+  } catch {
+    return false;
+  }
+}
 
 const defaultHost = new URL(DEFAULT_SERVER_URL).hostname;
 const ownHosts = new Set([defaultHost, defaultHost.replace(/^www\./, "")]);
@@ -31,10 +45,11 @@ export function normalizeServerUrl(input: string): string {
 }
 
 export async function loadSettings(): Promise<Settings> {
-  const stored = await chrome.storage.local.get(["serverUrl", "token"]);
+  const [stored, development] = await Promise.all([chrome.storage.local.get(["serverUrl", "token"]), isDevelopmentInstall()]);
+  // Normalized again, so an address saved before the www rule still works.
+  const saved = development && typeof stored.serverUrl === "string" ? normalizeServerUrl(stored.serverUrl) : "";
   return {
-    // Normalized again, so an address saved before the www rule still works.
-    serverUrl: (typeof stored.serverUrl === "string" && normalizeServerUrl(stored.serverUrl)) || DEFAULT_SERVER_URL,
+    serverUrl: saved || DEFAULT_SERVER_URL,
     token: typeof stored.token === "string" ? stored.token : "",
   };
 }

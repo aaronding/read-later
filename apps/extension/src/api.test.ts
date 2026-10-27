@@ -130,18 +130,28 @@ describe("normalizeServerUrl", () => {
 
 describe("loadSettings", () => {
   afterEach(() => vi.unstubAllGlobals());
-  const stored = (values: Record<string, unknown>) =>
-    vi.stubGlobal("chrome", { storage: { local: { get: async () => values } } });
+  const install = (installType: string, values: Record<string, unknown>) =>
+    vi.stubGlobal("chrome", {
+      storage: { local: { get: async () => values } },
+      management: { getSelf: async () => ({ installType }) },
+    });
 
-  it("fills in the app's address until another is saved", async () => {
-    stored({});
+  it("always uses the app's address outside a development install", async () => {
+    install("normal", { serverUrl: "http://localhost:3000", token: "rl_test" });
+    expect(await loadSettings()).toEqual({ serverUrl: DEFAULT_SERVER_URL, token: "rl_test" });
+    install("normal", {});
     expect(await loadSettings()).toEqual({ serverUrl: DEFAULT_SERVER_URL, token: "" });
-    stored({ serverUrl: "http://localhost:3000", token: "rl_test" });
-    expect(await loadSettings()).toEqual({ serverUrl: "http://localhost:3000", token: "rl_test" });
+    // A browser without the management API counts as a normal install.
+    vi.stubGlobal("chrome", { storage: { local: { get: async () => ({ serverUrl: "http://localhost:3000" }) } } });
+    expect((await loadSettings()).serverUrl).toBe(DEFAULT_SERVER_URL);
   });
 
-  it("corrects an address saved without www", async () => {
-    stored({ serverUrl: "https://readsooner.com", token: "rl_test" });
+  it("uses the saved address in a development install, the app's until one is saved", async () => {
+    install("development", { serverUrl: "http://localhost:3000", token: "rl_test" });
+    expect(await loadSettings()).toEqual({ serverUrl: "http://localhost:3000", token: "rl_test" });
+    install("development", {});
+    expect((await loadSettings()).serverUrl).toBe(DEFAULT_SERVER_URL);
+    install("development", { serverUrl: "https://readsooner.com" });
     expect((await loadSettings()).serverUrl).toBe(DEFAULT_SERVER_URL);
   });
 });

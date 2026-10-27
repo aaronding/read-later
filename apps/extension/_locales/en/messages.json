@@ -115,7 +115,8 @@
     "message": "Server URL"
   },
   "serverUrlHint": {
-    "message": "The address of your {app} web app."
+    "message": "Shown only because this extension is loaded for development, so it can use another server, such as http://localhost:3000.",
+    "description": "Under the server URL, which only an extension loaded unpacked (Chrome) or as a temporary add-on (Firefox) shows. Installed from a store, it always uses the app’s own address."
   },
   "tokenLabel": {
     "message": "Access token"
@@ -141,6 +142,21 @@
   },
   "connecting": {
     "message": "Approve the connection in the window that opened…"
+  },
+  "connectedNow": {
+    "message": "Connected. This browser now saves to your {app} account.",
+    "description": "On the options page, right after Connect worked: its window has closed and the extension has its access token."
+  },
+  "checkingConnection": {
+    "message": "Checking the connection…",
+    "description": "On the options page while it opens, before it knows whether the saved token works."
+  },
+  "connectedServer": {
+    "message": "Server: $SERVER$",
+    "description": "Under “Connected”, only in an extension loaded for development, where the server can be changed.",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
   },
   "notConnected": {
     "message": "Not connected. Check the server URL and try again, or paste an access token.",

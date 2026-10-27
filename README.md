@@ -69,7 +69,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 
    Open <http://localhost:3000> and sign in with Google.
 
-5. Try the [Chrome extension](docs/chrome-extension.md): set its server URL to `http://localhost:3000` and click **Connect**. Or paste a link into the Inbox.
+5. Try the [Chrome extension](docs/chrome-extension.md), loaded unpacked: set its server URL to `http://localhost:3000` and click **Connect**. Only an extension loaded unpacked (or as a temporary add-on in Firefox) shows that field; installed from a store, it always uses `https://www.readsooner.com`. Or paste a link into the Inbox.
 
 **Trying it without a Claude API key.** `pnpm --filter web mock-claude` starts a local stand-in for the Claude API that returns made-up summaries in the real streaming format. In `.env`, set `ANTHROPIC_BASE_URL=http://127.0.0.1:4010` and `ANTHROPIC_API_KEY=mock`, and restart `pnpm dev`. Everything else runs for real, and nothing is billed. Remove both lines to use Claude.
 

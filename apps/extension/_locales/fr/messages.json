@@ -109,7 +109,7 @@
     "message": "URL du serveur"
   },
   "serverUrlHint": {
-    "message": "L’adresse de votre application web {app}."
+    "message": "Affiché uniquement parce que cette extension est chargée pour le développement : elle peut ainsi utiliser un autre serveur, par exemple http://localhost:3000."
   },
   "tokenLabel": {
     "message": "Jeton d’accès"
@@ -131,6 +131,18 @@
   },
   "connecting": {
     "message": "Approuvez la connexion dans la fenêtre qui s’est ouverte…"
+  },
+  "connectedNow": {
+    "message": "Connecté. Ce navigateur enregistre désormais dans votre compte {app}."
+  },
+  "checkingConnection": {
+    "message": "Vérification de la connexion…"
+  },
+  "connectedServer": {
+    "message": "Serveur : $SERVER$",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
   },
   "notConnected": {
     "message": "Non connecté. Vérifiez l’URL du serveur et réessayez, ou collez un jeton d’accès."
