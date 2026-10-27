@@ -1,7 +1,9 @@
 {
   "Home": {
+    "description": "Save articles to read later, with a clean copy and an AI summary. An alternative to Pocket, which Mozilla closed in 2025.",
     "headline": "Read the gist now. The whole article when it’s worth it.",
     "lead": "Save articles as you browse. Each one gets a clean copy and a short summary by AI, in the article’s own language.",
+    "pocket": "An alternative to Pocket, which Mozilla closed in 2025.",
     "how": {
       "heading": "How it works",
       "save": {

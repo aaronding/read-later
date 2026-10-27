@@ -9,8 +9,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { browserAndSystem } from "@/lib/user-agent";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTranslations("Common");
-  return { title: { absolute: APP_NAME }, description: t("tagline") };
+  const t = await getTranslations("Home");
+  return { title: { absolute: APP_NAME }, description: t("description") };
 }
 
 const STEPS = ["save", "gist", "read"] as const;
@@ -43,6 +43,7 @@ export default async function HomePage() {
           <h1>{t("headline")}</h1>
           <p className="hero-lead">{t("lead")}</p>
           <SignInButton next="/inbox" />
+          <p className="hero-note muted small">{t("pocket")}</p>
         </div>
         {/* The real app, in the visitor's language and theme: the Inbox on a
             computer, and an article on a phone (scripts/home-images.ts). */}

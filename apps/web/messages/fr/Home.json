@@ -1,7 +1,9 @@
 {
   "Home": {
+    "description": "Enregistrez des articles à lire plus tard, avec une copie épurée et un résumé par IA. Une alternative à Pocket, que Mozilla a fermé en 2025.",
     "headline": "L’essentiel tout de suite. L’article entier quand il en vaut la peine.",
     "lead": "Enregistrez des articles pendant que vous naviguez. Chacun reçoit une copie épurée et un court résumé écrit par l’IA, dans la langue de l’article.",
+    "pocket": "Une alternative à Pocket, que Mozilla a fermé en 2025.",
     "how": {
       "heading": "Comment ça marche",
       "save": {
