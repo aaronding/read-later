@@ -115,7 +115,8 @@
     "message": "Server URL"
   },
   "serverUrlHint": {
-    "message": "The address of your {app} web app."
+    "message": "Shown only because this extension is loaded for development, so it can use another server, such as http://localhost:3000.",
+    "description": "Under the server URL, which only an extension loaded unpacked (Chrome) or as a temporary add-on (Firefox) shows. Installed from a store, it always uses the app’s own address."
   },
   "tokenLabel": {
     "message": "Access token"

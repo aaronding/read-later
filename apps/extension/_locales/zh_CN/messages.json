@@ -97,7 +97,7 @@
     "message": "服务器网址"
   },
   "serverUrlHint": {
-    "message": "你的 {app} Web 应用的网址。"
+    "message": "仅在以开发方式加载此扩展程序时显示，用于连接其他服务器，例如 http://localhost:3000。"
   },
   "tokenLabel": {
     "message": "访问令牌"

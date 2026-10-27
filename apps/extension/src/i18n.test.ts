@@ -94,6 +94,8 @@ describe("localizePage", () => {
     expect(document.title).toBe("ReadSooner options");
     expect(document.querySelector("label")!.textContent).toBe("Server URL");
     expect(document.querySelector("input")!.placeholder).toBe("Access token");
-    expect(document.querySelector("input")!.title).toBe("The address of your ReadSooner web app.");
+    expect(document.querySelector("input")!.title).toBe(
+      "Shown only because this extension is loaded for development, so it can use another server, such as http://localhost:3000.",
+    );
   });
 });

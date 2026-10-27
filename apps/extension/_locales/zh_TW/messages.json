@@ -97,7 +97,7 @@
     "message": "伺服器網址"
   },
   "serverUrlHint": {
-    "message": "你的 {app} 網頁應用程式的網址。"
+    "message": "只有以開發方式載入這個擴充功能時才會顯示，用於連線到其他伺服器，例如 http://localhost:3000。"
   },
   "tokenLabel": {
     "message": "存取權杖"

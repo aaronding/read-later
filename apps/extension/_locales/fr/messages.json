@@ -109,7 +109,7 @@
     "message": "URL du serveur"
   },
   "serverUrlHint": {
-    "message": "L’adresse de votre application web {app}."
+    "message": "Affiché uniquement parce que cette extension est chargée pour le développement : elle peut ainsi utiliser un autre serveur, par exemple http://localhost:3000."
   },
   "tokenLabel": {
     "message": "Jeton d’accès"

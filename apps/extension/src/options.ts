@@ -1,7 +1,7 @@
 import { checkConnection, tokenRejected, type Outcome } from "./api.js";
 import { connectPageUrl, tokenFromRedirect } from "./connect.js";
 import { browserMessage as getMessage, localizePage, outcomeText, setRichText } from "./i18n.js";
-import { loadSettings, normalizeServerUrl, storeSettings } from "./settings.js";
+import { DEFAULT_SERVER_URL, isDevelopmentInstall, loadSettings, normalizeServerUrl, storeSettings } from "./settings.js";
 
 const form = document.querySelector<HTMLFormElement>("#settings")!;
 const serverUrl = document.querySelector<HTMLInputElement>("#serverUrl")!;
@@ -22,6 +22,14 @@ const canConnect = typeof chrome.identity?.launchWebAuthFlow === "function";
 if (!canConnect) {
   document.querySelector<HTMLElement>("#connectArea")!.hidden = true;
   document.querySelector<HTMLElement>("#tokenHint")!.textContent = getMessage("tokenHint");
+}
+
+// The server URL can be changed only in a development install; elsewhere it is always the app's own.
+const development = isDevelopmentInstall();
+void development.then((yes) => (document.querySelector<HTMLElement>("#serverArea")!.hidden = !yes));
+
+async function serverAddress(): Promise<string> {
+  return (await development) ? normalizeServerUrl(serverUrl.value) : DEFAULT_SERVER_URL;
 }
 
 function show(message: string, ok: boolean) {
@@ -58,7 +66,7 @@ chrome.runtime.onMessage.addListener((message: unknown) => {
 });
 
 connectButton.addEventListener("click", async () => {
-  const server = normalizeServerUrl(serverUrl.value);
+  const server = await serverAddress();
   if (!server) return show(getMessage("enterServerUrl"), false);
   serverUrl.value = server;
   busy = true;
@@ -85,7 +93,7 @@ connectButton.addEventListener("click", async () => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const settings = { serverUrl: normalizeServerUrl(serverUrl.value), token: token.value.trim() };
+  const settings = { serverUrl: await serverAddress(), token: token.value.trim() };
   if (!settings.serverUrl) return show(getMessage("enterServerUrl"), false);
   if (!settings.token.startsWith("rl_")) return show(getMessage("enterToken"), false);
   busy = true;
