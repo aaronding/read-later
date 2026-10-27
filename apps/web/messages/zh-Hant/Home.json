@@ -1,7 +1,9 @@
 {
   "Home": {
+    "description": "儲存文章以便稍後閱讀，並附上簡潔的閱讀版本和 AI 摘要。Pocket 已於 2025 年由 Mozilla 關閉，這款 App 可以作為它的替代。",
     "headline": "先讀重點，值得時再讀全文。",
     "lead": "瀏覽時隨手儲存文章。每篇文章都有一份簡潔的閱讀版本，以及由 AI 以原文語言撰寫的簡短摘要。",
+    "pocket": "Pocket 已於 2025 年由 Mozilla 關閉，這款 App 可以作為它的替代。",
     "how": {
       "heading": "使用方式",
       "save": {

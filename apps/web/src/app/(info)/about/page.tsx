@@ -8,7 +8,7 @@ import { deploymentFor } from "@/lib/deployment";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("About");
-  return { title: t("title", { app: APP_NAME }) };
+  return { title: { absolute: t("title", { app: APP_NAME }) }, alternates: { canonical: "/about" } };
 }
 
 const products = { app: APP_NAME };

@@ -1,7 +1,8 @@
 // Takes the screenshots on the homepage: the Inbox on a computer and an
 // article on a phone, in each interface language, light and dark, from the
-// real app. Run it after changing how those pages look, and commit what it
-// writes to public/home:
+// real app. Then it takes the homepage itself, the image a link to the site
+// shows when shared. Run it after changing how those pages look, and commit
+// what it writes to public/home and src/app/opengraph-image.png:
 //
 //   pnpm build && pnpm start          (in another terminal)
 //   pnpm --filter web home-images
@@ -25,6 +26,7 @@ import { LOCALES, type AppLocale } from "../src/i18n/locales";
 const USER_ID = "home-images-demo";
 const TOKEN = "home-images-demo-session";
 const OUT = new URL("../public/home/", import.meta.url);
+const SHARE_IMAGE = new URL("../src/app/opengraph-image.png", import.meta.url);
 
 interface DemoArticle {
   lang: AppLocale;
@@ -206,6 +208,20 @@ async function main() {
         await shoot(`/articles/${ids.get(locale)}`, { width: 375, height: 760 }, 2, `reader-${locale}-${scheme}.webp`);
       }
     }
+    // Signed out, in English and light, at the 1200 × 630 Open Graph asks for:
+    // whoever fetches a shared link's preview sends no language or theme. Only
+    // the name and the hero show, centered in the space under the name.
+    const context = await browser.newContext({ viewport: { width: 1200, height: 630 }, locale: "en", colorScheme: "light" });
+    const page = await context.newPage();
+    await page.goto(appUrl(), { waitUntil: "networkidle" });
+    await page.addStyleTag({
+      content: `.visitor-preferences, .band, .site-footer { display: none; }
+        .shell { display: flex; flex-direction: column; height: 100vh; padding-bottom: 0; }
+        .shell main { flex: 1; display: grid; align-content: center; }`,
+    });
+    await sharp(await page.screenshot()).png({ compressionLevel: 9 }).toFile(fileURLToPath(SHARE_IMAGE));
+    await context.close();
+    console.log("Wrote src/app/opengraph-image.png");
   } finally {
     await browser.close();
     await db.delete(users).where(eq(users.id, USER_ID));

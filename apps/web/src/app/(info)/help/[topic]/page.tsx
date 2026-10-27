@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { HelpPage } from "@/components/help-page";
-import { isHelpTopic } from "@/lib/help";
+import { helpHref, isHelpTopic } from "@/lib/help";
 
 type Props = { params: Promise<{ topic: string }> };
 
@@ -10,7 +10,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { topic } = await params;
   if (!isHelpTopic(topic) || topic === "start") return {};
   const t = await getTranslations("Help");
-  return { title: `${t(`${topic}.title`, { firefox: "Firefox", safari: "Safari", android: "Android" })} · ${t("title")}` };
+  return {
+    title: `${t(`${topic}.title`, { firefox: "Firefox", safari: "Safari", android: "Android" })} · ${t("title")}`,
+    alternates: { canonical: helpHref(topic) },
+  };
 }
 
 export default async function HelpTopicPage({ params }: Props) {

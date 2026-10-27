@@ -11,7 +11,7 @@ import { THEME_COOKIE } from "@/lib/visitor-preferences";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Privacy");
-  return { title: t("title") };
+  return { title: t("title"), alternates: { canonical: "/privacy" } };
 }
 
 const KEPT = ["account", "sessions", "saved", "library", "tokens", "usage", "feedback"] as const;

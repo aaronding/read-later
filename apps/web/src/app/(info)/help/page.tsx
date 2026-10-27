@@ -4,7 +4,7 @@ import { HelpPage } from "@/components/help-page";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Help");
-  return { title: t("title") };
+  return { title: t("title"), alternates: { canonical: "/help" } };
 }
 
 export default function HelpStartPage() {
