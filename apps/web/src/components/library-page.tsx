@@ -54,10 +54,10 @@ export async function LibraryPage({
   const empty: Record<LibraryView, React.ReactNode> = {
     // A new account starts here, so it points to the setup guides in Help.
     inbox: t.rich("empty.inbox", {
-      chrome: "Chrome",
+      firefox: "Firefox",
       safari: "Safari",
       android: "Android",
-      chromeGuide: help("/help/chrome"),
+      firefoxGuide: help("/help/firefox"),
       safariGuide: help("/help/safari"),
       androidGuide: help("/help/android"),
       start: help("/help"),

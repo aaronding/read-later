@@ -109,7 +109,7 @@
   },
   "optionsTitle": {
     "message": "{app} options",
-    "description": "The options page’s title."
+    "description": "The options page’s title, and in Firefox the item that opens it in the toolbar button’s right-click menu."
   },
   "serverUrlLabel": {
     "message": "Server URL"

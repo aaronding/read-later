@@ -13,13 +13,13 @@
     },
     "tokens": {
       "heading": "Access tokens",
-      "intro": "The {chrome} extension and the {apple} Shortcuts use a token to save to your account. Make one per device, so you can revoke one without touching the others.",
+      "intro": "The {apple} Shortcuts use a token to save to your account; the {firefox} add-on makes its own when you connect it. Make one per device, so you can revoke one without touching the others.",
       "details": "<code>{prefix}…</code> · created <created></created> · last used <lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · created <created></created> · never used",
       "revoke": "Revoke",
       "revokeConfirm": "Revoke “{name}”? Anything using it stops working.",
       "nameLabel": "Token name",
-      "namePlaceholder": "Name, e.g. {chrome} on my laptop",
+      "namePlaceholder": "Name, e.g. Shortcuts on my {iphone}",
       "create": "Create token",
       "creating": "Creating…",
       "newToken": "<strong>New token for “{name}”.</strong> Copy it now: it won’t be shown again.",
@@ -45,8 +45,8 @@
     "appearanceIntro": "Colors and a font for reading. {system} follows your device’s light or dark mode. The choice is saved to your account, so every device you sign in on uses it, and the <strong>Aa</strong> button at the top of every page changes it while you read.",
     "devices": {
       "heading": "Save from your devices",
-      "intro": "Each takes a few minutes, with the access token above.",
-      "chrome": "{chrome} extension",
+      "intro": "Each takes a few minutes; only the Shortcut needs an access token from above.",
+      "firefox": "{firefox} add-on",
       "safari": "{safari} Shortcut ({iphone}, {ipad} and {mac})",
       "android": "{android}"
     }

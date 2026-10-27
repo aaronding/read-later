@@ -20,8 +20,9 @@
     "ways": {
       "heading": "Save from anywhere",
       "setUp": "Set up →",
-      "chrome": {
-        "title": "{chrome}",
+      "addToFirefox": "Add to {firefox} →",
+      "firefox": {
+        "title": "{firefox}",
         "text": "A toolbar button, or Alt+Shift+S."
       },
       "safari": {

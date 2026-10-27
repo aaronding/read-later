@@ -7,16 +7,16 @@
     "start": {
       "title": "入門",
       "intro": "{app} 為你保存想稍後閱讀的文章，每篇都附有簡潔的閱讀版本和簡短摘要。設定只需幾分鐘。",
-      "token": "在<link>設定</link>中為 {safari} 捷徑<strong>建立存取權杖</strong>。{chrome} 擴充功能則會在你點選其「選項」中的「<strong>連結</strong>」時取得自己的權杖。",
+      "token": "在<link>設定</link>中為 {safari} 捷徑<strong>建立存取權杖</strong>。{firefox} 附加元件則會在你點選其「選項」中的「<strong>連結</strong>」時取得自己的權杖。",
       "save": "<strong>選擇儲存方式：</strong>",
-      "chrome": "在電腦上，使用 <link>{chrome} 擴充功能</link>。",
+      "firefox": "在電腦上，使用 <link>{firefox} 附加元件</link>。",
       "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 捷徑</link>。",
       "android": "在 {android} 上，<link>安裝 App</link> 後使用「分享」。",
       "paste": "在任何裝置上，都可以把連結貼到收件匣頂端。",
       "read": "<strong>閱讀。</strong>新文章大約半分鐘內就會顯示摘要。其他功能請參閱<link>閱讀與整理</link>。"
     },
-    "chrome": {
-      "title": "{chrome} 擴充功能",
+    "firefox": {
+      "title": "{firefox} 附加元件",
       "intro": "透過工具列按鈕、鍵盤快速鍵和右鍵選單儲存到 {app}。"
     },
     "safari": {

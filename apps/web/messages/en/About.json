@@ -6,7 +6,7 @@
       "heading": "Contact",
       "label": "Your message",
       "placeholder": "Questions, ideas, problems, or a request to delete your account. Your message is sent with your account’s name and email.",
-      "signedOut": "<link>Sign in</link> to send a message.",
+      "signedOut": "<link>Sign in</link> to send a message, or write to <mailto>{email}</mailto>.",
       "send": "Send",
       "sending": "Sending…",
       "sent": "Thank you. Your message was sent.",

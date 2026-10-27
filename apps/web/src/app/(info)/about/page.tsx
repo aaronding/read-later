@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { FeedbackForm } from "@/components/feedback-form";
-import { APP_NAME } from "@/config/app";
+import { APP_NAME, CONTACT_EMAIL } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
 import { deploymentFor } from "@/lib/deployment";
 
@@ -27,7 +27,13 @@ export default async function AboutPage() {
       {user ? (
         <FeedbackForm />
       ) : (
-        <p>{t.rich("feedback.signedOut", { link: (chunks) => <Link href="/sign-in?next=/about%23contact">{chunks}</Link> })}</p>
+        <p>
+          {t.rich("feedback.signedOut", {
+            link: (chunks) => <Link href="/sign-in?next=/about%23contact">{chunks}</Link>,
+            mailto: (chunks) => <a href={`mailto:${CONTACT_EMAIL}`}>{chunks}</a>,
+            email: CONTACT_EMAIL,
+          })}
+        </p>
       )}
 
       {deployment && (

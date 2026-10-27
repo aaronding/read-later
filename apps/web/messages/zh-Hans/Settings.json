@@ -13,13 +13,13 @@
     },
     "tokens": {
       "heading": "访问令牌",
-      "intro": "{chrome} 扩展程序和 {apple} 快捷指令通过令牌将内容保存到你的账号。请为每个设备单独创建一个令牌，这样撤销其中一个时不会影响其他设备。",
+      "intro": "{apple} 快捷指令通过令牌将内容保存到你的账号；{firefox} 附加组件会在连接时创建自己的令牌。请为每个设备单独创建一个令牌，这样撤销其中一个时不会影响其他设备。",
       "details": "<code>{prefix}…</code> · 创建于 <created></created> · 上次使用：<lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · 创建于 <created></created> · 从未使用",
       "revoke": "撤销",
       "revokeConfirm": "撤销“{name}”？所有使用它的设备都将无法继续保存。",
       "nameLabel": "令牌名称",
-      "namePlaceholder": "名称，例如：笔记本电脑上的 {chrome}",
+      "namePlaceholder": "名称，例如：我的 {iphone} 上的快捷指令",
       "create": "创建令牌",
       "creating": "正在创建…",
       "newToken": "<strong>已为“{name}”创建新令牌。</strong>请立即复制，它不会再次显示。",
@@ -45,8 +45,8 @@
     "appearanceIntro": "阅读时使用的配色和字体。选择“{system}”时，会与设备的浅色或深色模式保持一致。你的选择会保存到账号中，因此在你登录的每个设备上都会生效；阅读时，也可以用每个页面顶部的 <strong>Aa</strong> 按钮随时更改。",
     "devices": {
       "heading": "从你的设备保存",
-      "intro": "每种只需几分钟，需要用到上方的访问令牌。",
-      "chrome": "{chrome} 扩展程序",
+      "intro": "每种只需几分钟，只有快捷指令需要用到上方的访问令牌。",
+      "firefox": "{firefox} 附加组件",
       "safari": "{safari} 快捷指令（{iphone}、{ipad} 和 {mac}）",
       "android": "{android}"
     }

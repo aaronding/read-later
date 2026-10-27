@@ -4,9 +4,18 @@ import { APP_NAME } from "@/config/app";
 import { appUrl } from "@/config/env";
 import { getCurrentUser } from "@/lib/auth";
 import { HELP_TOPICS, helpHref, type HelpTopic } from "@/lib/help";
-import { AndroidGuide, ChromeGuide, ShortcutGuide } from "./connect-guides";
+import { AndroidGuide, FirefoxGuide, ShortcutGuide } from "./connect-guides";
 
-const products = { app: APP_NAME, chrome: "Chrome", safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac", android: "Android" };
+const products = {
+  app: APP_NAME,
+  chrome: "Chrome",
+  firefox: "Firefox",
+  safari: "Safari",
+  iphone: "iPhone",
+  ipad: "iPad",
+  mac: "Mac",
+  android: "Android",
+};
 const strong = (chunks: React.ReactNode) => <strong>{chunks}</strong>;
 
 /** A Help page: the menu of topics, then the topic, then links to the previous and next one. */
@@ -39,7 +48,7 @@ export async function HelpPage({ topic }: { topic: HelpTopic }) {
             <li>
               {t.rich("start.save", { strong })}
               <ul>
-                <li>{t.rich("start.chrome", { ...products, link: link("chrome") })}</li>
+                <li>{t.rich("start.firefox", { ...products, link: link("firefox") })}</li>
                 <li>{t.rich("start.safari", { ...products, link: link("safari") })}</li>
                 <li>{t.rich("start.android", { ...products, link: link("android") })}</li>
                 <li>{t("start.paste")}</li>
@@ -49,11 +58,11 @@ export async function HelpPage({ topic }: { topic: HelpTopic }) {
           </ol>
         )}
 
-        {/* The extension's Connect button signs in by itself; the Shortcut needs a token from Settings. */}
+        {/* The add-on's Connect button signs in by itself; the Shortcut needs a token from Settings. */}
         {topic === "safari" && !user && (
           <p className="notice small">{t.rich("signInFirst", { link: (chunks) => <Link href={`/sign-in?next=${helpHref(topic)}`}>{chunks}</Link> })}</p>
         )}
-        {topic === "chrome" && <ChromeGuide serverUrl={serverUrl} />}
+        {topic === "firefox" && <FirefoxGuide />}
         {topic === "safari" && <ShortcutGuide saveUrl={`${serverUrl}/api/save`} />}
         {topic === "android" && <AndroidGuide />}
 

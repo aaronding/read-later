@@ -7,7 +7,7 @@
       "alreadySavedRefetching": "Already saved; downloading it again."
     },
     "createToken": {
-      "nameRequired": "Give the token a name, such as “{chrome} on my laptop”."
+      "nameRequired": "Give the token a name, such as “Shortcuts on my {iphone}”."
     }
   }
 }

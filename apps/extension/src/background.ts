@@ -1,17 +1,21 @@
 // The extension's background script (a service worker in Chrome, an event
 // page in Firefox): the toolbar button and its keyboard shortcut save the
-// current page; the right-click menu saves a link.
+// current page; the right-click menu saves a link. In Firefox, the toolbar
+// button's own right-click menu also opens the options, which Chrome's has already.
 import { sendSave, tokenRejected, type SavePayload } from "./api.js";
 import { capturePage } from "./capture.js";
 import { browserMessage as getMessage, outcomeText } from "./i18n.js";
 import { loadSettings } from "./settings.js";
 
 const MENU_ID = "save-link";
+const OPTIONS_MENU_ID = "open-options";
+const firefox = location.protocol === "moz-extension:";
 const COLORS = { busy: "#6b7280", ok: "#2b2723", error: "#b42318" };
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   // Firefox for Android has no context menus; the toolbar action still works there.
   chrome.contextMenus?.create({ id: MENU_ID, title: getMessage("contextMenuTitle"), contexts: ["link"] });
+  if (firefox) chrome.contextMenus?.create({ id: OPTIONS_MENU_ID, title: getMessage("optionsTitle"), contexts: ["action"] });
   if (details.reason === "install") {
     const settings = await loadSettings();
     if (!settings.serverUrl || !settings.token) await chrome.runtime.openOptionsPage();
@@ -72,6 +76,7 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 chrome.contextMenus?.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === OPTIONS_MENU_ID) return void chrome.runtime.openOptionsPage();
   if (info.menuItemId !== MENU_ID || !info.linkUrl) return;
   if (!/^https?:/i.test(info.linkUrl)) {
     void showOutcome(tab?.id, false, getMessage("onlyWebLinks"));

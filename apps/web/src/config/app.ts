@@ -5,6 +5,12 @@ export { APP_NAME, APP_SHORT_NAME };
 
 export const APP_VERSION = "0.1.0";
 
+// Shown on About to visitors who aren't signed in, who have no form to use.
+export const CONTACT_EMAIL = "contact@readsooner.com";
+
+// The Firefox add-on's page on addons.mozilla.org; its last part is the add-on URL set in the Developer Hub.
+export const FIREFOX_ADDON_URL = "https://addons.mozilla.org/firefox/addon/readsooner/";
+
 /**
  * The User-Agent for server-side downloads. It names the app honestly; we
  * never pretend to be a browser or a search engine crawler.

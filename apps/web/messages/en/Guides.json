@@ -1,10 +1,10 @@
 {
   "Guides": {
-    "chrome": {
-      "build": "On your computer, in the project folder, run <kbd>pnpm extension:build</kbd>. It creates <code>apps/extension/dist</code>.",
-      "load": "In {chrome}, open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click <strong>Load unpacked</strong> and choose the <code>apps/extension/dist</code> folder.",
-      "connect": "Open the extension’s <strong>Options</strong>, check that the server URL is <code>{url}</code>, click <strong>Connect</strong> and approve in the window that opens. Or paste an access token from <tokens>Settings</tokens>.",
-      "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t."
+    "firefox": {
+      "install": "On a computer, open <store>{app} on {firefox} Add-ons</store>, click <strong>Add to {firefox}</strong>, then <strong>Add</strong>. The data {firefox} says it sends is the address and the text of each page you save, sent only to {app}.",
+      "connect": "Its options open by themselves: click <strong>Connect</strong>, sign in if asked, and approve in the window that opens. To reach them later, right-click the toolbar button and choose <strong>{app} options</strong>.",
+      "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t.",
+      "pin": "Optional: {firefox} puts the button in the <strong>Extensions</strong> menu, under the puzzle-piece icon. To keep it on the toolbar, open that menu, click the gear next to {app} and choose <strong>Pin to Toolbar</strong>."
     },
     "shortcut": {
       "intro": "You build two Shortcuts by hand, once; they then sync to your {iphone}, {ipad} and {mac} through {icloud}. The first sends the whole page from {safari}, so paywalled articles you can read are saved in full. The second, for other apps such as {chrome} on {iphone}, sends only the link.",

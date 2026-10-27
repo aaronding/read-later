@@ -13,13 +13,13 @@
     },
     "tokens": {
       "heading": "存取權杖",
-      "intro": "{chrome} 擴充功能和 {apple} 捷徑會使用權杖將內容儲存到你的帳號。請為每個裝置分別建立一個權杖，這樣撤銷其中一個時，就不會影響其他權杖。",
+      "intro": "{apple} 捷徑會使用權杖將內容儲存到你的帳號；{firefox} 附加元件則會在連結時建立自己的權杖。請為每個裝置分別建立一個權杖，這樣撤銷其中一個時，就不會影響其他權杖。",
       "details": "<code>{prefix}…</code> · 建立於 <created></created> · 上次使用：<lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · 建立於 <created></created> · 從未使用",
       "revoke": "撤銷",
       "revokeConfirm": "要撤銷「{name}」嗎？所有使用它的裝置都將無法繼續儲存。",
       "nameLabel": "權杖名稱",
-      "namePlaceholder": "名稱，例如：筆電上的 {chrome}",
+      "namePlaceholder": "名稱，例如：我的 {iphone} 上的捷徑",
       "create": "建立權杖",
       "creating": "建立中…",
       "newToken": "<strong>已為「{name}」建立新權杖。</strong>請立即複製，之後不會再顯示。",
@@ -45,8 +45,8 @@
     "appearanceIntro": "閱讀時使用的配色和字型。「{system}」會依照裝置的淺色或深色模式切換。你的選擇會儲存到帳號中，因此你登入的每個裝置都會套用；閱讀時，也可以用每個頁面頂端的 <strong>Aa</strong> 按鈕隨時變更。",
     "devices": {
       "heading": "從你的裝置儲存",
-      "intro": "每種只需幾分鐘，需要用到上方的存取權杖。",
-      "chrome": "{chrome} 擴充功能",
+      "intro": "每種只需幾分鐘，只有捷徑需要用到上方的存取權杖。",
+      "firefox": "{firefox} 附加元件",
       "safari": "{safari} 捷徑 ({iphone}、{ipad} 和 {mac})",
       "android": "{android}"
     }

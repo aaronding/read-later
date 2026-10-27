@@ -251,7 +251,7 @@ export async function createTokenAction(_previous: CreateTokenState, formData: F
   const name = String(formData.get("name") ?? "").trim();
   if (!name) {
     const t = await getTranslations("Actions.createToken");
-    return { error: t("nameRequired", { chrome: "Chrome" }) };
+    return { error: t("nameRequired", { iphone: "iPhone" }) };
   }
   const { token, record } = await createApiToken(getDb(), user.id, name);
   refresh();

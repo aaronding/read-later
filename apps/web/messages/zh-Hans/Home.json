@@ -20,8 +20,9 @@
     "ways": {
       "heading": "随处保存",
       "setUp": "设置 →",
-      "chrome": {
-        "title": "{chrome}",
+      "addToFirefox": "添加到 {firefox} →",
+      "firefox": {
+        "title": "{firefox}",
         "text": "工具栏按钮，或按 Alt+Shift+S。"
       },
       "safari": {

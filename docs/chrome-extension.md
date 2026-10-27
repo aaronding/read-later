@@ -6,7 +6,7 @@ The extension saves the page you're reading to your ReadSooner library, includin
 - **Right-click a link → "Save link to ReadSooner"**: saves just the link; the server downloads the page.
 - **The badge** on the toolbar button shows `…` while saving, then **✓** when saved or **!** when something went wrong. Hover over the button to see the reason.
 
-It isn't published in the Chrome Web Store (that's planned for stage 3), so you install it from the repository with "Load unpacked". It works the same in Chrome and in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox extension](firefox-extension.md).
+It isn't published in the Chrome Web Store (that's planned for stage 3), so you install it from the repository with "Load unpacked", and the web app's Help describes only the [Firefox add-on](firefox-extension.md), which anyone can install. It works the same in Chrome and in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox extension](firefox-extension.md).
 
 Its text is in the browser's language when that is English, French, Simplified Chinese or Traditional Chinese, and in English otherwise. It doesn't follow the language chosen in the web app's Settings: an extension can only use the browser's. This guide quotes the English texts.
 

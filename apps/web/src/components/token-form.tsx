@@ -18,7 +18,7 @@ export function TokenForm() {
           id="token-name"
           name="name"
           type="text"
-          placeholder={t("tokens.namePlaceholder", { chrome: "Chrome" })}
+          placeholder={t("tokens.namePlaceholder", { iphone: "iPhone" })}
           maxLength={100}
         />
         <button type="submit" className="button primary" disabled={pending}>

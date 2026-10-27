@@ -7,7 +7,7 @@
       "alreadySavedRefetching": "先前已儲存，正在重新下載。"
     },
     "createToken": {
-      "nameRequired": "請為權杖命名，例如「筆電上的 {chrome}」。"
+      "nameRequired": "請為權杖命名，例如「我的 {iphone} 上的捷徑」。"
     }
   }
 }
