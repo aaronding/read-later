@@ -86,7 +86,7 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 | `pnpm db:migrate` | Applies database migrations to `DATABASE_URL_UNPOOLED`, or to `DATABASE_URL` when that isn't set |
 | `pnpm db:generate` | Creates a new migration after changing `apps/web/src/db/schema.ts` |
 | `pnpm worker` | Runs the background worker loop (only needed on a server) |
-| `pnpm extension:build` | Builds the extension for Chrome into `apps/extension/dist` and for Firefox into `apps/extension/dist-firefox` |
+| `pnpm extension:build` | Builds the extension for Chrome into `apps/extension/dist`, with `dist.zip` for the Chrome Web Store, and for Firefox into `apps/extension/dist-firefox`, with `dist-firefox.zip` for addons.mozilla.org |
 | `pnpm icons` | Redraws the app and extension icons from the logo in `packages/brand/logo` |
 | `pnpm --filter web home-images` | Retakes the homepage's screenshots, and the picture a shared link shows, from the app running at `APP_URL`, with a demo account in a local `DATABASE_URL`, using the installed Chrome (or `CHROMIUM_PATH`) |
 

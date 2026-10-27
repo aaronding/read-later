@@ -5,6 +5,7 @@ node_modules/
 .next/
 out/
 dist/
+apps/extension/dist.zip
 apps/extension/dist-firefox/
 apps/extension/dist-firefox.zip
 build/
