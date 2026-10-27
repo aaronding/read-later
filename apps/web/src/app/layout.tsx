@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages, getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/config/app";
+import { appUrl } from "@/config/env";
 import { HTML_LANG } from "@/i18n/locales";
 import { CLIENT_NAMESPACES, pickNamespaces } from "@/i18n/messages";
 import { appearanceCss, appearanceScript, themeColors } from "@/lib/appearance";
@@ -13,8 +14,14 @@ import "./globals.css";
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Common");
   return {
+    // Canonical addresses and the share image are on APP_URL.
+    metadataBase: new URL(appUrl()),
     title: { default: APP_NAME, template: `%s · ${APP_NAME}` },
     description: t("tagline"),
+    // A link to the site shared in a chat or a post shows opengraph-image.png,
+    // large, under the page's title and description (Next.js fills those in).
+    openGraph: { type: "website", siteName: APP_NAME },
+    twitter: { card: "summary_large_image" },
     appleWebApp: { title: APP_NAME, capable: true, statusBarStyle: "default" },
   };
 }

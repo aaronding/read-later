@@ -10,7 +10,8 @@ import { safeRedirectPath } from "@/lib/redirects";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Auth");
-  return { title: t("signInTitle") };
+  // Search results lead to the homepage, which has the same button.
+  return { title: t("signInTitle"), robots: { index: false } };
 }
 
 export default async function SignInPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {

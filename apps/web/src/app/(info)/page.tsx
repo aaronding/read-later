@@ -10,7 +10,7 @@ import { browserAndSystem } from "@/lib/user-agent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Home");
-  return { title: { absolute: APP_NAME }, description: t("description") };
+  return { title: { absolute: APP_NAME }, description: t("description"), alternates: { canonical: "/" } };
 }
 
 const STEPS = ["save", "gist", "read"] as const;
