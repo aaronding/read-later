@@ -23,7 +23,7 @@
       "addToFirefox": "Ajouter à {firefox} →",
       "firefox": {
         "title": "{firefox}",
-        "text": "Un bouton dans la barre d’outils, ou Alt+Maj+S."
+        "text": "Un bouton dans la barre d’outils, ou {system, select, mac {Option+Maj+S} other {Alt+Maj+S}}."
       },
       "safari": {
         "title": "{safari}",

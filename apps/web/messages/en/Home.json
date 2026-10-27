@@ -23,7 +23,7 @@
       "addToFirefox": "Add to {firefox} →",
       "firefox": {
         "title": "{firefox}",
-        "text": "A toolbar button, or Alt+Shift+S."
+        "text": "A toolbar button, or {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}."
       },
       "safari": {
         "title": "{safari}",

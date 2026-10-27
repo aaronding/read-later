@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SignInButton } from "@/components/sign-in-button";
 import { APP_NAME, FIREFOX_ADDON_URL } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
+import { browserAndSystem } from "@/lib/user-agent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Common");
@@ -14,8 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
 const STEPS = ["save", "gist", "read"] as const;
 const WAYS = [
   { key: "firefox", help: "/help/firefox" },
-  { key: "safari", help: "/help/safari" },
   { key: "android", help: "/help/android" },
+  { key: "safari", help: "/help/safari" },
   { key: "paste", help: null },
 ] as const;
 const products = {
@@ -31,7 +33,9 @@ const products = {
 // The homepage, for visitors who aren't signed in; signed in, the Inbox.
 export default async function HomePage() {
   if (await getCurrentUser()) redirect("/inbox");
-  const [t, locale] = await Promise.all([getTranslations("Home"), getLocale()]);
+  const [t, locale, requestHeaders] = await Promise.all([getTranslations("Home"), getLocale(), headers()]);
+  // The keyboard shortcut as the visitor's keyboard names it: Option on a Mac, Alt elsewhere.
+  const system = browserAndSystem(requestHeaders.get("user-agent")).system === "macOS" ? "mac" : "other";
   return (
     <div className="home">
       <section className="hero">
@@ -84,12 +88,14 @@ export default async function HomePage() {
           {WAYS.map(({ key, help }) => (
             <li key={key} className="card tile">
               <h3>{t(`ways.${key}.title`, products)}</h3>
-              <p>{t(`ways.${key}.text`, products)}</p>
+              <p>{t(`ways.${key}.text`, { ...products, system })}</p>
               {/* The add-on's tile also links to Mozilla's store, where it is installed. */}
               {key === "firefox" ? (
                 <span className="tile-links">
                   <Link href={help}>{t("ways.setUp")}</Link>
-                  <a href={FIREFOX_ADDON_URL}>{t("ways.addToFirefox", products)}</a>
+                  <a href={FIREFOX_ADDON_URL} target="_blank" rel="noopener">
+                    {t("ways.addToFirefox", products)}
+                  </a>
                 </span>
               ) : (
                 help && <Link href={help}>{t("ways.setUp")}</Link>

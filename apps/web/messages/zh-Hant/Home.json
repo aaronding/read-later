@@ -23,7 +23,7 @@
       "addToFirefox": "新增至 {firefox} →",
       "firefox": {
         "title": "{firefox}",
-        "text": "工具列按鈕，或按 Alt+Shift+S。"
+        "text": "工具列按鈕，或按 {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}。"
       },
       "safari": {
         "title": "{safari}",
