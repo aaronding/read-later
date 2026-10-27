@@ -84,7 +84,7 @@ After changing the code, run `pnpm extension:build` again, then click the reload
   - `storage`: To keep the user's ReadSooner access token and the extension's settings.
   - `identity`: For the Connect button: `launchWebAuthFlow` opens ReadSooner's approval page, where the user signs in and approves, and receives the access token for this browser. It doesn't use `getAuthToken` or the user's Google account.
 - **Remote code:** No, I am not using remote code.
-- **Data usage:** tick **Website content** (the content of each page the user saves), **Web history** (the address and title of each page the user saves) and **Authentication information** (the ReadSooner access token, kept in the extension and sent only to ReadSooner). Nothing else. Then tick the three certifications: no sale to third parties, no use unrelated to the single purpose, no use for credit decisions.
+- **Data usage:** tick **Website content** (the address, title and content of each page the user saves) and **Authentication information** (the ReadSooner access token, kept in the extension and sent only to ReadSooner; Google counts login cookies and any login as user data). Not **Web history**: that is the list of pages a user visits, which the extension never collects. Then tick the three certifications: no sale to third parties, no use unrelated to the single purpose, no use for credit decisions.
 - **Privacy policy:** `https://www.readsooner.com/privacy`. Its section on the browser extension says what the extension reads, sends and keeps, and carries the Limited Use statement the store asks for.
 
 **Distribution:** Public, in all regions. To install it from the store yourself before anyone else, choose Private and add yourself as a trusted tester, then switch to Public.
