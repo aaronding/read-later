@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { browserAndSystem } from "./user-agent";
 
 // The extension's Connect button opens /extension/connect through the
 // browser's identity.launchWebAuthFlow(), with the address the flow ends at
@@ -36,30 +37,6 @@ export function parseConnectRequest(redirectUri: unknown, state: unknown): Conne
 /** Where to send the window: the extension's address with the token, or with the refusal. */
 export function connectRedirect(request: ConnectRequest, answer: { token: string } | { error: "access_denied" }): string {
   return `${request.redirectUri}#${new URLSearchParams({ ...answer, state: request.state })}`;
-}
-
-// The first match wins: Edge and Opera also say Chrome, and Android also says Linux.
-const BROWSERS: [RegExp, string][] = [
-  [/Edg(A|iOS)?\//, "Edge"],
-  [/OPR\//, "Opera"],
-  [/Firefox\//, "Firefox"],
-  [/Chrome\//, "Chrome"],
-];
-const SYSTEMS: [RegExp, string][] = [
-  [/Android/, "Android"],
-  [/CrOS/, "ChromeOS"],
-  [/Windows/, "Windows"],
-  [/Macintosh|Mac OS X/, "macOS"],
-  [/Linux/, "Linux"],
-];
-
-/** The browser and system a user agent names. Brave and Vivaldi say Chrome. */
-export function browserAndSystem(userAgent: string | null): { browser?: string; system?: string } {
-  const ua = userAgent ?? "";
-  return {
-    browser: BROWSERS.find(([pattern]) => pattern.test(ua))?.[1],
-    system: SYSTEMS.find(([pattern]) => pattern.test(ua))?.[1],
-  };
 }
 
 /** The new token's name, after the browser asking for it: "Firefox extension on macOS". */
