@@ -12,7 +12,7 @@ Its text is in the browser's language when that is English, French, Simplified C
 
 ## Install
 
-1. Open [ReadSooner in the Chrome Web Store](https://chromewebstore.google.com/search/ReadSooner) and click **Add to Chrome**, then **Add extension**.
+1. Open [ReadSooner in the Chrome Web Store](https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm) and click **Add to Chrome**, then **Add extension**.
 2. **Connect it to your account.** The options page opens by itself; you can also reach it by right-clicking the toolbar button and choosing **Options**.
    Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and the options page says "Connected. This browser now saves to your ReadSooner account.", with nothing else to fill in.
 3. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner**, so its button is always visible.
@@ -97,7 +97,7 @@ Sign-in has to be open to everyone (`ALLOWED_EMAILS=*`) for reviewers to get in.
 
 ### The store's address
 
-Help, the homepage and this guide link to the store through `CHROME_EXTENSION_URL` in `apps/web/src/config/app.ts`, which searches the store for ReadSooner until the extension's own page is known. Once the dashboard shows the item's ID, set it to `https://chromewebstore.google.com/detail/<item ID>`, and the link in [Install](#install) too.
+The extension's page is `https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm`, by its item ID, which every version keeps. Help, the homepage and this guide link to it; the web app's copy is `CHROME_EXTENSION_URL` in `apps/web/src/config/app.ts`.
 
 ## Troubleshooting
 
