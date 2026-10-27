@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { APP_NAME } from "@/config/app";
-import { BACKUP_RETENTION_DAYS, PRIVACY_EFFECTIVE_DATE } from "@/config/privacy";
+import { BACKUP_RETENTION_DAYS, CHROME_USER_DATA_POLICY_URL, PRIVACY_EFFECTIVE_DATE } from "@/config/privacy";
 import { LOCALE_COOKIE } from "@/i18n/locales";
 import { SESSION_DAYS } from "@/lib/auth";
 import { FINISHED_JOB_DAYS } from "@/lib/jobs/queue";
@@ -15,6 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const KEPT = ["account", "sessions", "saved", "library", "tokens", "usage", "feedback"] as const;
+const EXTENSION = ["reads", "sends", "keeps"] as const;
 const COOKIES = [
   { name: "better-auth.session_token", key: "session" },
   { name: "better-auth.state", key: "state" },
@@ -51,6 +52,15 @@ export default async function PrivacyPage() {
         {KEPT.map((key) => (
           <li key={key}>{t.rich(`kept.${key}`, { ...app, strong })}</li>
         ))}
+      </ul>
+
+      {/* What the browser extension does on its own, as the extension stores ask the policy to say. */}
+      <h2>{t("extension.heading")}</h2>
+      <ul>
+        {EXTENSION.map((key) => (
+          <li key={key}>{t.rich(`extension.${key}`, { ...app, strong })}</li>
+        ))}
+        <li>{t.rich("extension.limitedUse", { ...app, link: (chunks) => <a href={CHROME_USER_DATA_POLICY_URL}>{chunks}</a> })}</li>
       </ul>
 
       <h2>{t("cookies.heading")}</h2>
