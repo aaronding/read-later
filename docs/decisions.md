@@ -252,3 +252,7 @@ The brief says: when a decision isn't covered, choose the simpler option and not
 ## A contact address
 
 142. **Visitors who aren't signed in see `contact@readsooner.com` on About, after the link to sign in; signed-in users still get only the form,** the owner's choice, filling the gap 127 left for someone who can't sign in, such as a store reviewer, a publisher writing about a copyright, or someone whose account is blocked. Its mail goes to iCloud+ through a custom email domain, and the address lives in `CONTACT_EMAIL` in `apps/web/src/config/app.ts`. The form stays the way signed-in users ask for anything, account deletion included, since it shows the request comes from the account's holder. The privacy policy is unchanged: an email goes to the owner's mailbox, not to anything the app keeps.
+
+## Opening the extension's options
+
+143. **In Firefox, the toolbar button's right-click menu has "ReadSooner options",** which opens the options page. Clicking the button saves the page, so once connected there was no direct way back to the options: Chrome's menu for an extension's button has Options already, while Firefox's offers only Manage Extension, two steps away. The item uses the options page's own title as its name, and is added only in Firefox, so Chrome's menu doesn't list Options twice.
