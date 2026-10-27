@@ -3,7 +3,7 @@
     "chrome": {
       "build": "在電腦上的專案資料夾中執行 <kbd>pnpm extension:build</kbd>。這會建立 <code>apps/extension/dist</code>。",
       "load": "在 {chrome} 中前往 <code>chrome://extensions</code>，開啟「<strong>開發人員模式</strong>」，點選「<strong>載入未封裝項目</strong>」，然後選取 <code>apps/extension/dist</code> 資料夾。",
-      "connect": "開啟擴充功能的「<strong>選項</strong>」，然後輸入伺服器網址 <code>{url}</code> 和在<tokens>設定</tokens>中建立的存取權杖。",
+      "connect": "開啟擴充功能的「<strong>選項</strong>」，確認伺服器網址為 <code>{url}</code>，點選「<strong>連結</strong>」，然後在開啟的視窗中核准。也可以貼上在<tokens>設定</tokens>中建立的存取權杖。",
       "use": "使用工具列按鈕或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (在 {mac} 上為 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) 儲存網頁。在連結上按右鍵並選擇「<strong>將連結儲存至 {app}</strong>」，即可只儲存連結。徽章顯示 ✓ 表示儲存成功，顯示 ! 表示儲存失敗。"
     },
     "shortcut": {

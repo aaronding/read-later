@@ -27,7 +27,7 @@
     "message": "只能保存 http 和 https 链接。"
   },
   "notConfigured": {
-    "message": "请打开扩展程序的“选项”，然后输入服务器网址和访问令牌。"
+    "message": "请打开扩展程序的“选项”，将其连接到你的账号。"
   },
   "saved": {
     "message": "已保存到 {app}"
@@ -76,7 +76,7 @@
     }
   },
   "errorUnauthorized": {
-    "message": "访问令牌缺失或无效。请在“设置”中创建一个。"
+    "message": "访问令牌已失效，可能已被撤销。请打开扩展程序的“选项”重新连接。"
   },
   "errorTooLarge": {
     "message": "网页太大，无法保存。"
@@ -107,6 +107,24 @@
   },
   "saveAndCheck": {
     "message": "保存并检查"
+  },
+  "connect": {
+    "message": "连接"
+  },
+  "connectHint": {
+    "message": "在窗口中打开 {app}，按提示登录并批准此浏览器，访问令牌随后会自动填入。"
+  },
+  "tokenHintWithConnect": {
+    "message": "也可以在 Web 应用的“设置”→“访问令牌”中创建令牌，然后粘贴到这里。令牌仅存储在此浏览器中。"
+  },
+  "connecting": {
+    "message": "请在打开的窗口中批准连接…"
+  },
+  "notConnected": {
+    "message": "未连接。请检查服务器网址后重试，或粘贴访问令牌。"
+  },
+  "tokenRejected": {
+    "message": "服务器不接受此访问令牌，它可能已被撤销或输入有误。请点击“连接”，或粘贴新的令牌。"
   },
   "enterServerUrl": {
     "message": "请输入服务器的网址，例如 https://read.example.com。"

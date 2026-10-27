@@ -6,6 +6,7 @@ import type appearance from "../../messages/en/Appearance.json";
 import type auth from "../../messages/en/Auth.json";
 import type common from "../../messages/en/Common.json";
 import type compare from "../../messages/en/Compare.json";
+import type connect from "../../messages/en/Connect.json";
 import type errorPages from "../../messages/en/ErrorPages.json";
 import type errors from "../../messages/en/Errors.json";
 import type exportMessages from "../../messages/en/Export.json";
@@ -37,6 +38,7 @@ export const NAMESPACES = [
   "Auth",
   "Common",
   "Compare",
+  "Connect",
   "ErrorPages",
   "Errors",
   "Export",
@@ -64,6 +66,7 @@ export type Messages = typeof about &
   typeof auth &
   typeof common &
   typeof compare &
+  typeof connect &
   typeof errorPages &
   typeof errors &
   typeof exportMessages &

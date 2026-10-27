@@ -7,7 +7,7 @@
     "start": {
       "title": "入门",
       "intro": "{app} 为你保存想稍后阅读的文章，每篇都附有简洁的正文副本和简短摘要。设置只需几分钟。",
-      "token": "在<link>设置</link>中<strong>创建访问令牌</strong>。{chrome} 扩展程序和 {safari} 快捷指令用它把文章保存到你的账号。",
+      "token": "在<link>设置</link>中为 {safari} 快捷指令<strong>创建访问令牌</strong>。{chrome} 扩展程序则会在你点击其“选项”中的“<strong>连接</strong>”时获得自己的令牌。",
       "save": "<strong>选择保存方式：</strong>",
       "chrome": "在电脑上，使用 <link>{chrome} 扩展程序</link>。",
       "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 快捷指令</link>。",

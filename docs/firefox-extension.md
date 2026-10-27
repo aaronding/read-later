@@ -24,7 +24,7 @@ This creates `apps/extension/dist-firefox` and `apps/extension/dist-firefox.zip`
 
 1. Open `about:debugging#/runtime/this-firefox` in Firefox.
 2. Click **Load Temporary Add-on…** and choose `apps/extension/dist-firefox/manifest.json`.
-3. Connect it to your account, as in [the Chrome guide](chrome-extension.md#install) (step 3): the server URL, already filled in, then an access token from the web app's **Settings → Access tokens**, then **Save and check**. The options page opens by itself after installing. To reach it later, open `about:addons`, click **⋯** on ReadSooner's card and choose **Options** (**Preferences** on a Mac).
+3. Connect it to your account, as in [the Chrome guide](chrome-extension.md#install) (step 3): check the server URL, which is already filled in, click **Connect**, and approve in the window that opens. The options page opens by itself after installing. To reach it later, open `about:addons`, click **⋯** on ReadSooner's card and choose **Options** (**Preferences** on a Mac).
 
 After changing the code, run `pnpm extension:build` again and click **Reload** on the add-on's card. The add-on disappears when Firefox quits; load it again the same way.
 

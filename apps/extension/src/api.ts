@@ -24,6 +24,11 @@ type Fetch = typeof fetch;
 
 const NOT_CONFIGURED: Outcome = { ok: false, kind: "notConfigured" };
 
+/** True when the server refused the token: revoked, mistyped, or its account can no longer sign in. */
+export function tokenRejected(outcome: Outcome): boolean {
+  return outcome.kind === "server" && outcome.code === "unauthorized";
+}
+
 const textOf = (value: unknown) => (typeof value === "string" && value ? value : undefined);
 
 async function failure(response: Response): Promise<Outcome> {

@@ -7,7 +7,7 @@
     "start": {
       "title": "Getting started",
       "intro": "{app} keeps the articles you want to read later, each with a clean copy and a short summary. Setting it up takes a few minutes.",
-      "token": "<strong>Create an access token</strong> in <link>Settings</link>. The {chrome} extension and the {safari} Shortcut use it to save to your account.",
+      "token": "<strong>Create an access token</strong> in <link>Settings</link> for the {safari} Shortcut. The {chrome} extension gets its own when you click <strong>Connect</strong> in its options.",
       "save": "<strong>Choose how to save:</strong>",
       "chrome": "On a computer, the <link>{chrome} extension</link>.",
       "safari": "On an {iphone}, {ipad} or {mac}, the <link>{safari} Shortcut</link>.",

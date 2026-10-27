@@ -49,7 +49,8 @@ export async function HelpPage({ topic }: { topic: HelpTopic }) {
           </ol>
         )}
 
-        {(topic === "chrome" || topic === "safari") && !user && (
+        {/* The extension's Connect button signs in by itself; the Shortcut needs a token from Settings. */}
+        {topic === "safari" && !user && (
           <p className="notice small">{t.rich("signInFirst", { link: (chunks) => <Link href={`/sign-in?next=${helpHref(topic)}`}>{chunks}</Link> })}</p>
         )}
         {topic === "chrome" && <ChromeGuide serverUrl={serverUrl} />}

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { checkConnection, sendSave } from "./api";
+import { checkConnection, sendSave, tokenRejected } from "./api";
 import { DEFAULT_SERVER_URL, loadSettings, normalizeServerUrl } from "./settings";
 
 const settings = { serverUrl: "https://read.example.com", token: "rl_test" };
@@ -58,6 +58,18 @@ describe("sendSave", () => {
       kind: "server",
       status: "502 Bad Gateway",
     });
+  });
+
+  it("tells a refused token from other failures, so the options page can open", async () => {
+    const refused = await sendSave(settings, { url: "https://example.com" }, async () =>
+      json(401, { ok: false, error: "Missing or invalid access token.", code: "unauthorized" }),
+    );
+    expect(tokenRejected(refused)).toBe(true);
+    const failed = await sendSave(settings, { url: "https://example.com" }, async () =>
+      json(500, { ok: false, error: "Oops", code: "server_error" }),
+    );
+    expect(tokenRejected(failed)).toBe(false);
+    expect(tokenRejected({ ok: false, kind: "notConfigured" })).toBe(false);
   });
 
   it("reports a server it can't reach", async () => {

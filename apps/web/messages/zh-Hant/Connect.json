@@ -1,0 +1,15 @@
+{
+  "Connect": {
+    "title": "連結瀏覽器擴充功能",
+    "intro": "這個瀏覽器中的 {app} 擴充功能要求將網頁儲存到你的帳號 <strong>{email}</strong>。",
+    "token": "這會建立一個名為「{name}」的存取權杖，你可以隨時在「設定」→「存取權杖」中撤銷。",
+    "onlyIfYouAsked": "請僅在你剛剛於擴充功能的「選項」中點選「連結」時，才繼續操作。",
+    "connect": "連結",
+    "connecting": "正在連結…",
+    "cancel": "取消",
+    "invalid": "這個網址不是由 {app} 擴充功能開啟的。如要連結擴充功能，請開啟它的「選項」，然後點選「連結」。",
+    "goToInbox": "前往收件匣",
+    "tokenName": "{system} 上的 {browser} 擴充功能",
+    "tokenNameUnknown": "瀏覽器擴充功能"
+  }
+}

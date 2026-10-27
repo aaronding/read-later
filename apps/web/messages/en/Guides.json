@@ -3,7 +3,7 @@
     "chrome": {
       "build": "On your computer, in the project folder, run <kbd>pnpm extension:build</kbd>. It creates <code>apps/extension/dist</code>.",
       "load": "In {chrome}, open <code>chrome://extensions</code>, turn on <strong>Developer mode</strong>, click <strong>Load unpacked</strong> and choose the <code>apps/extension/dist</code> folder.",
-      "connect": "Open the extension’s <strong>Options</strong>. Enter the server URL <code>{url}</code> and an access token from <tokens>Settings</tokens>.",
+      "connect": "Open the extension’s <strong>Options</strong>, check that the server URL is <code>{url}</code>, click <strong>Connect</strong> and approve in the window that opens. Or paste an access token from <tokens>Settings</tokens>.",
       "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t."
     },
     "shortcut": {

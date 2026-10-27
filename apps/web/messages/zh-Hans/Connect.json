@@ -1,0 +1,15 @@
+{
+  "Connect": {
+    "title": "连接浏览器扩展程序",
+    "intro": "此浏览器中的 {app} 扩展程序请求将网页保存到你的账号 <strong>{email}</strong>。",
+    "token": "这会创建一个名为“{name}”的访问令牌，你可以随时在“设置”→“访问令牌”中撤销。",
+    "onlyIfYouAsked": "仅当你刚在扩展程序的“选项”中点击“连接”时，才继续操作。",
+    "connect": "连接",
+    "connecting": "正在连接…",
+    "cancel": "取消",
+    "invalid": "此网址不是由 {app} 扩展程序打开的。如需连接扩展程序，请打开它的“选项”，然后点击“连接”。",
+    "goToInbox": "前往收件箱",
+    "tokenName": "{system} 上的 {browser} 扩展程序",
+    "tokenNameUnknown": "浏览器扩展程序"
+  }
+}
