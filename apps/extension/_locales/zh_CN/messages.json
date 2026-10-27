@@ -120,6 +120,18 @@
   "connecting": {
     "message": "请在打开的窗口中批准连接…"
   },
+  "connectedNow": {
+    "message": "已连接。此浏览器现在会保存到你的 {app} 账号。"
+  },
+  "checkingConnection": {
+    "message": "正在检查连接…"
+  },
+  "connectedServer": {
+    "message": "服务器：$SERVER$",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
+  },
   "notConnected": {
     "message": "未连接。请检查服务器网址后重试，或粘贴访问令牌。"
   },

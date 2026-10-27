@@ -29,11 +29,11 @@ Its text is in the browser's language when that is English, French, Simplified C
 
 3. **Connect it to your account.** The options page opens by itself after installing. You can also reach it by right-clicking the toolbar button and choosing **Options**.
    1. **Server URL**: `https://www.readsooner.com`, already filled in. Only an extension loaded unpacked, as here, shows this field, so that it can use the app running on your computer: set it to `http://localhost:3000` for that. Installed from the Chrome Web Store, the extension always uses `https://www.readsooner.com` and has no such field. Typed without `www`, or with `http://`, the app's own address is corrected.
-   2. Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and "Connected to ReadSooner" means it's working.
+   2. Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and the options page says "Connected. This browser now saves to your ReadSooner account.", with nothing else to fill in.
 
 Connect creates an access token named for the browser, such as "Chrome extension on Windows", and fills it in. To do it by hand instead, create a token in the web app's **Settings → Access tokens**, paste it under **Access token** (it starts with `rl_`) and click **Save and check**.
 
-The token is stored only in this browser's extension storage. To disconnect a browser, revoke its token in the web app's Settings. If a token stops working, the next save opens the options page, which says so; click **Connect** again.
+The token is stored only in this browser's extension storage. To disconnect a browser, revoke its token in the web app's Settings. Its options page then shows the setup again, to connect another account or, loaded unpacked, another server. If a token stops working, the next save opens the options page, which says so; click **Connect** again.
 
 ## Use
 

@@ -143,6 +143,21 @@
   "connecting": {
     "message": "Approve the connection in the window that opened…"
   },
+  "connectedNow": {
+    "message": "Connected. This browser now saves to your {app} account.",
+    "description": "On the options page, right after Connect worked: its window has closed and the extension has its access token."
+  },
+  "checkingConnection": {
+    "message": "Checking the connection…",
+    "description": "On the options page while it opens, before it knows whether the saved token works."
+  },
+  "connectedServer": {
+    "message": "Server: $SERVER$",
+    "description": "Under “Connected”, only in an extension loaded for development, where the server can be changed.",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
+  },
   "notConnected": {
     "message": "Not connected. Check the server URL and try again, or paste an access token.",
     "description": "The Connect window was closed, declined or couldn’t load the page."

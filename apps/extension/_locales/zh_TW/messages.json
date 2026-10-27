@@ -120,6 +120,18 @@
   "connecting": {
     "message": "請在開啟的視窗中核准連結…"
   },
+  "connectedNow": {
+    "message": "已連結。這個瀏覽器現在會儲存到你的 {app} 帳號。"
+  },
+  "checkingConnection": {
+    "message": "正在檢查連線…"
+  },
+  "connectedServer": {
+    "message": "伺服器：$SERVER$",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
+  },
   "notConnected": {
     "message": "未連結。請檢查伺服器網址後再試一次，或貼上存取權杖。"
   },

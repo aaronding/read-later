@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title data-i18n="optionsTitle"></title>
     <style>
-      :root { color-scheme: light dark; --accent: #2b2723; }
+      :root { color-scheme: light dark; --accent: #2b2723; --danger: #b42318; }
       body { font: 15px/1.5 system-ui, sans-serif; max-width: 34rem; margin: 2rem auto; padding: 0 16px; }
       h1 { font-size: 1.4rem; display: flex; gap: 10px; align-items: center; }
       label { display: block; font-weight: 600; margin: 1rem 0 0.3rem; }
@@ -14,16 +14,25 @@
       button { margin-top: 1.2rem; font: inherit; padding: 0.5em 1.2em; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
       button.secondary { background: transparent; color: var(--accent); }
       button:disabled { opacity: 0.6; cursor: default; }
-      #status { min-height: 1.5em; }
-      #status.ok { color: var(--accent); }
-      #status.error { color: #b42318; }
-      @media (prefers-color-scheme: dark) { :root { --accent: #e3d8c1; } button { color: #16171a; } input { border-color: #555; } }
+      .status { margin: 0.8rem 0 0; }
+      .status:empty { display: none; }
+      .status.ok, .status.error { padding: 0.6em 0.9em; border-radius: 8px; }
+      .status.ok { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+      .status.ok::before { content: "✓ "; font-weight: 600; }
+      .status.error { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+      .status.note { color: #6b7280; }
+      #usage { margin-top: 1.5rem; }
+      @media (prefers-color-scheme: dark) { :root { --accent: #e3d8c1; --danger: #ff8a80; } button { color: #16171a; } input { border-color: #555; } }
       kbd { font: 0.85em ui-monospace, monospace; border: 1px solid #999; border-radius: 4px; padding: 0 4px; }
     </style>
   </head>
   <body>
     <h1><img src="icons/icon-48.png" width="32" height="32" alt="" /> <span class="app-name">ReadSooner</span></h1>
-    <form id="settings">
+    <section id="connectedView" hidden>
+      <p id="connectedStatus" class="status" role="status"></p>
+      <p class="hint" id="connectedServer" hidden></p>
+    </section>
+    <form id="settings" hidden>
       <div id="serverArea" hidden>
         <label for="serverUrl" data-i18n="serverUrlLabel"></label>
         <input id="serverUrl" type="text" inputmode="url" placeholder="http://localhost:3000" autocomplete="off" />
@@ -32,12 +41,13 @@
       <div id="connectArea">
         <button type="button" id="connect" data-i18n="connect"></button>
         <p class="hint" data-i18n="connectHint"></p>
+        <p id="connectStatus" class="status" role="status"></p>
       </div>
       <label for="token" data-i18n="tokenLabel"></label>
       <input id="token" type="password" placeholder="rl_…" autocomplete="off" />
       <p class="hint" id="tokenHint" data-i18n="tokenHintWithConnect"></p>
       <button type="submit" class="secondary" data-i18n="saveAndCheck"></button>
-      <p id="status" role="status"></p>
+      <p id="status" class="status" role="status"></p>
     </form>
     <p class="hint" id="usage"></p>
     <script type="module" src="options.js"></script>

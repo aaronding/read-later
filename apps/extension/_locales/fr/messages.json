@@ -132,6 +132,18 @@
   "connecting": {
     "message": "Approuvez la connexion dans la fenêtre qui s’est ouverte…"
   },
+  "connectedNow": {
+    "message": "Connecté. Ce navigateur enregistre désormais dans votre compte {app}."
+  },
+  "checkingConnection": {
+    "message": "Vérification de la connexion…"
+  },
+  "connectedServer": {
+    "message": "Serveur : $SERVER$",
+    "placeholders": {
+      "server": { "content": "$1", "example": "http://localhost:3000" }
+    }
+  },
   "notConnected": {
     "message": "Non connecté. Vérifiez l’URL du serveur et réessayez, ou collez un jeton d’accès."
   },
