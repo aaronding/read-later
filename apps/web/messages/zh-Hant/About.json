@@ -6,7 +6,7 @@
       "heading": "聯絡",
       "label": "你的留言",
       "placeholder": "問題、想法、故障，或刪除帳戶的要求。你的留言會連同帳戶的名稱和電子郵件地址一起送出。",
-      "signedOut": "<link>登入</link>後即可傳送留言。",
+      "signedOut": "<link>登入</link>後即可傳送留言，也可以寄電子郵件至 <mailto>{email}</mailto>。",
       "send": "傳送",
       "sending": "正在傳送…",
       "sent": "謝謝，你的留言已送出。",
