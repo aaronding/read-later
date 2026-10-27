@@ -1,0 +1,15 @@
+{
+  "Connect": {
+    "title": "Connecter l’extension de navigateur",
+    "intro": "L’extension {app} de ce navigateur demande à enregistrer des pages dans votre compte, <strong>{email}</strong>.",
+    "token": "Cette action crée un jeton d’accès nommé « {name} », que vous pouvez révoquer à tout moment dans Paramètres → Jetons d’accès.",
+    "onlyIfYouAsked": "Ne connectez l’extension que si vous venez de cliquer sur Connecter dans ses options.",
+    "connect": "Connecter",
+    "connecting": "Connexion en cours…",
+    "cancel": "Annuler",
+    "invalid": "Cette adresse n’a pas été ouverte par l’extension {app}. Pour connecter l’extension, ouvrez ses options et cliquez sur Connecter.",
+    "goToInbox": "Aller à la boîte de réception",
+    "tokenName": "Extension {browser} sur {system}",
+    "tokenNameUnknown": "Extension de navigateur"
+  }
+}

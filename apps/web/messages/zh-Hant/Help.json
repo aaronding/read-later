@@ -7,7 +7,7 @@
     "start": {
       "title": "入門",
       "intro": "{app} 為你保存想稍後閱讀的文章，每篇都附有簡潔的閱讀版本和簡短摘要。設定只需幾分鐘。",
-      "token": "在<link>設定</link>中<strong>建立存取權杖</strong>。{chrome} 擴充功能和 {safari} 捷徑會用它把文章儲存到你的帳戶。",
+      "token": "在<link>設定</link>中為 {safari} 捷徑<strong>建立存取權杖</strong>。{chrome} 擴充功能則會在你點選其「選項」中的「<strong>連結</strong>」時取得自己的權杖。",
       "save": "<strong>選擇儲存方式：</strong>",
       "chrome": "在電腦上，使用 <link>{chrome} 擴充功能</link>。",
       "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 捷徑</link>。",

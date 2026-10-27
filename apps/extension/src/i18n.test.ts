@@ -46,7 +46,7 @@ describe("outcomeText", () => {
   it("explains the setup and the connection", () => {
     expect(text({ ok: true, kind: "connected" })).toBe("Connected to ReadSooner. You’re ready to save pages.");
     expect(text({ ok: false, kind: "notConfigured" })).toBe(
-      "Open the extension’s options and enter the server URL and an access token.",
+      "Open the extension’s options to connect it to your account.",
     );
     expect(text({ ok: false, kind: "unreachable", server: "https://read.example.com", detail: "Failed to fetch" })).toBe(
       "Couldn’t reach https://read.example.com: Failed to fetch",
@@ -58,7 +58,9 @@ describe("outcomeText", () => {
 
   it("puts the server's error codes in its own words, and falls back to the server's", () => {
     const failure = (code?: string, detail?: string): Outcome => ({ ok: false, kind: "server", code, detail, status: "401" });
-    expect(text(failure("unauthorized", "Jeton manquant."))).toBe("Missing or invalid access token. Create one in Settings.");
+    expect(text(failure("unauthorized", "Jeton manquant."))).toBe(
+      "The access token doesn’t work any more; it may have been revoked. Open the extension’s options to connect again.",
+    );
     expect(text(failure("too_large"))).toBe("The page is too large to save.");
     expect(text(failure("invalid_url"))).toBe("url must be an absolute http or https URL.");
     expect(text(failure("server_error"))).toBe("Something went wrong while saving. Please try again.");

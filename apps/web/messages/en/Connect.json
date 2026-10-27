@@ -1,0 +1,15 @@
+{
+  "Connect": {
+    "title": "Connect the browser extension",
+    "intro": "The {app} extension in this browser asks to save pages to your account, <strong>{email}</strong>.",
+    "token": "This creates an access token named “{name}”, which you can revoke at any time in Settings → Access tokens.",
+    "onlyIfYouAsked": "Connect only if you just clicked Connect in the extension’s options.",
+    "connect": "Connect",
+    "connecting": "Connecting…",
+    "cancel": "Cancel",
+    "invalid": "This address wasn’t opened by the {app} extension. To connect the extension, open its options and click Connect.",
+    "goToInbox": "Go to the Inbox",
+    "tokenName": "{browser} extension on {system}",
+    "tokenNameUnknown": "Browser extension"
+  }
+}

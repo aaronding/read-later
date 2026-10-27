@@ -16,6 +16,9 @@ describe("manifest", () => {
       const built = manifest(target, info);
       expect(built.default_locale).toBe("en");
       expect([built.name, built.short_name]).toEqual(["ReadSooner", "ReadSooner"]);
+      // No host permissions: the page is read only when the user saves it.
+      expect(built.permissions).toEqual(["activeTab", "scripting", "contextMenus", "storage", "identity"]);
+      expect(built).not.toHaveProperty("host_permissions");
       const names = [built.description, built.action.default_title, built.commands._execute_action.description];
       for (const name of names) expect(english).toHaveProperty(name.match(/^__MSG_(\w+)__$/)![1]!);
     }

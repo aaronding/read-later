@@ -7,7 +7,7 @@
     "start": {
       "title": "Premiers pas",
       "intro": "{app} conserve les articles que vous voulez lire plus tard, chacun avec une copie épurée et un court résumé. La configuration prend quelques minutes.",
-      "token": "<strong>Créez un jeton d’accès</strong> dans les <link>Paramètres</link>. L’extension {chrome} et le raccourci {safari} s’en servent pour enregistrer dans votre compte.",
+      "token": "<strong>Créez un jeton d’accès</strong> dans les <link>Paramètres</link> pour le raccourci {safari}. L’extension {chrome} obtient le sien quand vous cliquez sur <strong>Connecter</strong> dans ses options.",
       "save": "<strong>Choisissez comment enregistrer :</strong>",
       "chrome": "Sur un ordinateur, l’<link>extension {chrome}</link>.",
       "safari": "Sur {iphone}, {ipad} ou {mac}, le <link>raccourci {safari}</link>.",

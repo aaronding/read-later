@@ -11,7 +11,9 @@
       label { display: block; font-weight: 600; margin: 1rem 0 0.3rem; }
       input { box-sizing: border-box; width: 100%; font: inherit; padding: 0.5em 0.7em; border-radius: 8px; border: 1px solid #bbb; }
       .hint { color: #6b7280; font-size: 0.9rem; margin: 0.3rem 0 0; }
-      button { margin-top: 1.2rem; font: inherit; padding: 0.5em 1.2em; border-radius: 999px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
+      button { margin-top: 1.2rem; font: inherit; padding: 0.5em 1.2em; border-radius: 999px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+      button.secondary { background: transparent; color: var(--accent); }
+      button:disabled { opacity: 0.6; cursor: default; }
       #status { min-height: 1.5em; }
       #status.ok { color: var(--accent); }
       #status.error { color: #b42318; }
@@ -25,10 +27,14 @@
       <label for="serverUrl" data-i18n="serverUrlLabel"></label>
       <input id="serverUrl" type="text" inputmode="url" placeholder="https://read.example.com" autocomplete="off" required />
       <p class="hint" data-i18n="serverUrlHint"></p>
+      <div id="connectArea">
+        <button type="button" id="connect" data-i18n="connect"></button>
+        <p class="hint" data-i18n="connectHint"></p>
+      </div>
       <label for="token" data-i18n="tokenLabel"></label>
-      <input id="token" type="password" placeholder="rl_…" autocomplete="off" required />
-      <p class="hint" data-i18n="tokenHint"></p>
-      <button type="submit" data-i18n="saveAndCheck"></button>
+      <input id="token" type="password" placeholder="rl_…" autocomplete="off" />
+      <p class="hint" id="tokenHint" data-i18n="tokenHintWithConnect"></p>
+      <button type="submit" class="secondary" data-i18n="saveAndCheck"></button>
       <p id="status" role="status"></p>
     </form>
     <p class="hint" id="usage"></p>

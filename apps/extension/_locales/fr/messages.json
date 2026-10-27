@@ -29,7 +29,7 @@
     "message": "Seuls les liens http et https peuvent être enregistrés."
   },
   "notConfigured": {
-    "message": "Ouvrez les options de l’extension et saisissez l’URL du serveur et un jeton d’accès."
+    "message": "Ouvrez les options de l’extension pour la connecter à votre compte."
   },
   "saved": {
     "message": "Enregistré dans {app}"
@@ -88,7 +88,7 @@
     }
   },
   "errorUnauthorized": {
-    "message": "Jeton d’accès manquant ou non valide. Créez-en un dans Paramètres."
+    "message": "Le jeton d’accès ne fonctionne plus ; il a peut-être été révoqué. Ouvrez les options de l’extension pour la connecter à nouveau."
   },
   "errorTooLarge": {
     "message": "La page est trop volumineuse pour être enregistrée."
@@ -119,6 +119,24 @@
   },
   "saveAndCheck": {
     "message": "Enregistrer et vérifier"
+  },
+  "connect": {
+    "message": "Connecter"
+  },
+  "connectHint": {
+    "message": "Ouvre {app} dans une fenêtre, où vous vous identifiez si nécessaire et approuvez ce navigateur. Le jeton d’accès est ensuite renseigné pour vous."
+  },
+  "tokenHintWithConnect": {
+    "message": "Ou créez-en un dans l’application web, sous Paramètres → Jetons d’accès, et collez-le ici. Il est stocké uniquement dans ce navigateur."
+  },
+  "connecting": {
+    "message": "Approuvez la connexion dans la fenêtre qui s’est ouverte…"
+  },
+  "notConnected": {
+    "message": "Non connecté. Vérifiez l’URL du serveur et réessayez, ou collez un jeton d’accès."
+  },
+  "tokenRejected": {
+    "message": "Le serveur n’accepte pas ce jeton d’accès : il a peut-être été révoqué ou mal saisi. Cliquez sur Connecter, ou collez un nouveau jeton."
   },
   "enterServerUrl": {
     "message": "Saisissez l’adresse de votre serveur, par exemple https://read.example.com."

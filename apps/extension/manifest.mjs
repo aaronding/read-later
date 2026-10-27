@@ -20,8 +20,9 @@ export function manifest(target, { name, shortName, version }) {
     icons,
     action: { default_title: "__MSG_actionTitle__", default_icon: icons },
     // activeTab + scripting: read the current page only when you click or
-    // press the shortcut. No access to any site otherwise.
-    permissions: ["activeTab", "scripting", "contextMenus", "storage"],
+    // press the shortcut. No access to any site otherwise. identity: the
+    // Connect button's sign-in window, which hands back an access token.
+    permissions: ["activeTab", "scripting", "contextMenus", "storage", "identity"],
     options_ui: { page: "options.html", open_in_tab: true },
     commands: {
       _execute_action: {

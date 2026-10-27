@@ -28,11 +28,12 @@ Its text is in the browser's language when that is English, French, Simplified C
    4. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner** so its button is always visible.
 
 3. **Connect it to your account.** The options page opens by itself after installing. You can also reach it by right-clicking the toolbar button and choosing **Options**.
-   1. **Server URL**: the address of your web app, `https://www.readsooner.com` (or `http://localhost:3000` when developing).
-   2. **Access token**: in the web app, open **Settings → Access tokens**, create a token named for this browser (for example "Chrome on my laptop"), and paste it here. It starts with `rl_`.
-   3. Click **Save and check**. "Connected to ReadSooner" means it's working.
+   1. **Server URL**: already filled in with `https://www.readsooner.com`. Change it only for another server, such as `http://localhost:3000` when developing. Typed without `www`, or with `http://`, the app's own address is corrected to that one.
+   2. Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and "Connected to ReadSooner" means it's working.
 
-The token is stored only in this browser's extension storage. To disconnect a browser, revoke its token in the web app's Settings.
+Connect creates an access token named for the browser, such as "Chrome extension on Windows", and fills it in. To do it by hand instead, create a token in the web app's **Settings → Access tokens**, paste it under **Access token** (it starts with `rl_`) and click **Save and check**.
+
+The token is stored only in this browser's extension storage. To disconnect a browser, revoke its token in the web app's Settings. If a token stops working, the next save opens the options page, which says so; click **Connect** again.
 
 ## Use
 
@@ -50,8 +51,9 @@ Run `pnpm extension:build` again, then click the reload arrow on the extension's
 
 | Symptom | What to do |
 | --- | --- |
-| **!** and "Open the extension's options…" | The server URL or token is missing. Open the options page. |
-| **!** and "Missing or invalid access token" | The token was revoked or mistyped. Create a new one in Settings and paste it in the options. |
+| **!** and "Open the extension's options…" | The extension isn't connected yet. The options page opens by itself: click **Connect**. |
+| **!** and "The access token doesn't work any more" | The token was revoked, or your account can no longer sign in. The options page opens by itself: click **Connect** again. |
+| "Not connected" after clicking **Connect** | The window was closed, **Cancel** was chosen, or the page didn't load. Check the server URL and try again, or paste a token by hand. |
 | **!** and "Couldn't reach …" | Check the server URL (including `https://`) and that the site is up. |
 | **!** on `chrome://` pages, the Chrome Web Store or PDF viewers | Chrome doesn't let extensions read these pages. Only `http` and `https` pages can be saved. |
 | "link only: the page was too large to send" | The page's HTML was over the server's 4 MB limit, so only the link was saved, and the server downloads the page itself. |
@@ -65,3 +67,4 @@ Run `pnpm extension:build` again, then click the reload arrow on the extension's
 | `scripting` | To run the small snippet that copies the page's HTML in that moment. |
 | `contextMenus` | For "Save link to ReadSooner". |
 | `storage` | To remember the server URL and token. |
+| `identity` | For **Connect**: to open ReadSooner's approval page in a window and receive the access token it sends back. It gives no access to your Google account. |

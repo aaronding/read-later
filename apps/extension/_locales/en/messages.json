@@ -33,7 +33,7 @@
     "message": "Only http and https links can be saved."
   },
   "notConfigured": {
-    "message": "Open the extension’s options and enter the server URL and an access token."
+    "message": "Open the extension’s options to connect it to your account."
   },
   "saved": {
     "message": "Saved to {app}"
@@ -90,8 +90,8 @@
     }
   },
   "errorUnauthorized": {
-    "message": "Missing or invalid access token. Create one in Settings.",
-    "description": "Settings is the web app’s Settings page: use its name in the web app."
+    "message": "The access token doesn’t work any more; it may have been revoked. Open the extension’s options to connect again.",
+    "description": "The server didn’t accept the token, as after it was revoked. The extension then opens its options page."
   },
   "errorTooLarge": {
     "message": "The page is too large to save."
@@ -127,6 +127,28 @@
   "saveAndCheck": {
     "message": "Save and check",
     "description": "The options page’s button: it saves the settings, then checks them with the server."
+  },
+  "connect": {
+    "message": "Connect",
+    "description": "The options page’s button: it opens the web app in a window, where the user approves this browser and the extension gets its access token. The web app’s page names this button too, as “Connect” in its own text."
+  },
+  "connectHint": {
+    "message": "Opens {app} in a window, where you sign in if asked and approve this browser. The access token is then filled in for you."
+  },
+  "tokenHintWithConnect": {
+    "message": "Or create one in the web app under Settings → Access tokens and paste it here. It is stored only in this browser.",
+    "description": "Below the Connect button. “Settings → Access tokens” is a page of the web app and its section: use their names in the web app."
+  },
+  "connecting": {
+    "message": "Approve the connection in the window that opened…"
+  },
+  "notConnected": {
+    "message": "Not connected. Check the server URL and try again, or paste an access token.",
+    "description": "The Connect window was closed, declined or couldn’t load the page."
+  },
+  "tokenRejected": {
+    "message": "The server doesn’t accept this access token: it may have been revoked or mistyped. Click Connect, or paste a new token.",
+    "description": "On the options page, when the server answers that the stored token isn’t valid."
   },
   "enterServerUrl": {
     "message": "Enter the address of your server, such as https://read.example.com."

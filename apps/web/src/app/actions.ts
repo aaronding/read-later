@@ -29,6 +29,7 @@ import { saveAppearance, updateSettings } from "@/lib/settings";
 import { addTag, removeTag } from "@/lib/tags";
 import { MAX_FEEDBACK_LENGTH, MAX_FEEDBACK_PER_DAY, sendFeedback } from "@/lib/feedback";
 import { deleteFolder, findOrCreateFolder, setArticleFolder } from "@/lib/folders";
+import { connectRedirect, extensionTokenName, parseConnectRequest } from "@/lib/extension-connect";
 import { createApiToken, revokeApiToken } from "@/lib/tokens";
 import { deleteTranslation, requestTranslation } from "@/lib/translations";
 import { parseHttpUrl, parsePastedUrl } from "@/lib/urls";
@@ -256,6 +257,19 @@ export async function createTokenAction(_previous: CreateTokenState, formData: F
   refresh();
   // Returned once, to be shown once. Only the hash is stored.
   return { token, name: record.name };
+}
+
+/**
+ * Approves the extension's Connect request: creates a token for this browser and
+ * returns the address to send the window to, which hands it to the extension
+ * (see extension-connect.ts), or null for a request that isn't the extension's.
+ */
+export async function connectExtensionAction(formData: FormData): Promise<string | null> {
+  const user = await requireUser();
+  const request = parseConnectRequest(formData.get("redirect_uri"), formData.get("state"));
+  if (!request) return null;
+  const { token } = await createApiToken(getDb(), user.id, await extensionTokenName());
+  return connectRedirect(request, { token });
 }
 
 export async function revokeTokenAction(formData: FormData) {
