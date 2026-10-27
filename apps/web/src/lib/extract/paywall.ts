@@ -130,13 +130,40 @@ export function removeNonFreeSections(document: Document, selectors: string[]): 
 const PAYWALL_MARKER =
   /(^|[\s_-])(paywall|pay-wall|regwall|reg-wall|subscriber-only|subscription-wall|subscribe-wall|premium-wall|meter-wall|metered-wall|article-locked|locked-content|piano-offer|tp-modal|tp-backdrop)($|[\s_-])/i;
 
+function namedLikePaywall(element: Element): boolean {
+  return PAYWALL_MARKER.test(`${element.getAttribute("class") ?? ""} ${element.getAttribute("id") ?? ""}`);
+}
+
 /** True when the page has elements named like a paywall or registration wall. */
 export function hasPaywallMarker(document: Document): boolean {
   for (const element of document.querySelectorAll("[class], [id]")) {
-    const names = `${element.getAttribute("class") ?? ""} ${element.getAttribute("id") ?? ""}`;
-    if (PAYWALL_MARKER.test(names)) return true;
+    if (namedLikePaywall(element)) return true;
   }
   return false;
+}
+
+/**
+ * True when the element, or one around it, is named like a paywall or
+ * registration wall. `known` keeps the answer for every element on the way
+ * up, so asking about many elements of one page costs no more than its size.
+ */
+export function insidePaywall(element: Element, known = new Map<Element, boolean>()): boolean {
+  const path: Element[] = [];
+  let inside = false;
+  for (let node: Element | null = element; node; node = node.parentElement) {
+    const answer = known.get(node);
+    if (answer !== undefined) {
+      inside = answer;
+      break;
+    }
+    path.push(node);
+    if (namedLikePaywall(node)) {
+      inside = true;
+      break;
+    }
+  }
+  for (const node of path) known.set(node, inside);
+  return inside;
 }
 
 // Many sites carry a sign-in form on every page: in the header or a sidebar,
