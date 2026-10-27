@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { checkConnection, sendSave } from "./api";
-import { normalizeServerUrl } from "./settings";
+import { DEFAULT_SERVER_URL, loadSettings, normalizeServerUrl } from "./settings";
 
 const settings = { serverUrl: "https://read.example.com", token: "rl_test" };
 const json = (status: number, body: unknown) =>
@@ -105,5 +105,31 @@ describe("normalizeServerUrl", () => {
     expect(normalizeServerUrl("localhost:3000/")).toBe("http://localhost:3000");
     expect(normalizeServerUrl("https://example.com/read-later/")).toBe("https://example.com/read-later");
     expect(normalizeServerUrl("")).toBe("");
+  });
+
+  it("sends the app's own domain to its www address over https", () => {
+    for (const typed of ["readsooner.com", "ReadSooner.com/", "http://readsooner.com", "www.readsooner.com/inbox"]) {
+      expect(normalizeServerUrl(typed)).toBe(DEFAULT_SERVER_URL);
+    }
+    expect(DEFAULT_SERVER_URL).toBe("https://www.readsooner.com");
+    expect(normalizeServerUrl("read.readsooner.example")).toBe("https://read.readsooner.example");
+  });
+});
+
+describe("loadSettings", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const stored = (values: Record<string, unknown>) =>
+    vi.stubGlobal("chrome", { storage: { local: { get: async () => values } } });
+
+  it("fills in the app's address until another is saved", async () => {
+    stored({});
+    expect(await loadSettings()).toEqual({ serverUrl: DEFAULT_SERVER_URL, token: "" });
+    stored({ serverUrl: "http://localhost:3000", token: "rl_test" });
+    expect(await loadSettings()).toEqual({ serverUrl: "http://localhost:3000", token: "rl_test" });
+  });
+
+  it("corrects an address saved without www", async () => {
+    stored({ serverUrl: "https://readsooner.com", token: "rl_test" });
+    expect((await loadSettings()).serverUrl).toBe(DEFAULT_SERVER_URL);
   });
 });

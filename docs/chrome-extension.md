@@ -28,7 +28,7 @@ Its text is in the browser's language when that is English, French, Simplified C
    4. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner** so its button is always visible.
 
 3. **Connect it to your account.** The options page opens by itself after installing. You can also reach it by right-clicking the toolbar button and choosing **Options**.
-   1. **Server URL**: the address of your web app, `https://www.readsooner.com` (or `http://localhost:3000` when developing).
+   1. **Server URL**: already filled in with `https://www.readsooner.com`. Change it only for another server, such as `http://localhost:3000` when developing. Typed without `www`, or with `http://`, the app's own address is corrected to that one.
    2. **Access token**: in the web app, open **Settings → Access tokens**, create a token named for this browser (for example "Chrome on my laptop"), and paste it here. It starts with `rl_`.
    3. Click **Save and check**. "Connected to ReadSooner" means it's working.
 
@@ -50,7 +50,7 @@ Run `pnpm extension:build` again, then click the reload arrow on the extension's
 
 | Symptom | What to do |
 | --- | --- |
-| **!** and "Open the extension's options…" | The server URL or token is missing. Open the options page. |
+| **!** and "Open the extension's options…" | The access token is missing (or the server URL was cleared). Open the options page. |
 | **!** and "Missing or invalid access token" | The token was revoked or mistyped. Create a new one in Settings and paste it in the options. |
 | **!** and "Couldn't reach …" | Check the server URL (including `https://`) and that the site is up. |
 | **!** on `chrome://` pages, the Chrome Web Store or PDF viewers | Chrome doesn't let extensions read these pages. Only `http` and `https` pages can be saved. |
