@@ -2,17 +2,19 @@
 // Run it after changing those SVGs, and commit what it writes:
 //
 //   pnpm icons
-import { copyFileSync, readFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 
 const logo = (file: string) => new URL(`../../../packages/brand/logo/${file}`, import.meta.url);
 const web = (file: string) => new URL(`../${file}`, import.meta.url);
 const extension = (file: string) => new URL(`../../extension/static/icons/${file}`, import.meta.url);
+const store = (file: string) => new URL(`../../extension/store/${file}`, import.meta.url);
 
 // The icons are drawn from icon.svg, or from icon-small.svg, drawn on a pixel
-// grid, at 16 and 32 px.
-const icons: [source: string, size: number, target: URL][] = [
+// grid, at 16 and 32 px. The Chrome Web Store's listing icon is 96 px of
+// artwork with 16 px of transparent padding, as its image guidelines ask.
+const icons: [source: string, size: number, target: URL, padding?: number][] = [
   ["icon-small.svg", 16, extension("icon-16.png")],
   ["icon-small.svg", 32, extension("icon-32.png")],
   ["icon.svg", 48, extension("icon-48.png")],
@@ -21,17 +23,22 @@ const icons: [source: string, size: number, target: URL][] = [
   ["icon.svg", 512, web("public/icons/icon-512.png")],
   ["maskable.svg", 512, web("public/icons/maskable-512.png")],
   ["apple-icon.svg", 180, web("src/app/apple-icon.png")],
+  ["icon.svg", 128, store("icon-128.png"), 16],
 ];
 
-for (const [source, size, target] of icons) {
+for (const [source, size, target, padding = 0] of icons) {
   const svg = readFileSync(logo(source));
   const viewBox = Number(/viewBox="0 0 (\d+)/.exec(svg.toString())?.[1]);
+  const art = size - 2 * padding;
   // Draw the SVG at the icon's own size rather than scaling a larger picture
   // down, so icon-small.svg's edges land on whole pixels.
-  await sharp(svg, { density: (72 * size) / viewBox })
-    .resize(size, size)
-    .png({ compressionLevel: 9 })
-    .toFile(fileURLToPath(target));
+  let image = sharp(svg, { density: (72 * art) / viewBox }).resize(art, art);
+  if (padding) {
+    const background = { r: 0, g: 0, b: 0, alpha: 0 };
+    image = image.extend({ top: padding, bottom: padding, left: padding, right: padding, background });
+  }
+  mkdirSync(new URL(".", target), { recursive: true });
+  await image.png({ compressionLevel: 9 }).toFile(fileURLToPath(target));
 }
 // The favicon, and the light and dark logos the pages show.
 copyFileSync(logo("icon-small.svg"), web("src/app/icon.svg"));

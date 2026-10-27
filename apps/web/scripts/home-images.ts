@@ -1,8 +1,9 @@
 // Takes the screenshots on the homepage: the Inbox on a computer and an
 // article on a phone, in each interface language, light and dark, from the
 // real app. Then it takes the homepage itself, the image a link to the site
-// shows when shared. Run it after changing how those pages look, and commit
-// what it writes to public/home and src/app/opengraph-image.png:
+// shows when shared, and the Chrome Web Store's screenshots. Run it after
+// changing how those pages look, and commit what it writes to public/home,
+// src/app/opengraph-image.png and apps/extension/store:
 //
 //   pnpm build && pnpm start          (in another terminal)
 //   pnpm --filter web home-images
@@ -26,6 +27,7 @@ import { LOCALES, type AppLocale } from "../src/i18n/locales";
 const USER_ID = "home-images-demo";
 const TOKEN = "home-images-demo-session";
 const OUT = new URL("../public/home/", import.meta.url);
+const STORE = new URL("../../extension/store/", import.meta.url);
 const SHARE_IMAGE = new URL("../src/app/opengraph-image.png", import.meta.url);
 
 interface DemoArticle {
@@ -222,6 +224,25 @@ async function main() {
     await sharp(await page.screenshot()).png({ compressionLevel: 9 }).toFile(fileURLToPath(SHARE_IMAGE));
     await context.close();
     console.log("Wrote src/app/opengraph-image.png");
+    // The Chrome Web Store's screenshots, at its 1280 × 800, in English and
+    // light: what the extension saves to.
+    await db.delete(userAppearance).where(eq(userAppearance.userId, USER_ID));
+    await db.insert(userAppearance).values({ userId: USER_ID, theme: "light", lightPalette: "paper", darkPalette: "graphite", font: "classic" });
+    await db.update(articles).set({ readAt: null }).where(eq(articles.userId, USER_ID));
+    for (const [path, file] of [
+      ["/inbox", "screenshot-1-inbox.png"],
+      [`/articles/${ids.get("en")}`, "screenshot-2-article.png"],
+      ["/triage", "screenshot-3-triage.png"],
+    ] as const) {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: "en", colorScheme: "light" });
+      await context.addCookies([{ name: "better-auth.session_token", value: sessionCookie(), url: appUrl() }]);
+      const page = await context.newPage();
+      await page.goto(`${appUrl()}${path}`, { waitUntil: "networkidle" });
+      await page.addStyleTag({ content: ".summary-model, .translation-meta { visibility: hidden; }" });
+      await sharp(await page.screenshot()).png({ compressionLevel: 9 }).toFile(fileURLToPath(new URL(file, STORE)));
+      await context.close();
+      console.log(`Wrote apps/extension/store/${file}`);
+    }
   } finally {
     await browser.close();
     await db.delete(users).where(eq(users.id, USER_ID));
