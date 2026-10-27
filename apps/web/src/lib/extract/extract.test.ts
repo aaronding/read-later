@@ -393,6 +393,50 @@ describe("extractArticle: a page hidden until its scripts run", () => {
   });
 });
 
+describe("extractArticle: an article hidden from screen readers only", () => {
+  const page = html("screen-reader-hidden.html");
+  const url = "https://circuitweekly.example/news/radio-repair";
+  const opened = page.replace('class="text-copy paywall-locker"', 'class="text-copy"');
+
+  it("reads the paragraphs and headings marked aria-hidden beside the visible ones", () => {
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toContain("thirty years taking apart radios");
+    expect(result.textContent).toContain("The hardest part of the work is finding parts.");
+    expect(result.textContent).toContain("whatever the weather or the state of the world outside");
+    expect(result.contentHtml).toContain("<h2>Parts nobody makes any more</h2>");
+    expect(result.contentHtml).not.toContain("aria-hidden");
+    expect(result.wordCount).toBeGreaterThan(400);
+    expect(result.previewOnly).toBe(false);
+  });
+
+  it("leaves out a hidden box beside them, and hidden menus elsewhere", () => {
+    const result = extractArticle({ html: page, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).not.toContain("newsletter");
+    expect(result.textContent).not.toContain("Reviews");
+  });
+
+  it("leaves them out on a server download whose paywall markup says the article isn't free", () => {
+    const marked = page.replace(
+      "</head>",
+      '<script type="application/ld+json">{"@type":"NewsArticle","isAccessibleForFree":false}</script></head>',
+    );
+    const result = extractArticle({ html: marked, url, contentSource: "server", httpStatus: 200 });
+    expect(result.textContent).toContain("thirty years taking apart radios");
+    expect(result.textContent).not.toContain("finding parts");
+    expect(result.previewKind).toBe("subscriber_only");
+  });
+
+  it("reads them from the browser once the wall has let the reader through, not while it still holds the article", () => {
+    const open = extractArticle({ html: opened, url, contentSource: "client" });
+    expect(open.textContent).toContain("whatever the weather or the state of the world outside");
+    expect(open.previewOnly).toBe(false);
+    const closed = extractArticle({ html: page, url, contentSource: "client" });
+    expect(closed.textContent).toContain("thirty years taking apart radios");
+    expect(closed.textContent).not.toContain("finding parts");
+    expect(closed.previewKind).toBe("teaser");
+  });
+});
+
 describe("extractArticle: a GBK-encoded Chinese page", () => {
   const page = decodeHtml(fixture("chinese-gbk.html"), "text/html");
   const result = extractArticle({ html: page, url: "https://chenbao.example/life/doujiang", contentSource: "server" });

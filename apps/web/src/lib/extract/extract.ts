@@ -9,6 +9,7 @@ import {
   findPaywallMarkup,
   isJsonLdType,
   hasPaywallMarker,
+  insidePaywall,
   markPasswordFields,
   MIN_ARTICLE_WORDS,
   movesOn,
@@ -243,6 +244,32 @@ function hiddenByStyle(document: Document): Element[] {
   return [...document.querySelectorAll("[style]")].filter((element) => HIDDEN_BY_STYLE.test(element.getAttribute("style") ?? ""));
 }
 
+// The parts an article is written in, which a reader sees whatever aria-hidden says.
+const ARTICLE_BLOCKS = new Set(["P", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "BLOCKQUOTE", "PRE", "TABLE", "FIGURE"]);
+
+/**
+ * The parts of the article hidden from screen readers only, which Readability
+ * takes for hidden: blocks marked aria-hidden="true" beside a paragraph with
+ * text that isn't. Future's sites, such as Tom's Hardware and Live Science,
+ * mark that way every paragraph and heading past the point where their wall
+ * would start, and a reader the wall lets through sees them all.
+ */
+function hiddenFromScreenReaders(document: Document): Element[] {
+  const marked = (element: Element) => element.getAttribute("aria-hidden") === "true";
+  // Siblings share a parent, so each parent is looked at once, however many it holds.
+  const beside = new Map<Element, boolean>();
+  return [...document.querySelectorAll('[aria-hidden="true"]')].filter((element) => {
+    const parent = element.parentElement;
+    if (!parent || !ARTICLE_BLOCKS.has(element.tagName)) return false;
+    let found = beside.get(parent);
+    if (found === undefined) {
+      found = [...parent.children].some((sibling) => sibling.tagName === "P" && !marked(sibling) && sibling.textContent?.trim());
+      beside.set(parent, found);
+    }
+    return found;
+  });
+}
+
 function short(value: string | null | undefined, max: number): string | null {
   const text = value?.replace(/\s+/g, " ").trim();
   return text ? text.slice(0, max) : null;
@@ -326,6 +353,16 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
           return element.innerHTML;
         },
       }).parse();
+    // What aria-hidden hides from screen readers is read too, unless a wall
+    // still holds it: on a server download, the paywall markup says what isn't
+    // free, as for the sections it marks; in the browser, Future's wall keeps
+    // its name on the article's container until it lets the reader through.
+    if (input.contentSource === "client" || !paywall.notFree) {
+      const walls = new Map<Element, boolean>();
+      for (const element of hiddenFromScreenReaders(document)) {
+        if (input.contentSource === "server" || !insidePaywall(element, walls)) element.removeAttribute("aria-hidden");
+      }
+    }
     // Some pages hide their content until their own scripts show it, which
     // they never do here, and Readability skips hidden elements. Readability
     // changes the page it reads, so a copy is kept for a second try.

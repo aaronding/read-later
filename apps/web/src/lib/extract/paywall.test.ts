@@ -4,6 +4,7 @@ import { englishText } from "@/i18n/stored-message";
 import {
   findPaywallMarkup,
   hasPaywallMarker,
+  insidePaywall,
   checkPreview,
   markPasswordFields,
   passwordFieldBesideHeadline,
@@ -56,6 +57,16 @@ describe("paywall markers", () => {
     expect(hasPaywallMarker(doc(`<div class="article-body paywall"></div>`))).toBe(true);
     expect(hasPaywallMarker(doc(`<div id="regwall"></div>`))).toBe(true);
     expect(hasPaywallMarker(doc(`<div class="tp-modal"></div>`))).toBe(true);
+  });
+
+  it("says whether an element is inside one", () => {
+    const document = doc(`<div class="text-copy paywall-locker"><p id="locked">a</p></div><p id="free">b</p>`);
+    expect(insidePaywall(document.getElementById("locked")!)).toBe(true);
+    expect(insidePaywall(document.getElementById("free")!)).toBe(false);
+    const known = new Map<Element, boolean>();
+    expect(insidePaywall(document.getElementById("free")!, known)).toBe(false);
+    expect(insidePaywall(document.getElementById("locked")!, known)).toBe(true);
+    expect(known.get(document.body)).toBe(false);
   });
 
   it("ignores lookalike names", () => {
