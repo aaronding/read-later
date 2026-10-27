@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { APP_NAME } from "@/config/app";
+import { APP_NAME, FIREFOX_ADDON_URL } from "@/config/app";
 import { SHORTCUT_SCRIPT } from "@/lib/shortcut";
 import { CopyButton } from "./copy-button";
 
@@ -16,6 +16,7 @@ const markup = {
 const products = {
   app: APP_NAME,
   chrome: "Chrome",
+  firefox: "Firefox",
   safari: "Safari",
   iphone: "iPhone",
   ipad: "iPad",
@@ -24,15 +25,15 @@ const products = {
   ios: "iOS",
 };
 
-export function ChromeGuide({ serverUrl }: { serverUrl: string }) {
-  const t = useTranslations("Guides.chrome");
-  const values = { ...markup, ...products, url: serverUrl };
+export function FirefoxGuide() {
+  const t = useTranslations("Guides.firefox");
+  const values = { ...markup, ...products, store: (chunks: React.ReactNode) => <a href={FIREFOX_ADDON_URL}>{chunks}</a> };
   return (
     <ol>
-      <li>{t.rich("build", values)}</li>
-      <li>{t.rich("load", values)}</li>
+      <li>{t.rich("install", values)}</li>
       <li>{t.rich("connect", values)}</li>
       <li>{t.rich("use", values)}</li>
+      <li>{t.rich("pin", values)}</li>
     </ol>
   );
 }

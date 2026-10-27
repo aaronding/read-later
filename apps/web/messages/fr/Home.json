@@ -20,8 +20,9 @@
     "ways": {
       "heading": "Enregistrez depuis partout",
       "setUp": "Configurer →",
-      "chrome": {
-        "title": "{chrome}",
+      "addToFirefox": "Ajouter à {firefox} →",
+      "firefox": {
+        "title": "{firefox}",
         "text": "Un bouton dans la barre d’outils, ou Alt+Maj+S."
       },
       "safari": {

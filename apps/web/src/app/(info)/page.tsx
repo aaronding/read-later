@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SignInButton } from "@/components/sign-in-button";
-import { APP_NAME } from "@/config/app";
+import { APP_NAME, FIREFOX_ADDON_URL } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,12 +13,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const STEPS = ["save", "gist", "read"] as const;
 const WAYS = [
-  { key: "chrome", help: "/help/chrome" },
+  { key: "firefox", help: "/help/firefox" },
   { key: "safari", help: "/help/safari" },
   { key: "android", help: "/help/android" },
   { key: "paste", help: null },
 ] as const;
-const products = { app: APP_NAME, chrome: "Chrome", safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac", android: "Android" };
+const products = {
+  app: APP_NAME,
+  firefox: "Firefox",
+  safari: "Safari",
+  iphone: "iPhone",
+  ipad: "iPad",
+  mac: "Mac",
+  android: "Android",
+};
 
 // The homepage, for visitors who aren't signed in; signed in, the Inbox.
 export default async function HomePage() {
@@ -77,7 +85,15 @@ export default async function HomePage() {
             <li key={key} className="card tile">
               <h3>{t(`ways.${key}.title`, products)}</h3>
               <p>{t(`ways.${key}.text`, products)}</p>
-              {help && <Link href={help}>{t("ways.setUp")}</Link>}
+              {/* The add-on's tile also links to Mozilla's store, where it is installed. */}
+              {key === "firefox" ? (
+                <span className="tile-links">
+                  <Link href={help}>{t("ways.setUp")}</Link>
+                  <a href={FIREFOX_ADDON_URL}>{t("ways.addToFirefox", products)}</a>
+                </span>
+              ) : (
+                help && <Link href={help}>{t("ways.setUp")}</Link>
+              )}
             </li>
           ))}
         </ul>

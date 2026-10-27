@@ -7,7 +7,7 @@
       "alreadySavedRefetching": "之前已保存，正在重新下载。"
     },
     "createToken": {
-      "nameRequired": "请为令牌命名，例如“笔记本电脑上的 {chrome}”。"
+      "nameRequired": "请为令牌命名，例如“我的 {iphone} 上的快捷指令”。"
     }
   }
 }

@@ -7,7 +7,7 @@
       "alreadySavedRefetching": "Déjà enregistré, nouveau téléchargement en cours."
     },
     "createToken": {
-      "nameRequired": "Donnez un nom au jeton, par exemple « {chrome} sur mon portable »."
+      "nameRequired": "Donnez un nom au jeton, par exemple « Raccourcis sur mon {iphone} »."
     }
   }
 }
