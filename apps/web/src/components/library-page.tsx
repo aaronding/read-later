@@ -55,9 +55,11 @@ export async function LibraryPage({
     // A new account starts here, so it points to the setup guides in Help.
     inbox: t.rich("empty.inbox", {
       firefox: "Firefox",
+      chrome: "Chrome",
       safari: "Safari",
       android: "Android",
       firefoxGuide: help("/help/firefox"),
+      chromeGuide: help("/help/chrome"),
       safariGuide: help("/help/safari"),
       androidGuide: help("/help/android"),
       start: help("/help"),

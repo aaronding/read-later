@@ -23,13 +23,14 @@
       "heading": "Enregistrez depuis partout",
       "setUp": "Configurer →",
       "addToFirefox": "Ajouter à {firefox} →",
+      "addToChrome": "Ajouter à {chrome} →",
       "firefox": {
         "title": "{firefox}",
         "text": "Un bouton dans la barre d’outils, ou {system, select, mac {Option+Maj+S} other {Alt+Maj+S}}."
       },
-      "safari": {
-        "title": "{safari}",
-        "text": "Un raccourci sur {iphone}, {ipad} et {mac}."
+      "chrome": {
+        "title": "{chrome}",
+        "text": "Un bouton dans la barre d’outils, ou {system, select, mac {Option+Maj+S} other {Alt+Maj+S}}."
       },
       "android": {
         "title": "{android}",

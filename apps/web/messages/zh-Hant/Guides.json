@@ -6,6 +6,12 @@
       "use": "使用工具列按鈕或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (在 {mac} 上為 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) 儲存網頁。在連結上按右鍵並選擇「<strong>將連結儲存至 {app}</strong>」，即可只儲存連結。徽章顯示 ✓ 表示儲存成功，顯示 ! 表示儲存失敗。",
       "pin": "選用：{firefox} 會把按鈕放在拼圖圖示下的「<strong>擴充套件</strong>」選單中。如要讓它一直顯示在工具列上，請開啟該選單，點選 {app} 旁邊的齒輪圖示，然後選擇「<strong>釘選到工具列</strong>」。"
     },
+    "chrome": {
+      "install": "在電腦上開啟<store>{chrome} 線上應用程式商店中的 {app}</store>，點選「<strong>加到 {chrome}</strong>」，然後點選「<strong>新增擴充功能</strong>」。它也適用於其他以 {chrome} 為基礎的瀏覽器，例如 Edge 和 Brave。",
+      "connect": "它的「選項」會自動開啟：點選「<strong>連結</strong>」，依提示登入，然後在開啟的視窗中核准。以後如要開啟選項，請在工具列按鈕上按右鍵，然後選擇「<strong>選項</strong>」。",
+      "use": "使用工具列按鈕或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (在 {mac} 上為 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) 儲存網頁。在連結上按右鍵並選擇「<strong>將連結儲存至 {app}</strong>」，即可只儲存連結。徽章顯示 ✓ 表示儲存成功，顯示 ! 表示儲存失敗。",
+      "pin": "選用：{chrome} 會把按鈕放在拼圖圖示下的「<strong>擴充功能</strong>」選單中。如要讓它一直顯示在工具列上，請開啟該選單，然後點選 {app} 旁邊的圖釘圖示。"
+    },
     "shortcut": {
       "intro": "兩個捷徑只需手動建立一次，之後會透過 {icloud} 同步到你的 {iphone}、{ipad} 和 {mac}。第一個捷徑會從 {safari} 傳送整個網頁，因此付費牆後的文章只要你能閱讀，就能完整儲存。第二個捷徑用於其他 App (例如 {iphone} 上的 {chrome})，只會傳送連結。",
       "before": {

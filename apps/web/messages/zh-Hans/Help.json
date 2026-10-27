@@ -7,9 +7,9 @@
     "start": {
       "title": "入门",
       "intro": "{app} 为你保存想稍后阅读的文章，每篇都附有简洁的正文副本和简短摘要。设置只需几分钟。",
-      "token": "在<link>设置</link>中为 {safari} 快捷指令<strong>创建访问令牌</strong>。{firefox} 附加组件则会在你点击其“选项”中的“<strong>连接</strong>”时获得自己的令牌。",
+      "token": "在<link>设置</link>中为 {safari} 快捷指令<strong>创建访问令牌</strong>。{firefox} 附加组件和 {chrome} 扩展程序则会在你点击其“选项”中的“<strong>连接</strong>”时获得自己的令牌。",
       "save": "<strong>选择保存方式：</strong>",
-      "firefox": "在电脑上，使用 <link>{firefox} 附加组件</link>。",
+      "computer": "在电脑上，使用 <firefoxGuide>{firefox} 附加组件</firefoxGuide>或 <chromeGuide>{chrome} 扩展程序</chromeGuide>。",
       "safari": "在 {iphone}、{ipad} 或 {mac} 上，使用 <link>{safari} 快捷指令</link>。",
       "android": "在 {android} 上，<link>安装应用</link>后使用“分享”。",
       "paste": "在任何设备上，都可以把链接粘贴到收件箱顶部。",
@@ -17,6 +17,10 @@
     },
     "firefox": {
       "title": "{firefox} 附加组件",
+      "intro": "通过工具栏按钮、键盘快捷键和右键菜单保存到 {app}。"
+    },
+    "chrome": {
+      "title": "{chrome} 扩展程序",
       "intro": "通过工具栏按钮、键盘快捷键和右键菜单保存到 {app}。"
     },
     "safari": {

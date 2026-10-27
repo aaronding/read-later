@@ -7,9 +7,9 @@
     "start": {
       "title": "Premiers pas",
       "intro": "{app} conserve les articles que vous voulez lire plus tard, chacun avec une copie épurée et un court résumé. La configuration prend quelques minutes.",
-      "token": "<strong>Créez un jeton d’accès</strong> dans les <link>Paramètres</link> pour le raccourci {safari}. Le module complémentaire {firefox} obtient le sien quand vous cliquez sur <strong>Connecter</strong> dans ses options.",
+      "token": "<strong>Créez un jeton d’accès</strong> dans les <link>Paramètres</link> pour le raccourci {safari}. Le module complémentaire {firefox} et l’extension {chrome} obtiennent le leur quand vous cliquez sur <strong>Connecter</strong> dans leurs options.",
       "save": "<strong>Choisissez comment enregistrer :</strong>",
-      "firefox": "Sur un ordinateur, le <link>module complémentaire {firefox}</link>.",
+      "computer": "Sur un ordinateur, le <firefoxGuide>module complémentaire {firefox}</firefoxGuide> ou l’<chromeGuide>extension {chrome}</chromeGuide>.",
       "safari": "Sur {iphone}, {ipad} ou {mac}, le <link>raccourci {safari}</link>.",
       "android": "Sur {android}, <link>installez l’application</link> et utilisez Partager.",
       "paste": "Partout, collez un lien en haut de la boîte de réception.",
@@ -17,6 +17,10 @@
     },
     "firefox": {
       "title": "Module complémentaire {firefox}",
+      "intro": "Un bouton, un raccourci clavier et un menu contextuel pour enregistrer dans {app}."
+    },
+    "chrome": {
+      "title": "Extension {chrome}",
       "intro": "Un bouton, un raccourci clavier et un menu contextuel pour enregistrer dans {app}."
     },
     "safari": {

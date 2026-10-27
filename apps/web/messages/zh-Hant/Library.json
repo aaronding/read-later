@@ -13,7 +13,7 @@
     "filterSummary": "{filters, select, q {「{query}」} f {在「{folder}」資料夾中} t {標籤為 #{tag}} qf {「{query}」，在「{folder}」資料夾中} qt {「{query}」，標籤為 #{tag}} ft {在「{folder}」資料夾中，標籤為 #{tag}} qft {「{query}」，在「{folder}」資料夾中，標籤為 #{tag}} other {}} · <clear>清除</clear>",
     "filtersLabel": "資料夾和標籤",
     "empty": {
-      "inbox": "還沒有儲存任何內容。請在上方貼上連結，也可以透過 <firefoxGuide>{firefox} 附加元件</firefoxGuide>、<safariGuide>{safari} 捷徑</safariGuide>或 <androidGuide>{android}</androidGuide> 儲存。第一次使用？請參閱<start>入門</start>。",
+      "inbox": "還沒有儲存任何內容。請在上方貼上連結，也可以透過 <firefoxGuide>{firefox} 附加元件</firefoxGuide>、<chromeGuide>{chrome} 擴充功能</chromeGuide>、<safariGuide>{safari} 捷徑</safariGuide>或 <androidGuide>{android}</androidGuide> 儲存。第一次使用？請參閱<start>入門</start>。",
       "favorites": "我的最愛中還沒有文章。點一下文章上的「{favorite}」，即可將文章保留在這裡。",
       "archive": "還沒有封存任何內容。",
       "noMatch": "沒有符合條件的文章。"

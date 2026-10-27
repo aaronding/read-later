@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { APP_NAME, FIREFOX_ADDON_URL } from "@/config/app";
+import { APP_NAME, CHROME_EXTENSION_URL, FIREFOX_ADDON_URL } from "@/config/app";
 import { SHORTCUT_SCRIPT } from "@/lib/shortcut";
 import { CopyButton } from "./copy-button";
 
@@ -26,8 +26,17 @@ const products = {
 };
 
 export function FirefoxGuide() {
-  const t = useTranslations("Guides.firefox");
-  const values = { ...markup, ...products, store: (chunks: React.ReactNode) => <a href={FIREFOX_ADDON_URL}>{chunks}</a> };
+  return <ExtensionGuide guide="firefox" storeUrl={FIREFOX_ADDON_URL} />;
+}
+
+export function ChromeGuide() {
+  return <ExtensionGuide guide="chrome" storeUrl={CHROME_EXTENSION_URL} />;
+}
+
+/** The same steps in both browsers, in each one's words: install from its store, connect, use, pin. */
+function ExtensionGuide({ guide, storeUrl }: { guide: "firefox" | "chrome"; storeUrl: string }) {
+  const t = useTranslations(`Guides.${guide}`);
+  const values = { ...markup, ...products, store: (chunks: React.ReactNode) => <a href={storeUrl}>{chunks}</a> };
   return (
     <ol>
       <li>{t.rich("install", values)}</li>
