@@ -1,6 +1,6 @@
-// A minimal zip writer, so the Firefox build can be uploaded to
-// addons.mozilla.org for signing without zipping it by hand (Windows'
-// "Compressed folder" puts the folder itself inside, which Mozilla rejects).
+// A minimal zip writer, so the builds can be uploaded to the Chrome Web Store
+// and addons.mozilla.org without zipping them by hand (Windows' "Compressed
+// folder" puts the folder itself inside, where the stores want manifest.json at the root).
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { crc32, deflateRawSync } from "node:zlib";

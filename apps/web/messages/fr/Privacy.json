@@ -19,6 +19,13 @@
       "usage": "<strong>Utilisation de l’IA :</strong> le modèle, les tokens, le coût estimé et la durée de chaque réponse de l’IA.",
       "feedback": "<strong>Les messages</strong> que vous envoyez depuis la page À propos."
     },
+    "extension": {
+      "heading": "L’extension de navigateur",
+      "reads": "<strong>Elle ne lit une page que lorsque vous l’enregistrez</strong>, avec son bouton dans la barre d’outils, son raccourci clavier ou son menu contextuel. Elle n’a accès à aucun site autrement et ne garde aucune trace des pages que vous visitez.",
+      "sends": "Elle envoie à {app} l’adresse et le titre de la page enregistrée, et son contenu sans scripts ni styles, avec votre jeton d’accès. Un lien enregistré depuis le menu contextuel n’envoie que son adresse.",
+      "keeps": "Elle conserve son jeton d’accès et ses réglages dans le stockage de l’extension du navigateur, et rien d’autre, jusqu’à ce que vous la supprimiez.",
+      "limitedUse": "L’utilisation par {app} des informations reçues de l’extension respecte la <link>politique relative aux données utilisateur du Chrome Web Store</link>, y compris les exigences d’utilisation limitée."
+    },
     "cookies": {
       "heading": "Cookies",
       "intro": "Uniquement les cookies nécessaires à l’application, aucun pour le pistage :",

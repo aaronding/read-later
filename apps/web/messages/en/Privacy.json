@@ -19,6 +19,13 @@
       "usage": "<strong>AI usage:</strong> the model, tokens, estimated cost and time of each AI answer.",
       "feedback": "<strong>Messages</strong> you send from the About page."
     },
+    "extension": {
+      "heading": "The browser extension",
+      "reads": "<strong>It reads a page only when you save it</strong>, with its toolbar button, keyboard shortcut or right-click menu. It has no access to any website otherwise, and keeps no record of the pages you visit.",
+      "sends": "It sends the saved page’s address and title, and its content without scripts and styles, to {app} with your access token. A link saved from the right-click menu sends only its address.",
+      "keeps": "It keeps its access token and settings in the browser’s extension storage, and nothing else, until you remove it.",
+      "limitedUse": "{app}’s use of information received from the extension adheres to the <link>Chrome Web Store User Data Policy</link>, including the Limited Use requirements."
+    },
     "cookies": {
       "heading": "Cookies",
       "intro": "Only the cookies the app needs, none for tracking:",
