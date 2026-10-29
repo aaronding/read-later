@@ -6,6 +6,12 @@
       "use": "使用工具栏按钮或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>（在 {mac} 上为 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>）保存网页。右键点击链接并选择“<strong>将链接保存到 {app}</strong>”，即可只保存链接。徽章显示 ✓ 表示保存成功，显示 ! 表示保存失败。",
       "pin": "可选：{firefox} 会把按钮放在拼图图标下的“<strong>扩展</strong>”菜单中。如需让它一直显示在工具栏上，请打开该菜单，点击 {app} 旁边的齿轮图标，然后选择“<strong>固定到工具栏</strong>”。"
     },
+    "chrome": {
+      "install": "在电脑上打开<store>{chrome} 应用商店中的 {app}</store>，点击“<strong>添加至 {chrome}</strong>”，然后点击“<strong>添加扩展程序</strong>”。它也适用于其他基于 {chrome} 的浏览器，例如 Edge 和 Brave。",
+      "connect": "它的“选项”会自动打开：点击“<strong>连接</strong>”，按提示登录，然后在打开的窗口中批准。以后如需打开选项，请右键点击工具栏按钮，然后选择“<strong>选项</strong>”。",
+      "use": "使用工具栏按钮或 <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>（在 {mac} 上为 <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>）保存网页。右键点击链接并选择“<strong>将链接保存到 {app}</strong>”，即可只保存链接。徽章显示 ✓ 表示保存成功，显示 ! 表示保存失败。",
+      "pin": "可选：{chrome} 会把按钮放在拼图图标下的“<strong>扩展程序</strong>”菜单中。如需让它一直显示在工具栏上，请打开该菜单，然后点击 {app} 旁边的图钉图标。"
+    },
     "shortcut": {
       "intro": "两个快捷指令只需手动创建一次，之后会通过 {icloud} 同步到你的 {iphone}、{ipad} 和 {mac}。第一个快捷指令从 {safari} 浏览器发送整个网页，因此付费墙后的文章只要你能阅读，就能完整保存。第二个用于其他 App（例如 {iphone} 上的 {chrome}），只发送链接。",
       "before": {

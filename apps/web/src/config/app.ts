@@ -11,6 +11,9 @@ export const CONTACT_EMAIL = "contact@readsooner.com";
 // The Firefox add-on's page on addons.mozilla.org; its last part is the add-on URL set in the Developer Hub.
 export const FIREFOX_ADDON_URL = "https://addons.mozilla.org/firefox/addon/readsooner/";
 
+// The Chrome extension's page in the Chrome Web Store, by its item ID, which every version keeps.
+export const CHROME_EXTENSION_URL = "https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm";
+
 /**
  * The User-Agent for server-side downloads. It names the app honestly; we
  * never pretend to be a browser or a search engine crawler.

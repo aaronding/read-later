@@ -128,7 +128,7 @@ Everything runs on free plans except the Claude API, which is paid per use. Each
 Then connect your devices:
 
 - [Firefox add-on](https://addons.mozilla.org/firefox/addon/readsooner/), from Firefox Add-ons: toolbar button, keyboard shortcut and right-click "Save link" ([guide](docs/firefox-extension.md), including how to publish a new version).
-- [Chrome extension](docs/chrome-extension.md): the same extension, loaded unpacked from the repository, for development until it is in the Chrome Web Store. The web app's Help covers only the Firefox add-on, which people can install.
+- [Chrome extension](https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm), from the Chrome Web Store: the same extension, for Chrome, Edge and Brave ([guide](docs/chrome-extension.md), including how to publish a new version).
 - [Safari Shortcut](docs/safari-shortcut.md): iPhone, iPad and Mac.
 - **Android**: open the app in Chrome, choose **Add to Home screen → Install**, and it appears in the Share menu.
 

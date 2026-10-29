@@ -7,9 +7,9 @@
     "start": {
       "title": "Getting started",
       "intro": "{app} keeps the articles you want to read later, each with a clean copy and a short summary. Setting it up takes a few minutes.",
-      "token": "<strong>Create an access token</strong> in <link>Settings</link> for the {safari} Shortcut. The {firefox} add-on gets its own when you click <strong>Connect</strong> in its options.",
+      "token": "<strong>Create an access token</strong> in <link>Settings</link> for the {safari} Shortcut. The {firefox} add-on and the {chrome} extension get their own when you click <strong>Connect</strong> in their options.",
       "save": "<strong>Choose how to save:</strong>",
-      "firefox": "On a computer, the <link>{firefox} add-on</link>.",
+      "computer": "On a computer, the <firefoxGuide>{firefox} add-on</firefoxGuide> or the <chromeGuide>{chrome} extension</chromeGuide>.",
       "safari": "On an {iphone}, {ipad} or {mac}, the <link>{safari} Shortcut</link>.",
       "android": "On {android}, <link>install the app</link> and use Share.",
       "paste": "Anywhere, paste a link at the top of the Inbox.",
@@ -17,6 +17,10 @@
     },
     "firefox": {
       "title": "{firefox} add-on",
+      "intro": "A toolbar button, a keyboard shortcut and a right-click menu item that save to {app}."
+    },
+    "chrome": {
+      "title": "{chrome} extension",
       "intro": "A toolbar button, a keyboard shortcut and a right-click menu item that save to {app}."
     },
     "safari": {

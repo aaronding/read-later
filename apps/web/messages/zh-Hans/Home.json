@@ -23,13 +23,14 @@
       "heading": "随处保存",
       "setUp": "设置 →",
       "addToFirefox": "添加到 {firefox} →",
+      "addToChrome": "添加至 {chrome} →",
       "firefox": {
         "title": "{firefox}",
         "text": "工具栏按钮，或按 {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}。"
       },
-      "safari": {
-        "title": "{safari}",
-        "text": "适用于 {iphone}、{ipad} 和 {mac} 的快捷指令。"
+      "chrome": {
+        "title": "{chrome}",
+        "text": "工具栏按钮，或按 {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}。"
       },
       "android": {
         "title": "{android}",

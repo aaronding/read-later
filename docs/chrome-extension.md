@@ -6,30 +6,16 @@ The extension saves the page you're reading to your ReadSooner library, includin
 - **Right-click a link → "Save link to ReadSooner"**: saves just the link; the server downloads the page.
 - **The badge** on the toolbar button shows `…` while saving, then **✓** when saved or **!** when something went wrong. Hover over the button to see the reason.
 
-It isn't published in the Chrome Web Store yet ([Publish on the Chrome Web Store](#publish-on-the-chrome-web-store) says how), so you install it from the repository with "Load unpacked", and the web app's Help describes only the [Firefox add-on](firefox-extension.md), which anyone can install. It works the same in Chrome and in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox extension](firefox-extension.md).
+It is installed from the Chrome Web Store, and works the same in other Chromium browsers such as Edge and Brave. For Firefox, see [the Firefox add-on](firefox-extension.md).
 
 Its text is in the browser's language when that is English, French, Simplified Chinese or Traditional Chinese, and in English otherwise. It doesn't follow the language chosen in the web app's Settings: an extension can only use the browser's. This guide quotes the English texts.
 
 ## Install
 
-1. **Build it.** In the repository folder:
-
-   ```sh
-   pnpm install
-   pnpm extension:build
-   ```
-
-   This creates `apps/extension/dist`.
-
-2. **Load it.**
-   1. Open `chrome://extensions` in Chrome.
-   2. Turn on **Developer mode** (top right).
-   3. Click **Load unpacked** and choose the `apps/extension/dist` folder.
-   4. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner** so its button is always visible.
-
-3. **Connect it to your account.** The options page opens by itself after installing. You can also reach it by right-clicking the toolbar button and choosing **Options**.
-   1. **Server URL**: `https://www.readsooner.com`, already filled in. Only an extension loaded unpacked, as here, shows this field, so that it can use the app running on your computer: set it to `http://localhost:3000` for that. Installed from the Chrome Web Store, the extension always uses `https://www.readsooner.com` and has no such field. Typed without `www`, or with `http://`, the app's own address is corrected.
-   2. Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and the options page says "Connected. This browser now saves to your ReadSooner account.", with nothing else to fill in.
+1. Open [ReadSooner in the Chrome Web Store](https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm) and click **Add to Chrome**, then **Add extension**.
+2. **Connect it to your account.** The options page opens by itself; you can also reach it by right-clicking the toolbar button and choosing **Options**.
+   Click **Connect**. A window opens at ReadSooner: sign in if it asks, check that the account shown is yours, and click **Connect**. The window closes, and the options page says "Connected. This browser now saves to your ReadSooner account.", with nothing else to fill in.
+3. Optional: click the puzzle-piece icon in the toolbar and pin **ReadSooner**, so its button is always visible.
 
 Connect creates an access token named for the browser, such as "Chrome extension on Windows", and fills it in. To do it by hand instead, create a token in the web app's **Settings → Access tokens**, paste it under **Access token** (it starts with `rl_`) and click **Save and check**.
 
@@ -43,9 +29,15 @@ The token is stored only in this browser's extension storage. To disconnect a br
 
 Saving the same article again moves it back to the top of your Inbox instead of creating a duplicate. If the earlier copy was "Preview only" (for example a link saved from your phone that hit a paywall), the new full copy replaces it.
 
-## Update after changing the code
+## Try a build: load it unpacked
 
-Run `pnpm extension:build` again, then click the reload arrow on the extension's card in `chrome://extensions`. Your settings are kept.
+For developing the extension. In the repository folder, run `pnpm install`, then `pnpm extension:build`, which creates `apps/extension/dist`. Then:
+
+1. Open `chrome://extensions` in Chrome and turn on **Developer mode** (top right).
+2. Click **Load unpacked** and choose the `apps/extension/dist` folder.
+3. Connect it as in [Install](#install). Loaded unpacked, the options page also shows a **Server URL**, already `https://www.readsooner.com`: set it to `http://localhost:3000` for the app running on your computer. Installed from the store, the extension always uses `https://www.readsooner.com`. Typed without `www`, or with `http://`, the app's own address is corrected.
+
+After changing the code, run `pnpm extension:build` again, then click the reload arrow on the extension's card in `chrome://extensions`. Your settings are kept.
 
 ## Publish on the Chrome Web Store
 
@@ -92,7 +84,7 @@ Run `pnpm extension:build` again, then click the reload arrow on the extension's
   - `storage`: To keep the user's ReadSooner access token and the extension's settings.
   - `identity`: For the Connect button: `launchWebAuthFlow` opens ReadSooner's approval page, where the user signs in and approves, and receives the access token for this browser. It doesn't use `getAuthToken` or the user's Google account.
 - **Remote code:** No, I am not using remote code.
-- **Data usage:** tick **Website content** (the content of each page the user saves), **Web history** (the address and title of each page the user saves) and **Authentication information** (the ReadSooner access token, kept in the extension and sent only to ReadSooner). Nothing else. Then tick the three certifications: no sale to third parties, no use unrelated to the single purpose, no use for credit decisions.
+- **Data usage:** tick **Website content** (the address, title and content of each page the user saves) and **Authentication information** (the ReadSooner access token, kept in the extension and sent only to ReadSooner; Google counts login cookies and any login as user data). Not **Web history**: that is the list of pages a user visits, which the extension never collects. Then tick the three certifications: no sale to third parties, no use unrelated to the single purpose, no use for credit decisions.
 - **Privacy policy:** `https://www.readsooner.com/privacy`. Its section on the browser extension says what the extension reads, sends and keeps, and carries the Limited Use statement the store asks for.
 
 **Distribution:** Public, in all regions. To install it from the store yourself before anyone else, choose Private and add yourself as a trusted tester, then switch to Public.
@@ -103,9 +95,9 @@ Run `pnpm extension:build` again, then click the reload arrow on the extension's
 
 Sign-in has to be open to everyone (`ALLOWED_EMAILS=*`) for reviewers to get in.
 
-### After it's approved
+### The store's address
 
-The web app's Help covers only the Firefox add-on until then (decision 145). Once the listing is public, Help, the homepage and this guide's **Install** can point to it, as they do for Firefox; the item's address is on its page in the dashboard.
+The extension's page is `https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm`, by its item ID, which every version keeps. Help, the homepage and this guide link to it; the web app's copy is `CHROME_EXTENSION_URL` in `apps/web/src/config/app.ts`.
 
 ## Troubleshooting
 

@@ -13,7 +13,7 @@
     },
     "tokens": {
       "heading": "存取權杖",
-      "intro": "{apple} 捷徑會使用權杖將內容儲存到你的帳號；{firefox} 附加元件則會在連結時建立自己的權杖。請為每個裝置分別建立一個權杖，這樣撤銷其中一個時，就不會影響其他權杖。",
+      "intro": "{apple} 捷徑會使用權杖將內容儲存到你的帳號；{firefox} 附加元件和 {chrome} 擴充功能則會在連結時建立自己的權杖。請為每個裝置分別建立一個權杖，這樣撤銷其中一個時，就不會影響其他權杖。",
       "details": "<code>{prefix}…</code> · 建立於 <created></created> · 上次使用：<lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · 建立於 <created></created> · 從未使用",
       "revoke": "撤銷",
@@ -47,6 +47,7 @@
       "heading": "從你的裝置儲存",
       "intro": "每種只需幾分鐘，只有捷徑需要用到上方的存取權杖。",
       "firefox": "{firefox} 附加元件",
+      "chrome": "{chrome} 擴充功能",
       "safari": "{safari} 捷徑 ({iphone}、{ipad} 和 {mac})",
       "android": "{android}"
     }

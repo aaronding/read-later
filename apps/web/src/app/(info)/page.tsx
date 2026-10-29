@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { SignInButton } from "@/components/sign-in-button";
-import { APP_NAME, FIREFOX_ADDON_URL } from "@/config/app";
+import { APP_NAME, CHROME_EXTENSION_URL, FIREFOX_ADDON_URL } from "@/config/app";
 import { getCurrentUser } from "@/lib/auth";
 import { browserAndSystem } from "@/lib/user-agent";
 
@@ -14,15 +14,19 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const STEPS = ["save", "gist", "read"] as const;
+// The Safari Shortcut has its page in Help but no tile: the browsers' extensions come first.
 const WAYS = [
   { key: "firefox", help: "/help/firefox" },
+  { key: "chrome", help: "/help/chrome" },
   { key: "android", help: "/help/android" },
-  { key: "safari", help: "/help/safari" },
   { key: "paste", help: null },
 ] as const;
+// Where each extension is installed: its browser's own store.
+const STORES = { firefox: FIREFOX_ADDON_URL, chrome: CHROME_EXTENSION_URL } as const;
 const products = {
   app: APP_NAME,
   firefox: "Firefox",
+  chrome: "Chrome",
   safari: "Safari",
   iphone: "iPhone",
   ipad: "iPad",
@@ -90,12 +94,12 @@ export default async function HomePage() {
             <li key={key} className="card tile">
               <h3>{t(`ways.${key}.title`, products)}</h3>
               <p>{t(`ways.${key}.text`, { ...products, system })}</p>
-              {/* The add-on's tile also links to Mozilla's store, where it is installed. */}
-              {key === "firefox" ? (
+              {/* The extensions' tiles also link to their stores, where they are installed. */}
+              {key === "firefox" || key === "chrome" ? (
                 <span className="tile-links">
                   <Link href={help}>{t("ways.setUp")}</Link>
-                  <a href={FIREFOX_ADDON_URL} target="_blank" rel="noopener">
-                    {t("ways.addToFirefox", products)}
+                  <a href={STORES[key]} target="_blank" rel="noopener">
+                    {key === "firefox" ? t("ways.addToFirefox", products) : t("ways.addToChrome", products)}
                   </a>
                 </span>
               ) : (

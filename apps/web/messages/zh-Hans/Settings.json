@@ -13,7 +13,7 @@
     },
     "tokens": {
       "heading": "访问令牌",
-      "intro": "{apple} 快捷指令通过令牌将内容保存到你的账号；{firefox} 附加组件会在连接时创建自己的令牌。请为每个设备单独创建一个令牌，这样撤销其中一个时不会影响其他设备。",
+      "intro": "{apple} 快捷指令通过令牌将内容保存到你的账号；{firefox} 附加组件和 {chrome} 扩展程序会在连接时创建自己的令牌。请为每个设备单独创建一个令牌，这样撤销其中一个时不会影响其他设备。",
       "details": "<code>{prefix}…</code> · 创建于 <created></created> · 上次使用：<lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · 创建于 <created></created> · 从未使用",
       "revoke": "撤销",
@@ -47,6 +47,7 @@
       "heading": "从你的设备保存",
       "intro": "每种只需几分钟，只有快捷指令需要用到上方的访问令牌。",
       "firefox": "{firefox} 附加组件",
+      "chrome": "{chrome} 扩展程序",
       "safari": "{safari} 快捷指令（{iphone}、{ipad} 和 {mac}）",
       "android": "{android}"
     }

@@ -13,7 +13,7 @@
     },
     "tokens": {
       "heading": "Jetons d’accès",
-      "intro": "Les raccourcis {apple} utilisent un jeton pour enregistrer dans votre compte ; le module complémentaire {firefox} crée le sien quand vous le connectez. Créez-en un par appareil : vous pourrez ainsi en révoquer un sans toucher aux autres.",
+      "intro": "Les raccourcis {apple} utilisent un jeton pour enregistrer dans votre compte ; le module complémentaire {firefox} et l’extension {chrome} créent le leur quand vous les connectez. Créez-en un par appareil : vous pourrez ainsi en révoquer un sans toucher aux autres.",
       "details": "<code>{prefix}…</code> · créé le <created></created> · dernière utilisation le <lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · créé le <created></created> · jamais utilisé",
       "revoke": "Révoquer",
@@ -47,6 +47,7 @@
       "heading": "Enregistrer depuis vos appareils",
       "intro": "Quelques minutes chacun ; seul le raccourci a besoin d’un jeton d’accès ci-dessus.",
       "firefox": "Module complémentaire {firefox}",
+      "chrome": "Extension {chrome}",
       "safari": "Raccourci {safari} ({iphone}, {ipad} et {mac})",
       "android": "{android}"
     }

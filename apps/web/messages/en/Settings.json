@@ -13,7 +13,7 @@
     },
     "tokens": {
       "heading": "Access tokens",
-      "intro": "The {apple} Shortcuts use a token to save to your account; the {firefox} add-on makes its own when you connect it. Make one per device, so you can revoke one without touching the others.",
+      "intro": "The {apple} Shortcuts use a token to save to your account; the {firefox} add-on and the {chrome} extension make their own when you connect them. Make one per device, so you can revoke one without touching the others.",
       "details": "<code>{prefix}…</code> · created <created></created> · last used <lastUsed></lastUsed>",
       "detailsNeverUsed": "<code>{prefix}…</code> · created <created></created> · never used",
       "revoke": "Revoke",
@@ -47,6 +47,7 @@
       "heading": "Save from your devices",
       "intro": "Each takes a few minutes; only the Shortcut needs an access token from above.",
       "firefox": "{firefox} add-on",
+      "chrome": "{chrome} extension",
       "safari": "{safari} Shortcut ({iphone}, {ipad} and {mac})",
       "android": "{android}"
     }

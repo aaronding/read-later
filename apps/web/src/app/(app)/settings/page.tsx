@@ -123,7 +123,7 @@ export default async function SettingsPage() {
 
       <section className="card" aria-labelledby="tokens-heading">
         <h2 id="tokens-heading">{t("tokens.heading")}</h2>
-        <p className="muted">{t("tokens.intro", { apple: "Apple", firefox: "Firefox" })}</p>
+        <p className="muted">{t("tokens.intro", { apple: "Apple", firefox: "Firefox", chrome: "Chrome" })}</p>
         <TokenForm />
         {tokens.map((token) => (
           <div key={token.id} className="token-row">
@@ -160,6 +160,9 @@ export default async function SettingsPage() {
         <ul>
           <li>
             <Link href="/help/firefox">{t("devices.firefox", { firefox: "Firefox" })}</Link>
+          </li>
+          <li>
+            <Link href="/help/chrome">{t("devices.chrome", { chrome: "Chrome" })}</Link>
           </li>
           <li>
             <Link href="/help/safari">{t("devices.safari", { safari: "Safari", iphone: "iPhone", ipad: "iPad", mac: "Mac" })}</Link>

@@ -6,6 +6,12 @@
       "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t.",
       "pin": "Optional: {firefox} puts the button in the <strong>Extensions</strong> menu, under the puzzle-piece icon. To keep it on the toolbar, open that menu, click the gear next to {app} and choose <strong>Pin to Toolbar</strong>."
     },
+    "chrome": {
+      "install": "On a computer, open <store>{app} in the {chrome} Web Store</store>, click <strong>Add to {chrome}</strong>, then <strong>Add extension</strong>. It also works in other browsers built on {chrome}, such as Edge and Brave.",
+      "connect": "Its options open by themselves: click <strong>Connect</strong>, sign in if asked, and approve in the window that opens. To reach them later, right-click the toolbar button and choose <strong>Options</strong>.",
+      "use": "Save a page with the toolbar button or <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> (on a {mac}, <kbd>Option</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>). Right-click a link and choose <strong>Save link to {app}</strong> to save just the link. The badge shows ✓ when it worked and ! when it didn’t.",
+      "pin": "Optional: {chrome} puts the button in the <strong>Extensions</strong> menu, under the puzzle-piece icon. To keep it on the toolbar, open that menu and click the pin next to {app}."
+    },
     "shortcut": {
       "intro": "You build two Shortcuts by hand, once; they then sync to your {iphone}, {ipad} and {mac} through {icloud}. The first sends the whole page from {safari}, so paywalled articles you can read are saved in full. The second, for other apps such as {chrome} on {iphone}, sends only the link.",
       "before": {

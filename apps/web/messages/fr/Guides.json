@@ -6,6 +6,12 @@
       "use": "Enregistrez une page avec le bouton de la barre d’outils ou <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd> (sur {mac}, <kbd>Option</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd>). Faites un clic droit sur un lien et choisissez <strong>Enregistrer le lien dans {app}</strong> pour n’enregistrer que le lien. Le badge indique si l’enregistrement a réussi (✓) ou échoué (!).",
       "pin": "Facultatif : {firefox} place le bouton dans le menu <strong>Extensions</strong>, sous l’icône en forme de pièce de puzzle. Pour le garder dans la barre d’outils, ouvrez ce menu, cliquez sur la roue dentée à côté de {app} et choisissez <strong>Épingler à la barre d’outils</strong>."
     },
+    "chrome": {
+      "install": "Sur un ordinateur, ouvrez <store>{app} sur le {chrome} Web Store</store>, cliquez sur <strong>Ajouter à {chrome}</strong>, puis sur <strong>Ajouter l’extension</strong>. Elle fonctionne aussi dans les autres navigateurs fondés sur {chrome}, comme Edge et Brave.",
+      "connect": "Ses options s’ouvrent d’elles-mêmes : cliquez sur <strong>Connecter</strong>, identifiez-vous si nécessaire et approuvez dans la fenêtre qui s’ouvre. Pour y revenir plus tard, faites un clic droit sur le bouton de la barre d’outils et choisissez <strong>Options</strong>.",
+      "use": "Enregistrez une page avec le bouton de la barre d’outils ou <kbd>Alt</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd> (sur {mac}, <kbd>Option</kbd>+<kbd>Maj</kbd>+<kbd>S</kbd>). Faites un clic droit sur un lien et choisissez <strong>Enregistrer le lien dans {app}</strong> pour n’enregistrer que le lien. Le badge indique si l’enregistrement a réussi (✓) ou échoué (!).",
+      "pin": "Facultatif : {chrome} place le bouton dans le menu <strong>Extensions</strong>, sous l’icône en forme de pièce de puzzle. Pour le garder dans la barre d’outils, ouvrez ce menu et cliquez sur l’épingle à côté de {app}."
+    },
     "shortcut": {
       "intro": "Vous créez deux raccourcis à la main, une seule fois : ils se synchronisent ensuite sur votre {iphone}, votre {ipad} et votre {mac} via {icloud}. Le premier envoie la page entière depuis {safari}, si bien que les articles réservés aux abonnés que vous pouvez lire sont enregistrés en entier. Le second, destiné aux autres apps comme {chrome} sur {iphone}, n’envoie que le lien.",
       "before": {

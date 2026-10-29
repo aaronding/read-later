@@ -23,13 +23,14 @@
       "heading": "Save from anywhere",
       "setUp": "Set up →",
       "addToFirefox": "Add to {firefox} →",
+      "addToChrome": "Add to {chrome} →",
       "firefox": {
         "title": "{firefox}",
         "text": "A toolbar button, or {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}."
       },
-      "safari": {
-        "title": "{safari}",
-        "text": "A Shortcut on {iphone}, {ipad} and {mac}."
+      "chrome": {
+        "title": "{chrome}",
+        "text": "A toolbar button, or {system, select, mac {Option+Shift+S} other {Alt+Shift+S}}."
       },
       "android": {
         "title": "{android}",
