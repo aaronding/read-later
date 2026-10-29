@@ -5,6 +5,7 @@ import { deleteFolderAction, revokeTokenAction, updateLocaleAction, updateSettin
 import { AppearancePicker } from "@/components/appearance-picker";
 import { ConfirmButton } from "@/components/confirm-button";
 import { LocalDate } from "@/components/local-date";
+import { OfflineSettings } from "@/components/offline-settings";
 import { SignOutButton } from "@/components/sign-in-button";
 import { SubmitButton } from "@/components/submit-button";
 import { TokenForm } from "@/components/token-form";
@@ -194,6 +195,8 @@ export default async function SettingsPage() {
           ))
         )}
       </section>
+
+      <OfflineSettings />
 
       <section className="card" aria-labelledby="export-heading">
         <h2 id="export-heading">{t("export.heading")}</h2>

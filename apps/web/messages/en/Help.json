@@ -46,6 +46,10 @@
         "heading": "Keeping things in order",
         "text": "<strong>Triage</strong> shows unread articles one at a time: read now, later, or archive. <strong>Favorites</strong> and the <strong>Archive</strong> keep what you mark, folders and tags group articles, and search looks through titles, summaries and text."
       },
+      "offline": {
+        "heading": "Reading offline",
+        "text": "In an article, <strong>Keep offline</strong> stores its clean copy and summary on this device. Without a connection, {app} still opens, installed or in the browser, and lists the articles kept here to read; Archive, Favorite and Delete wait until you’re online. Pictures aren’t kept, and signing out removes the articles. On {iphone} and {ipad}, {safari} deletes what a website keeps after 7 days without a visit, so add {app} to the Home Screen (Share → <strong>Add to Home Screen</strong>) and open it from there."
+      },
       "data": {
         "heading": "Your data",
         "text": "In Settings, <strong>Export</strong> downloads everything as JSON or Markdown. You can delete any article at any time."

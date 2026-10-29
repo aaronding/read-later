@@ -5,6 +5,8 @@ import { NextResponse, type NextRequest } from "next/server";
 // any that slipped into a saved article. Article images can come from any
 // host, so img-src stays open. Style attributes can't carry a nonce, so
 // styles stay 'unsafe-inline' (saved articles have their styles removed).
+// 'strict-dynamic' would also refuse the service worker, which worker-src
+// allows from the site itself (decision 151).
 export function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const dev = process.env.NODE_ENV === "development";
@@ -16,6 +18,7 @@ export function proxy(request: NextRequest) {
     "media-src 'self' https:",
     "font-src 'self' data:",
     "connect-src 'self'",
+    "worker-src 'self'",
     "frame-src 'none'",
     "frame-ancestors 'none'",
     "object-src 'none'",
@@ -34,8 +37,9 @@ export function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     {
-      // Pages only: not the API, static files, icons or files for crawlers.
-      source: "/((?!api|_next/static|_next/image|icons|favicon.ico|icon.svg|apple-icon.png|opengraph-image.png|manifest.webmanifest|robots.txt|sitemap.xml).*)",
+      // Pages only: not the API, static files, icons, files for crawlers or
+      // the service worker, whose headers are in next.config.ts.
+      source: "/((?!api|_next/static|_next/image|icons|favicon.ico|icon.svg|apple-icon.png|opengraph-image.png|manifest.webmanifest|robots.txt|sitemap.xml|sw.js).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

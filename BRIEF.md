@@ -6,12 +6,44 @@ The owner (Aaron) develops on Windows and uses Chrome and Safari on a Mac, an iP
 
 ## Stages
 
-Build **stage 1 only**. The later stages are listed so you don't design them out.
+Stage 1 is built. The later stages are listed so you don't design them out; [the plan after stage 1](#the-plan-after-stage-1) says what comes next, in order.
 
 1. **Stage 1, owner only.** Google sign-in. Save from Chrome and Safari. Review saved articles, summaries and content in the web app.
 2. **Stage 2, invite-only beta.** Testers with a free monthly summary limit, import (Pocket CSV and HTML, Instapaper, browser bookmark files), an admin page for usage and AI cost, and more advanced features to be decided.
 3. **Stage 3, public.** Privacy page, terms with a copyright contact, account deletion, Chrome Web Store listing, Google sign-in opened to everyone.
-4. **Stage 4.** Advanced features: Sign in with Apple, a Safari extension and native apps (all need the $99/year Apple developer membership, which the owner doesn't have yet), semantic search, highlights, offline reading.
+4. **Stage 4.** Advanced features: Sign in with Apple, a Safari extension and native apps (all need the $99/year Apple developer membership, which the owner doesn't have yet), semantic search, highlights. Offline reading moved up into the plan.
+
+## The plan after stage 1
+
+Parts of stages 2 and 3 are built too: the monthly AI limit, sign-in open to everyone, the privacy page, and the extension's listings on Firefox Add-ons and the Chrome Web Store. Next, in this order:
+
+1. **Offline reading, as an installable web app (PWA).**
+   - A service worker, so the app opens without a connection, installed or in the browser.
+   - Users keep articles on the device. A button in the reader stores the clean copy and its summary in the browser (IndexedDB), and removes it again. Offline, the app lists the kept articles and opens them in the reader.
+   - Reading only, at first: Archive, Favorite and Delete wait for a connection. Doing them offline, queued until the app is back online, comes later.
+   - Images come from the articles' own sites, so the first version may leave them out.
+   - Signing out removes the articles kept on that device.
+   - Safari on iPhone and iPad deletes a site's stored data after 7 days without a visit, unless the app is on the Home Screen. The app asks the browser to keep its storage, and Help says to install it.
+2. **Pocket import** (stage 2), from Pocket's CSV and HTML exports.
+   - It keeps tags, favorites, whether an article was archived, and the original saved date.
+   - The server downloads the pages gradually and shows the import's progress. A page that fails stays as a plain link; old links are often dead or paywalled.
+   - Imported articles are summarized only when opened, so an import doesn't use a month's AI allowance on its first day.
+   - Large imports fill the free database's 1 GB sooner, so the admin page watches its size.
+3. **Browser bookmarks and Instapaper** (stage 2), on the same import. Bookmark folders become folders.
+4. **A backup in the user's own cloud.**
+   - The export (Settings → Export) also accepts an access token, as saving does.
+   - An Apple Shortcut, run every day as an automation, fetches the export and saves it to iCloud Drive. Websites can't write to iCloud Drive, and people build the Shortcut from a guide, as they do for saving.
+   - Google Drive, Dropbox and OneDrive each need their own sign-in connection, so they wait until someone asks.
+   - Not planned: keeping the library only in the user's cloud. Search, summaries and syncing between devices need the server to hold the articles, and the server and Claude would still see each one as it is saved.
+5. **Keep less.**
+   - Settings can delete an article's text once it is summarized, or delete articles some days after they are archived.
+   - Account deletion in Settings (stage 3), instead of a request through About.
+6. **Later, if users ask for it: end-to-end encryption.** Articles and summaries are encrypted with a key only the user's devices hold, so the stored library is unreadable, even to the owner. Saving still passes through the server, search runs in the browser, and a lost key loses the library.
+7. **Last: the extension without an account.**
+   - The extension cleans up the open page with Readability and keeps it in its own IndexedDB (with `unlimitedStorage`), with a reader page inside the extension. Chrome and Firefox on a computer.
+   - The first version saves the open page and has Inbox, Favorites and Archive, the reader, search, and export and import to a file in the export's format, so moving to an account later is an import.
+   - Not in it: summaries (later, the user's own Anthropic key, or Chrome's built-in Summarizer, which has no Chinese), Save link (it would need permission to read every website), and phones.
+   - Not a website without an account: a web page can't download other sites' pages, and Safari deletes a site's storage.
 
 ## Decisions already made
 

@@ -16,6 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const KEPT = ["account", "sessions", "saved", "library", "tokens", "usage", "feedback"] as const;
 const EXTENSION = ["reads", "sends", "keeps"] as const;
+const BROWSER = ["articles", "app"] as const;
 const COOKIES = [
   { name: "better-auth.session_token", key: "session" },
   { name: "better-auth.state", key: "state" },
@@ -61,6 +62,14 @@ export default async function PrivacyPage() {
           <li key={key}>{t.rich(`extension.${key}`, { ...app, strong })}</li>
         ))}
         <li>{t.rich("extension.limitedUse", { ...app, link: (chunks) => <a href={CHROME_USER_DATA_POLICY_URL}>{chunks}</a> })}</li>
+      </ul>
+
+      {/* What stays on the device for reading offline (decision 157). */}
+      <h2>{t("browser.heading")}</h2>
+      <ul>
+        {BROWSER.map((key) => (
+          <li key={key}>{t.rich(`browser.${key}`, { ...app, strong })}</li>
+        ))}
       </ul>
 
       <h2>{t("cookies.heading")}</h2>

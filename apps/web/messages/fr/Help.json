@@ -46,6 +46,10 @@
         "heading": "Garder de l’ordre",
         "text": "Le <strong>Triage</strong> présente les articles non lus un par un : à lire maintenant, plus tard, ou à archiver. Les <strong>Favoris</strong> et les <strong>Archives</strong> gardent ce que vous marquez, les dossiers et les tags regroupent les articles, et la recherche parcourt titres, résumés et textes."
       },
+      "offline": {
+        "heading": "Lire hors ligne",
+        "text": "Dans un article, <strong>Garder hors ligne</strong> enregistre sa copie épurée et son résumé sur cet appareil. Sans connexion, {app} s’ouvre quand même, installé ou dans le navigateur, et affiche les articles gardés ici, à lire ; Archiver, Favori et Supprimer attendent votre retour en ligne. Les images ne sont pas gardées, et la déconnexion retire les articles. Sur {iphone} et {ipad}, {safari} supprime ce qu’un site garde après 7 jours sans visite : ajoutez {app} à l’écran d’accueil (Partager → <strong>Sur l’écran d’accueil</strong>) et ouvrez-le de là."
+      },
       "data": {
         "heading": "Vos données",
         "text": "Dans les Paramètres, <strong>Exportation</strong> télécharge tout en JSON ou en Markdown. Vous pouvez supprimer n’importe quel article à tout moment."

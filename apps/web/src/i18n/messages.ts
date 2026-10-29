@@ -15,6 +15,7 @@ import type guides from "../../messages/en/Guides.json";
 import type help from "../../messages/en/Help.json";
 import type home from "../../messages/en/Home.json";
 import type library from "../../messages/en/Library.json";
+import type offline from "../../messages/en/Offline.json";
 import type privacy from "../../messages/en/Privacy.json";
 import type reader from "../../messages/en/Reader.json";
 import type settings from "../../messages/en/Settings.json";
@@ -47,6 +48,7 @@ export const NAMESPACES = [
   "Help",
   "Home",
   "Library",
+  "Offline",
   "Privacy",
   "Reader",
   "Settings",
@@ -75,6 +77,7 @@ export type Messages = typeof about &
   typeof help &
   typeof home &
   typeof library &
+  typeof offline &
   typeof privacy &
   typeof reader &
   typeof settings &
@@ -95,6 +98,7 @@ export const CLIENT_NAMESPACES = [
   "Common",
   "ErrorPages",
   "Library",
+  "Offline",
   "Settings",
 ] as const satisfies readonly Namespace[];
 

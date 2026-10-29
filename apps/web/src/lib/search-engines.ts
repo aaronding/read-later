@@ -7,7 +7,8 @@ export const PUBLIC_PAGES = ["/", "/about", "/privacy", ...HELP_TOPICS.map(helpH
 
 /**
  * Where crawlers aren't let in: the signed-in pages, which only send them to
- * sign-in, the API, Android's Share target and the extension's Connect page.
+ * sign-in, the API, Android's Share target, the extension's Connect page and
+ * the offline page, which shows only what the browser keeps.
  * The sign-in page isn't listed: it says noindex itself, which a crawler reads
  * only if it may fetch the page.
  */
@@ -22,4 +23,5 @@ export const DISALLOWED_PATHS = [
   "/admin/",
   "/share",
   "/extension/",
+  "/offline",
 ];

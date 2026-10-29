@@ -1,0 +1,31 @@
+{
+  "Offline": {
+    "pageTitle": "Gardés sur cet appareil",
+    "offline": "Vous êtes hors ligne. Les articles gardés sur cet appareil restent lisibles ; Archiver, Favori et Supprimer attendent une connexion.",
+    "online": "Vous êtes en ligne. <link>Ouvrir la boîte de réception</link>",
+    "keptFor": "Compte : {email}",
+    "empty": "Aucun article n’est gardé sur cet appareil. En ligne, ouvrez un article et choisissez <strong>Garder hors ligne</strong>.",
+    "notKept": "Cet article n’est pas gardé sur cet appareil : il faut une connexion pour l’ouvrir.",
+    "loading": "Chargement…",
+    "unsupported": "Ce navigateur ne peut pas garder d’articles.",
+    "back": "Articles gardés",
+    "keptOn": "Gardé le <date></date>",
+    "noImages": "Les images ne sont pas gardées.",
+    "openOriginal": "Ouvrir l’original ↗",
+    "summary": "Résumé",
+    "partial": "Ce résumé ne couvre que le début de l’article.",
+    "remove": "Retirer de cet appareil",
+    "keep": "Garder hors ligne",
+    "keepFailed": "Impossible de le garder sur cet appareil. Réessayez une fois en ligne.",
+    "keptBadge": "Sur cet appareil",
+    "settings": {
+      "heading": "Lecture hors ligne",
+      "intro": "Dans un article, <strong>Garder hors ligne</strong> enregistre sa copie épurée et son résumé dans ce navigateur, pour les lire sans connexion. Les images ne sont pas gardées, et la déconnexion retire les articles.",
+      "count": "{count, plural, =0 {Aucun article n’est gardé sur cet appareil.} one {Un article est gardé sur cet appareil, environ {size}.} other {# articles sont gardés sur cet appareil, environ {size}.}}",
+      "open": "Voir les articles gardés",
+      "removeAll": "Tout retirer",
+      "removeAllConfirm": "Retirer tous les articles gardés sur cet appareil ?",
+      "safari": "Sur {iphone} et {ipad}, {safari} les supprime après 7 jours sans visite, sauf si {app} est sur l’écran d’accueil : Partager → Sur l’écran d’accueil."
+    }
+  }
+}

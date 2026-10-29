@@ -1,0 +1,31 @@
+{
+  "Offline": {
+    "pageTitle": "已下载的文章",
+    "offline": "你已离线。下载到本机的文章仍可阅读；归档、收藏和删除需等联网后进行。",
+    "online": "已恢复联网。<link>打开收件箱</link>",
+    "keptFor": "账号：{email}",
+    "empty": "本机还没有下载文章。联网时打开一篇文章，选择<strong>下载到本机</strong>。",
+    "notKept": "这篇文章没有下载到本机，需要联网才能打开。",
+    "loading": "正在加载…",
+    "unsupported": "此浏览器无法下载文章。",
+    "back": "已下载的文章",
+    "keptOn": "下载于 <date></date>",
+    "noImages": "图片不会下载。",
+    "openOriginal": "打开原文 ↗",
+    "summary": "摘要",
+    "partial": "此摘要只涵盖文章的开头部分。",
+    "remove": "从本机移除",
+    "keep": "下载到本机",
+    "keepFailed": "无法下载到本机。请在联网后重试。",
+    "keptBadge": "已下载",
+    "settings": {
+      "heading": "离线阅读",
+      "intro": "在文章中选择<strong>下载到本机</strong>，会把它的简洁版本和摘要存入此浏览器，无需联网即可阅读。图片不会下载，退出登录时文章会被移除。",
+      "count": "{count, plural, =0 {本机没有下载文章。} other {本机下载了 # 篇文章，约 {size}。}}",
+      "open": "查看已下载的文章",
+      "removeAll": "全部移除",
+      "removeAllConfirm": "要移除本机下载的所有文章吗？",
+      "safari": "在 {iphone} 和 {ipad} 上，除非 {app} 已添加到主屏幕，否则 {safari} 会在 7 天未访问后删除这些文章：轻点“分享”→“添加到主屏幕”。"
+    }
+  }
+}

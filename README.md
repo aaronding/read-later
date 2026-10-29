@@ -32,6 +32,7 @@ This is **stage 1**: one owner, Google sign-in, saving from Chrome, Firefox, Saf
 5. **Languages.** The app is in English, French, Simplified Chinese and Traditional Chinese (with Taiwan's usage), chosen in **Settings → Language** or, until then, from the browser. Summaries stay in each article's own language, and the reader can translate one into another of these languages, by the model that wrote it, up to three times per summary. Simplified and Traditional Chinese count as one language there: a Chinese summary can go to English or French, an English one to either Chinese. See [Translations](#translations).
 
 6. **The site.** Signed out, `/` is a homepage, and `/about`, `/privacy` and `/help` can be read too; the footer on every page links to them, and visitors choose the language and theme at the top of each page. About has a feedback form for signed-in users, account deletion requests included, and shows visitors who aren't signed in the address `contact@readsooner.com`; admins read the messages in **Feedback** and see the deployed version on About. Help holds the step-by-step guides for each device. Search engines are offered those pages through `robots.txt` and a sitemap, and a shared link to them shows a picture of the homepage ([decisions 146 to 148](docs/decisions.md)). The privacy policy states only what the code does, so a change to what the app keeps, sends or for how long means changing the policy too, in every language ([decisions 125 to 129 and 142](docs/decisions.md)).
+7. **Offline reading.** The app installs as a web app, and a hand-written service worker, `apps/web/public/sw.js`, keeps one page, `/offline`, so it opens without a connection, installed or in a browser tab. **Keep offline**, next to Open original in the reader, stores the article's clean copy and summary in the browser's IndexedDB; each signed-in page brings kept copies up to date through `POST /api/offline`, and drops those deleted elsewhere. Offline, any page leads to `/offline`, which lists the kept articles and opens them in a reader, without pictures; Archive, Favorite and Delete wait for a connection. Kept articles belong to the account that kept them, and signing out removes them ([decisions 151 to 157](docs/decisions.md)).
 
 ## Local development (Windows, macOS or Linux)
 
@@ -92,7 +93,9 @@ You need **Node.js 24**, **pnpm** and Git. Docker is not needed.
 
 ### Tests
 
-`pnpm test` runs the unit tests (URL normalization, address blocking, paywall rules, extraction against saved sample pages, the job queue, the translations' completeness) and an integration test of save → job → summary with Claude mocked. They use [PGlite](https://pglite.dev), an in-memory Postgres, so they need no database.
+`pnpm test` runs the unit tests (URL normalization, address blocking, paywall rules, extraction against saved sample pages, the job queue, the translations' completeness, the kept articles' storage in a stand-in IndexedDB, and the service worker's answers to requests, run in a sandbox) and an integration test of save → job → summary with Claude mocked. They use [PGlite](https://pglite.dev), an in-memory Postgres, so they need no database.
+
+The service worker is registered only by a production build, since under `pnpm dev` it would keep files that hot reloading replaces. To try offline reading, run `pnpm build && pnpm start`, keep an article, then turn the connection off (in Chrome's developer tools, **Network → Offline**).
 
 One extra test proves that concurrent workers never take the same job, and it needs a real Postgres. It runs only when `TEST_DATABASE_URL` is set. **It drops and recreates every table in that database**, so point it at an empty throwaway database, never at your real one:
 
@@ -131,6 +134,7 @@ Then connect your devices:
 - [Chrome extension](https://chromewebstore.google.com/detail/lhlopepajakngbkmamnknaenbmekikdm), from the Chrome Web Store: the same extension, for Chrome, Edge and Brave ([guide](docs/chrome-extension.md), including how to publish a new version).
 - [Safari Shortcut](docs/safari-shortcut.md): iPhone, iPad and Mac.
 - **Android**: open the app in Chrome, choose **Add to Home screen → Install**, and it appears in the Share menu.
+- **iPhone and iPad**: in Safari, **Share → Add to Home Screen**. Safari deletes a website's stored data after 7 days without a visit, articles kept offline included, unless the app is on the Home Screen.
 
 When the free plans stop being enough: [Move to one server](docs/move-to-server.md) (Docker Compose, about $14/month).
 
