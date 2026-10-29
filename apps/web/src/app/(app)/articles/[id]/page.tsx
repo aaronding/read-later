@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { ArticleStatus, isBusy } from "@/components/article-status";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { FolderMenu } from "@/components/folder-menu";
+import { KeepOfflineButton } from "@/components/keep-offline";
 import { LocalDate } from "@/components/local-date";
 import { MarkOpened } from "@/components/mark-opened";
 import { ReaderActions } from "@/components/reader-actions";
@@ -83,6 +84,7 @@ export default async function ReaderPage({ params, searchParams }: Props) {
           <a href={article.url} target="_blank" rel="noopener noreferrer">
             {t("openOriginal")}
           </a>
+          <KeepOfflineButton articleId={article.id} />
         </div>
         <h1 lang={article.lang ?? undefined}>{article.title || article.url}</h1>
         <ReaderActions article={article} folderName={folderName} back={back.href} />
@@ -158,6 +160,7 @@ export default async function ReaderPage({ params, searchParams }: Props) {
           <a href={article.url} target="_blank" rel="noopener noreferrer">
             {t("openOriginal")}
           </a>
+          <KeepOfflineButton articleId={article.id} />
         </div>
         <ReaderActions article={article} folderName={folderName} back={back.href} />
         <FolderMenu articleId={article.id} current={article.folderId} folders={folders} />

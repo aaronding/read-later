@@ -146,3 +146,13 @@ export function ChevronIcon() {
     </Icon>
   );
 }
+
+/** Keep offline: an arrow into a tray, or a check once the article is kept. */
+export function KeepIcon({ kept = false }: { kept?: boolean }) {
+  return (
+    <Icon size={16}>
+      <path d="M4 14v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4" />
+      {kept ? <path d="M7.5 10.5l3 3 6-6.5" strokeWidth="2" /> : <path d="M12 4v10M7.5 9.5L12 14l4.5-4.5" />}
+    </Icon>
+  );
+}

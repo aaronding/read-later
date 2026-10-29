@@ -4,6 +4,7 @@ import { archiveAction, favoriteAction } from "@/app/actions";
 import type { ArticleListItem } from "@/lib/library";
 import { articleHref } from "@/lib/reader-origin";
 import { ArticleStatus } from "./article-status";
+import { KeptBadge } from "./keep-offline";
 import { LocalDate } from "./local-date";
 import { SubmitButton } from "./submit-button";
 
@@ -31,6 +32,7 @@ export function ArticleCard({ item, from }: { item: ArticleListItem; from: strin
         {item.previewOnly && <span className="badge warn">{t("previewOnly")}</span>}
         {item.favorite && <span className="badge accent">{t("favoriteBadge")}</span>}
         {item.folderName && <span className="badge">{item.folderName}</span>}
+        <KeptBadge articleId={item.id} />
       </div>
       {item.tldr && <p className="tldr">{item.tldr}</p>}
       <ArticleStatus

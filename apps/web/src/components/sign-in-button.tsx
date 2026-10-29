@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { canKeep, clearKept } from "@/lib/offline/store";
 
 export function SignInButton({ next }: { next: string }) {
   const t = useTranslations("Auth");
@@ -33,6 +34,8 @@ export function SignOutButton() {
       disabled={busy}
       onClick={async () => {
         setBusy(true);
+        // Signing out removes the articles kept on this device (decision 154).
+        if (canKeep()) await clearKept().catch(() => undefined);
         await authClient.signOut();
         window.location.href = "/sign-in";
       }}
