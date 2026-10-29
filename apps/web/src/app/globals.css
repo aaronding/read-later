@@ -1758,3 +1758,40 @@ textarea {
     font-size: 1.5rem;
   }
 }
+
+/* ---------- Offline reading ---------- */
+
+/* Keep offline, in the reader's line of details like Open original. */
+.keep-offline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.keep-offline[aria-pressed="true"] {
+  color: var(--accent);
+}
+.keep-offline:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.keep-failed {
+  color: var(--danger);
+  flex-basis: 100%;
+}
+.offline-library {
+  padding-top: 16px;
+}
+.offline-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+  color: var(--muted);
+}

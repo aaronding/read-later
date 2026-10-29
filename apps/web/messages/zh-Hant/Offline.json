@@ -1,0 +1,31 @@
+{
+  "Offline": {
+    "pageTitle": "已下載的文章",
+    "offline": "你目前離線。下載到本機的文章仍可閱讀；封存、我的最愛和刪除要等連線後才能進行。",
+    "online": "已恢復連線。<link>開啟收件匣</link>",
+    "keptFor": "帳號：{email}",
+    "empty": "本機還沒有下載文章。連線時開啟一篇文章，選擇<strong>下載到本機</strong>。",
+    "notKept": "這篇文章沒有下載到本機，需要連線才能開啟。",
+    "loading": "載入中…",
+    "unsupported": "這個瀏覽器無法下載文章。",
+    "back": "已下載的文章",
+    "keptOn": "下載於 <date></date>",
+    "noImages": "圖片不會下載。",
+    "openOriginal": "開啟原文 ↗",
+    "summary": "摘要",
+    "partial": "這份摘要只涵蓋文章的開頭部分。",
+    "remove": "從本機移除",
+    "keep": "下載到本機",
+    "keepFailed": "無法下載到本機。請在連線後再試一次。",
+    "keptBadge": "已下載",
+    "settings": {
+      "heading": "離線閱讀",
+      "intro": "在文章中選擇<strong>下載到本機</strong>，會將它的簡潔版本和摘要存入這個瀏覽器，不需連線就能閱讀。圖片不會下載，登出時文章會一併移除。",
+      "count": "{count, plural, =0 {本機沒有下載文章。} other {本機下載了 # 篇文章，約 {size}。}}",
+      "open": "查看已下載的文章",
+      "removeAll": "全部移除",
+      "removeAllConfirm": "要移除本機下載的所有文章嗎？",
+      "safari": "在 {iphone} 和 {ipad} 上，除非 {app} 已加入主畫面，否則 {safari} 會在 7 天未造訪後刪除這些文章：點一下「分享」→「加入主畫面」。"
+    }
+  }
+}

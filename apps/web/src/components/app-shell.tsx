@@ -7,6 +7,7 @@ import { getSavedAppearance } from "@/lib/saved-appearance";
 import { AppearanceMenu } from "./appearance-menu";
 import { Logo } from "./logo";
 import { NavTabs } from "./nav-tabs";
+import { OfflineSupport } from "./offline-support";
 import { SearchForm } from "./search-form";
 import { VisitorPreferences } from "./visitor-preferences";
 
@@ -48,6 +49,7 @@ export async function AppShell({ user, children }: { user: SessionUser; children
       </header>
       <main>{children}</main>
       <SiteFooter />
+      <OfflineSupport userId={user.id} email={user.email} />
     </div>
   );
 }

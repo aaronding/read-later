@@ -1,0 +1,31 @@
+{
+  "Offline": {
+    "pageTitle": "Kept on this device",
+    "offline": "You’re offline. The articles kept on this device can still be read; Archive, Favorite and Delete wait for a connection.",
+    "online": "You’re online. <link>Open the Inbox</link>",
+    "keptFor": "Account: {email}",
+    "empty": "No articles are kept on this device. While online, open an article and choose <strong>Keep offline</strong>.",
+    "notKept": "This article isn’t kept on this device, so it needs a connection.",
+    "loading": "Loading…",
+    "unsupported": "This browser can’t keep articles.",
+    "back": "Kept articles",
+    "keptOn": "Kept <date></date>",
+    "noImages": "Pictures aren’t kept.",
+    "openOriginal": "Open original ↗",
+    "summary": "Summary",
+    "partial": "This summary covers only the beginning of the article.",
+    "remove": "Remove from this device",
+    "keep": "Keep offline",
+    "keepFailed": "Couldn’t keep it on this device. Try again once you’re online.",
+    "keptBadge": "On this device",
+    "settings": {
+      "heading": "Offline reading",
+      "intro": "In an article, <strong>Keep offline</strong> stores its clean copy and summary in this browser, to read without a connection. Pictures aren’t kept, and signing out removes the articles.",
+      "count": "{count, plural, =0 {No articles are kept on this device.} one {One article is kept on this device, about {size}.} other {# articles are kept on this device, about {size}.}}",
+      "open": "See kept articles",
+      "removeAll": "Remove all",
+      "removeAllConfirm": "Remove every article kept on this device?",
+      "safari": "On {iphone} and {ipad}, {safari} deletes them after 7 days without a visit, unless {app} is on the Home Screen: Share → Add to Home Screen."
+    }
+  }
+}
