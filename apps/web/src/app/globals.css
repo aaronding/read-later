@@ -469,6 +469,12 @@ label.checkbox input {
   margin-top: 10px;
   flex-wrap: wrap;
 }
+/* A list card's Archive and Favorite: the reader's icons, at the small buttons' size. */
+.card-actions .button svg {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
 
 .badge {
   display: inline-flex;

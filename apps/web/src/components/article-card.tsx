@@ -4,6 +4,7 @@ import { archiveAction, favoriteAction } from "@/app/actions";
 import type { ArticleListItem } from "@/lib/library";
 import { articleHref } from "@/lib/reader-origin";
 import { ArticleStatus } from "./article-status";
+import { ArchiveIcon, InboxIcon, StarIcon } from "./icons";
 import { KeptBadge } from "./keep-offline";
 import { LocalDate } from "./local-date";
 import { SubmitButton } from "./submit-button";
@@ -49,12 +50,18 @@ export function ArticleCard({ item, from }: { item: ArticleListItem; from: strin
         <form action={archiveAction} className="inline-form">
           <input type="hidden" name="id" value={item.id} />
           <input type="hidden" name="archived" value={item.archivedAt ? "false" : "true"} />
-          <SubmitButton className="button small ghost">{item.archivedAt ? t("moveToInbox") : t("archiveAction")}</SubmitButton>
+          <SubmitButton className="button small ghost">
+            {item.archivedAt ? <InboxIcon /> : <ArchiveIcon />}
+            {item.archivedAt ? t("moveToInbox") : t("archiveAction")}
+          </SubmitButton>
         </form>
         <form action={favoriteAction} className="inline-form">
           <input type="hidden" name="id" value={item.id} />
           <input type="hidden" name="favorite" value={item.favorite ? "false" : "true"} />
-          <SubmitButton className="button small ghost">{item.favorite ? t("unfavorite") : t("favorite")}</SubmitButton>
+          <SubmitButton className="button small ghost">
+            <StarIcon filled={item.favorite} />
+            {item.favorite ? t("unfavorite") : t("favorite")}
+          </SubmitButton>
         </form>
       </div>
     </li>
