@@ -177,7 +177,7 @@ export async function getArticle(db: Db, userId: string, id: string) {
 }
 
 /** The summary to show: the article's chosen model if ready, else the newest ready one. */
-export function shownSummary(article: Article, rows: Summary[]): Summary | undefined {
+export function shownSummary(article: Pick<Article, "summaryModel">, rows: Summary[]): Summary | undefined {
   const chosen = rows.find((row) => row.model === article.summaryModel);
   if (chosen?.status === "ready") return chosen;
   const ready = rows
