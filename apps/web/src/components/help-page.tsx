@@ -68,7 +68,7 @@ export async function HelpPage({ topic }: { topic: HelpTopic }) {
         {topic === "android" && <AndroidGuide />}
 
         {topic === "using" &&
-          (["summaries", "preview", "organize", "data"] as const).map((section) => (
+          (["summaries", "preview", "organize", "offline", "data"] as const).map((section) => (
             <section key={section}>
               <h2>{t(`using.${section}.heading`)}</h2>
               <p>{t.rich(`using.${section}.text`, { ...products, strong })}</p>

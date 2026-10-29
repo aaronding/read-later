@@ -1,4 +1,4 @@
-// An article kept on the device for reading offline (decision 151): what the
+// An article kept on the device for reading offline (decision 153): what the
 // server sends for it, and what the browser keeps in IndexedDB. Shared by the
 // server and the browser, so it holds only types and plain functions.
 

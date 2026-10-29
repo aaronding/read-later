@@ -26,6 +26,11 @@
       "keeps": "It keeps its access token and settings in the browser’s extension storage, and nothing else, until you remove it.",
       "limitedUse": "{app}’s use of information received from the extension adheres to the <link>Chrome Web Store User Data Policy</link>, including the Limited Use requirements."
     },
+    "browser": {
+      "heading": "In your browser",
+      "articles": "<strong>Articles you keep offline:</strong> their clean copy and summary, with the email of the account that kept them, stay in the browser’s storage on that device until you remove them or sign out. They aren’t sent anywhere.",
+      "app": "<strong>The app itself:</strong> one page of {app}, with its scripts, styles, logo and the fonts it uses, so it opens without a connection."
+    },
     "cookies": {
       "heading": "Cookies",
       "intro": "Only the cookies the app needs, none for tracking:",

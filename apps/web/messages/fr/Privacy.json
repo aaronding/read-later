@@ -26,6 +26,11 @@
       "keeps": "Elle conserve son jeton d’accès et ses réglages dans le stockage de l’extension du navigateur, et rien d’autre, jusqu’à ce que vous la supprimiez.",
       "limitedUse": "L’utilisation par {app} des informations reçues de l’extension respecte la <link>politique relative aux données utilisateur du Chrome Web Store</link>, y compris les exigences d’utilisation limitée."
     },
+    "browser": {
+      "heading": "Dans votre navigateur",
+      "articles": "<strong>Les articles gardés hors ligne :</strong> leur copie épurée et leur résumé, avec l’e-mail du compte qui les a gardés, restent dans le stockage du navigateur de cet appareil jusqu’à ce que vous les retiriez ou vous déconnectiez. Ils ne sont envoyés nulle part.",
+      "app": "<strong>L’application elle-même :</strong> une page de {app}, avec ses scripts, ses styles, son logo et les polices qu’elle utilise, pour qu’elle s’ouvre sans connexion."
+    },
     "cookies": {
       "heading": "Cookies",
       "intro": "Uniquement les cookies nécessaires à l’application, aucun pour le pistage :",
