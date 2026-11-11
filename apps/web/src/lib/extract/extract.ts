@@ -22,7 +22,7 @@ import {
   type PreviewKind,
 } from "./paywall";
 import { sanitizeArticleHtml } from "./sanitize";
-import { cleanText, textStats } from "./text-stats";
+import { cleanText, textStats, textWithBreaks } from "./text-stats";
 
 export interface ExtractInput {
   html: string;
@@ -345,14 +345,21 @@ export function extractArticle(input: ExtractInput): ExtractedArticle {
     // page, such as a sidebar of stock prices.
     if (removedSections > 0) keepOnlyFreePart(document, removed.containers);
     let keptPasswordField = false;
-    const readArticle = (page: Document) =>
-      new Readability(page, {
+    // Readability's textContent runs one block into the next where the HTML
+    // has no whitespace between them, so the text is read from its content
+    // with a line break between blocks.
+    const readArticle = (page: Document) => {
+      let text = "";
+      const article = new Readability(page, {
         serializer: (content) => {
           const element = content as Element;
           keptPasswordField = passwordMarksIn(element);
+          text = textWithBreaks(element);
           return element.innerHTML;
         },
       }).parse();
+      return article && { ...article, textContent: text };
+    };
     // What aria-hidden hides from screen readers is read too, unless a wall
     // still holds it: on a server download, the paywall markup says what isn't
     // free, as for the sections it marks; in the browser, Future's wall keeps
