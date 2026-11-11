@@ -712,6 +712,70 @@ describe("saving an address again", () => {
   });
 });
 
+describe("MSN articles", () => {
+  const MSN_URL = "https://www.msn.com/en-us/news/other/why-a-small-town-library-started-fixing-toasters/ar-AA1test?ocid=msedgntp";
+  const CONTENT_URL = "https://assets.msn.com/content/view/v2/Detail/en-us/AA1test";
+  // What the browser's copy of MSN's page holds: its web components, without
+  // what they draw.
+  const MSN_PAGE = "<!DOCTYPE html><html lang=\"en-us\"><head><title>Why a small-town library started fixing toasters</title></head><body><consumption-page><cp-article-reader></cp-article-reader></consumption-page></body></html>";
+  const msnReply = (status: number, body: string = readFileSync(path.join(here, "../lib/extract/fixtures/msn-article.json"), "utf-8")) => ({
+    url: CONTENT_URL,
+    status,
+    headers: {},
+    contentType: "application/json; charset=utf-8",
+    body: Buffer.from(body),
+    redirects: [],
+  });
+
+  it("reads the article from MSN's content service, even when the browser sent the page", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(msnReply(200));
+    const { id } = await (await POST(saveRequest({ url: MSN_URL, html: MSN_PAGE, source: "extension" }))).json();
+    await processJobs({ db });
+
+    expect(safeFetch).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(safeFetch).mock.calls[0]![0]).toBe(CONTENT_URL);
+    expect(vi.mocked(safeFetch).mock.calls[0]![1]).toMatchObject({ accept: "application/json" });
+    const article = await articleById(id);
+    expect(article).toMatchObject({
+      status: "ready",
+      contentSource: "server",
+      url: MSN_URL,
+      title: "Why a small-town library started fixing toasters",
+      siteName: "The Riverside Ledger",
+      author: "Dana Whitfield",
+      previewOnly: false,
+      submittedHtml: null,
+    });
+    expect(article.textContent).toContain("smells faintly of solder");
+    expect((await summariesFor(id))[0]?.status).toBe("ready");
+  });
+
+  it("reads the browser's copy when the service has no article, and the service's once it has", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(msnReply(404, "{}"));
+    const { id } = await (await POST(saveRequest({ url: MSN_URL, html: MSN_PAGE }))).json();
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({
+      status: "ready",
+      contentSource: "client",
+      previewOnly: true,
+      previewReasonMessage: { key: "preview.noArticle" },
+    });
+
+    // Saved again by its address, the preview is read again.
+    vi.mocked(safeFetch).mockResolvedValue(msnReply(200));
+    await POST(saveRequest({ url: MSN_URL }));
+    await processJobs({ db });
+    expect(await articleById(id)).toMatchObject({ contentSource: "server", previewOnly: false, previewReasonMessage: null });
+  });
+
+  it("tries again later when the service is down", async () => {
+    vi.mocked(safeFetch).mockResolvedValue(msnReply(503, "unavailable"));
+    const { id } = await (await POST(saveRequest({ url: MSN_URL, html: MSN_PAGE }))).json();
+    expect(await processJobs({ db })).toMatchObject({ retrying: 1 });
+    expect(await articleById(id)).toMatchObject({ status: "pending", errorMessage: { key: "download.unavailable" } });
+  });
+});
+
 describe("races and recovery", () => {
   it("gives a re-save with HTML its own run while the download is still running", async () => {
     vi.mocked(safeFetch).mockResolvedValue({
