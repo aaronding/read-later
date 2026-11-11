@@ -460,6 +460,53 @@ describe("extractArticle: a GBK-encoded Chinese page", () => {
   });
 });
 
+describe("extractArticle: a page with no whitespace between its blocks", () => {
+  // Shaped like a minified page, or one built from MSN's content service.
+  const blocks = [
+    "<h1>Who checks the box</h1>",
+    "<p>Most forms ask new staff about their background, and many people hesitate before they check the box.</p>",
+    "<p>When employers explain why they ask, more people answer, and the numbers they report get closer to the truth.</p>",
+    "<h2>What the survey found</h2>",
+    "<ul><li>Two thirds answered every question</li><li>One in ten left the form blank</li></ul>",
+    "<blockquote><p>People want to know what happens to their answers.</p></blockquote>",
+    '<figure><img src="/chart.png" alt=""><figcaption>Answers by year</figcaption></figure>',
+    "<table><tr><th>Year</th><th>Answered</th></tr><tr><td>2025</td><td>61%</td></tr></table>",
+    "<div><div><p>The survey ran from March<br>to May, in four cities.</p></div></div>",
+    "<p>Next year it will ask the same questions again, so that the change can be measured over time.</p>",
+  ];
+  const page = (between: string) =>
+    `<!DOCTYPE html><html lang="en"><head><title>Who checks the box</title></head><body><article>${blocks.join(between)}</article></body></html>`;
+  const url = "https://example.com/survey";
+  const minified = extractArticle({ html: page(""), url, contentSource: "client" });
+
+  it("keeps a line break between blocks and for each <br>, and a space between table cells", () => {
+    expect(minified.textContent).toContain("check the box.\nWhen employers");
+    expect(minified.textContent).toBe(
+      [
+        "Most forms ask new staff about their background, and many people hesitate before they check the box.",
+        "When employers explain why they ask, more people answer, and the numbers they report get closer to the truth.",
+        "What the survey found",
+        "Two thirds answered every question",
+        "One in ten left the form blank",
+        "People want to know what happens to their answers.",
+        "Answers by year",
+        "Year Answered",
+        "2025 61%",
+        "The survey ran from March",
+        "to May, in four cities.",
+        "Next year it will ask the same questions again, so that the change can be measured over time.",
+      ].join("\n"),
+    );
+  });
+
+  it("reads the same as the page with a line break between its tags", () => {
+    const formatted = extractArticle({ html: page("\n"), url, contentSource: "client" });
+    expect(minified.textContent).toBe(formatted.textContent);
+    expect(minified.wordCount).toBe(formatted.wordCount);
+    expect(minified.readingMinutes).toBe(formatted.readingMinutes);
+  });
+});
+
 describe("extractArticle: unusual input", () => {
   it("handles a page with no article", () => {
     const result = extractArticle({
