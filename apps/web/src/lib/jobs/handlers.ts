@@ -9,6 +9,7 @@ import { englishText } from "@/i18n/stored-message";
 import { errorMessage } from "@/lib/error-message";
 import { extractArticle, PageTooLargeError, type ExtractedArticle, type ExtractInput } from "@/lib/extract/extract";
 import { previewIsSummarizable, previewKindOfReason, type PreviewKind } from "@/lib/extract/paywall";
+import { msnArticlePage, msnArticleRef, msnContentUrl } from "@/lib/extract/msn";
 import { decodeHtml, isHtmlContentType } from "@/lib/net/decode";
 import { FetchError, safeFetch, type SafeFetchResponse } from "@/lib/net/safe-fetch";
 import { refreshSearchVector } from "@/lib/search-index";
@@ -68,14 +69,26 @@ function extract(input: ExtractInput): ExtractedArticle {
   }
 }
 
+function fetchOptions(accept?: string) {
+  return {
+    userAgent: downloadUserAgent(),
+    timeoutMs: envInt("FETCH_TIMEOUT_MS", 15_000),
+    maxBytes: envInt("FETCH_MAX_BYTES", 10 * 1024 * 1024),
+    accept,
+  };
+}
+
+/** A server that is down or busy now may answer later. */
+function throwIfUnavailable(status: number): void {
+  if (status === 408 || status === 429 || status >= 500) {
+    throw new JobError(errorMessage("download.unavailable", { status: String(status) }), true);
+  }
+}
+
 async function download(url: string): Promise<SafeFetchResponse> {
   let response: SafeFetchResponse;
   try {
-    response = await safeFetch(url, {
-      userAgent: downloadUserAgent(),
-      timeoutMs: envInt("FETCH_TIMEOUT_MS", 15_000),
-      maxBytes: envInt("FETCH_MAX_BYTES", 10 * 1024 * 1024),
-    });
+    response = await safeFetch(url, fetchOptions());
   } catch (error) {
     if (error instanceof FetchError) throw new JobError(error.storedMessage, error.retryable);
     throw error;
@@ -85,9 +98,7 @@ async function download(url: string): Promise<SafeFetchResponse> {
   if (status === 404 || status === 410) {
     throw new JobError(errorMessage("download.notFound", values), false);
   }
-  if (status === 408 || status === 429 || status >= 500) {
-    throw new JobError(errorMessage("download.unavailable", values), true);
-  }
+  throwIfUnavailable(status);
   // 401, 402 and 403 are kept: extraction flags them as "Preview only".
   if (status >= 400 && ![401, 402, 403].includes(status)) {
     throw new JobError(errorMessage("download.refused", values), false);
@@ -97,6 +108,31 @@ async function download(url: string): Promise<SafeFetchResponse> {
     throw new JobError(errorMessage("download.notWebPage", { type }), false);
   }
   return response;
+}
+
+/**
+ * An MSN article as a page, made from what MSN's content service returns
+ * (see msn.ts), or null to read the page itself as any other: the address
+ * isn't an MSN article's, or the service has no article for it to give.
+ */
+async function msnPage(url: string): Promise<string | null> {
+  const ref = msnArticleRef(url);
+  if (!ref) return null;
+  let response: SafeFetchResponse;
+  try {
+    response = await safeFetch(msnContentUrl(ref), fetchOptions("application/json"));
+  } catch (error) {
+    if (error instanceof FetchError && error.retryable) throw new JobError(error.storedMessage, true);
+    if (error instanceof FetchError) return null;
+    throw error;
+  }
+  throwIfUnavailable(response.status);
+  if (response.status !== 200) return null;
+  try {
+    return msnArticlePage(JSON.parse(response.body.toString("utf-8")));
+  } catch {
+    return null; // not JSON
+  }
 }
 
 /** The addresses the page itself names: its trusted canonical URL, and for our own downloads where redirects ended (link shorteners). */
@@ -162,7 +198,18 @@ export async function processArticle(db: Db, job: Job): Promise<void> {
   let extracted: ExtractedArticle;
   let contentSource: ContentSource;
   let pageUrl = article.url;
-  if (submitted) {
+  // MSN's article is never in its page, not even in the browser's copy.
+  const msn = await msnPage(article.url);
+  if (msn) {
+    contentSource = "server";
+    extracted = extract({
+      html: msn,
+      url: article.url,
+      contentSource,
+      httpStatus: 200,
+      fallbackTitle: article.submittedTitle,
+    });
+  } else if (submitted) {
     contentSource = "client";
     extracted = extract({
       html: submitted,

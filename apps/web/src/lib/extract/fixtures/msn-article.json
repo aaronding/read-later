@@ -1,0 +1,61 @@
+{
+  "abstract": "Volunteers fix toasters, bicycles and jackets once a month, and the waiting list keeps growing.",
+  "title": "Why a small-town library started fixing toasters",
+  "sourceHref": "https://www.riversideledger.example/features/library-repair-cafe/",
+  "renderingRestriction": 0,
+  "authors": [{ "name": "Dana Whitfield" }],
+  "imageResources": [
+    {
+      "width": 3169,
+      "height": 2114,
+      "quality": 98,
+      "url": "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1hero.img",
+      "title": "Why a small-town library started fixing toasters",
+      "caption": "Why a small-town library started fixing toasters",
+      "source": "msn",
+      "cmsId": "cms/api/amp/image/AA1hero"
+    },
+    {
+      "width": 960,
+      "height": 640,
+      "quality": 98,
+      "url": "https://img-s-msn-com.akamaized.net/tenant/amp/entityid/AA1bench.img",
+      "attribution": "Sam Okafor/Riverside Ledger",
+      "title": "A volunteer at the repair bench",
+      "caption": "Marta Lindqvist rewires a lamp at the library's repair bench.",
+      "source": "msn",
+      "cmsId": "cms/api/amp/image/AA1bench"
+    }
+  ],
+  "body": "<img data-reference=\"image\" data-document-id=\"cms/api/amp/image/AA1hero\" /><p>On the first Saturday of every month, the reading room of the Millbrook public library smells faintly of solder.</p><p>Since the spring, volunteers have set up folding tables between the shelves and fixed whatever residents carry in: toasters that no longer toast, bicycles with seized gears, jackets with broken zips. The library calls it a <a href=\"https://www.riversideledger.example/repair-cafe-guide\">repair café</a>, and the waiting list now runs to six weeks.</p><div class=\"newsletter-cta\"><h3>Get the Weekend Ledger newsletter</h3><p>Our best stories, every Saturday. <a href=\"https://www.riversideledger.example/newsletters/\">Sign up for free</a></p></div><p>“People assume a library is only about books,” said Priya Nair, who runs the branch. “But it has always been about sharing what a town knows. Some of what this town knows is how to fix a kettle.”</p><img data-reference=\"image\" data-document-id=\"cms/api/amp/image/AA1bench\"><p>The volunteers are mostly retired electricians, tailors and mechanics, and each visitor is asked to stay and watch the repair, so they can try the next one themselves. About two thirds of the items brought in leave working again.</p><div class=\"syndication_automated_monetization\"><div class=\"contentBlock\"><p><b>Enjoying our content?</b> Click the Follow button above to see more from us.</p></div></div><p>The council has noticed. Waste collected at the town's recycling centre fell slightly last year, and officials have asked whether two more branches could host repair days. The library says it needs more volunteers first, and more tables.</p><div class=\"syndication_automated_monetization\"><div class=\"contentBlock\"><img data-reference=\"video\" data-document-id=\"cms/api/amp/video/AA1video\"></div></div><p>For now, the queue forms before the doors open. Last month a boy arrived with a radio that had belonged to his grandfather, and left with it playing.</p><div class=\"most-read\"><h3>Most Read From The Riverside Ledger</h3><ol><li><a href=\"https://www.riversideledger.example/news/bridge-closure/\">The bridge closes for repairs next week</a></li><li><a href=\"https://www.riversideledger.example/news/school-budget/\">What the school budget means for your street</a></li></ol></div>",
+  "readTimeMin": 2,
+  "provider": {
+    "id": "AA1prov",
+    "name": "The Riverside Ledger",
+    "isPremium": true,
+    "subscriptionUrl": "",
+    "url": "https://www.riversideledger.example/"
+  },
+  "socialEmbeds": [],
+  "seo": {
+    "canonicalUrl": "https://www.riversideledger.example/features/library-repair-cafe/",
+    "canonicalAuthority": "provider",
+    "disallowIndexing": false
+  },
+  "subscriptionProductType": 0,
+  "intAttributes": {
+    "hasSyndicationRights": 1,
+    "isEmbedOnly": 0,
+    "renderingRestriction": 0,
+    "isProviderSubscribable": 0,
+    "subscriptionProductType": 0
+  },
+  "id": "AA1test",
+  "source": "msn",
+  "type": "article",
+  "version": "2",
+  "createdDateTime": "2026-11-02T11:34:43Z",
+  "updatedDateTime": "2026-11-02T11:36:16Z",
+  "publishedDateTime": "2026-11-02T11:00:00Z",
+  "locale": "en-us"
+}
